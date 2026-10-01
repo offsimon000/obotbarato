@@ -15,6 +15,10 @@ public final class ConexaoBanco {
     private ConexaoBanco() {}
 
     public static Connection getConexao() throws SQLException {
+        try { Class.forName("org.postgresql.Driver"); }
+        catch (ClassNotFoundException e) {
+            throw new SQLException("Driver PostgreSQL ausente na pasta lib. Recompile o projeto.", "IM003", e);
+        }
         Properties config = new Properties();
         String arquivo = System.getProperty("obotbarato.config", "config/banco.properties");
         Path caminho = Path.of(arquivo);

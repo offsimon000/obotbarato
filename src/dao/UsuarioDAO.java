@@ -22,7 +22,7 @@ public class UsuarioDAO {
      * Autentica usuário admin/vendedor.
      * Aceita tanto o formato legado (MD5) quanto o novo (SHA-256+salt).
      */
-    public Usuario autenticar(String login, String senhaPlana) {
+    public Usuario autenticar(String login, String senhaPlana) throws SQLException {
         if (login == null || senhaPlana == null
                 || login.isBlank() || senhaPlana.isBlank()) return null;
 
@@ -46,14 +46,12 @@ public class UsuarioDAO {
                 }
                 return usuario;
             }
-        } catch (SQLException e) {
-            LOG.log(Level.SEVERE, "Erro ao autenticar usuario: " + login, e);
-        }
+        } catch (SQLException e) { throw e; }
         return null;
     }
 
     /** Salva novo usuário com SHA-256 */
-    public boolean salvar(Usuario u) {
+    public boolean salvar(Usuario u) throws SQLException {
         String sql = "INSERT INTO usuarios (nome, login, senha, perfil, ativo) VALUES (?,?,?,?,true)";
         try (Connection con = ConexaoBanco.getConexao();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -61,12 +59,8 @@ public class UsuarioDAO {
             ps.setString(2, u.getLogin());
             ps.setString(3, SenhaCripto.hashear(u.getSenha()));
             ps.setString(4, u.getPerfil());
-            ps.executeUpdate();
-            return true;
-        } catch (SQLException e) {
-            LOG.log(Level.SEVERE, "Erro ao salvar usuario: " + u.getLogin(), e);
-            return false;
-        }
+            return ps.executeUpdate() == 1;
+        } catch (SQLException e) { throw e; }
     }
 
     // ═══════════════════════════════════════════════════════════════

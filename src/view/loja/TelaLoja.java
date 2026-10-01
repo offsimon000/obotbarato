@@ -38,9 +38,15 @@ public class TelaLoja extends JFrame {
     public TelaLoja(Cliente cliente) {
         this.clienteLogado = cliente;
         // Carrega todos os favoritos de uma vez (evita N+1 queries na galeria)
-        this.favoritosSet = clienteDAO.listarFavoritosSet(cliente.getId());
+        this.favoritosSet = new java.util.HashSet<>();
+        recarregarFavoritos();
         initComponents();
         carregarProdutos();
+    }
+
+    private void recarregarFavoritos() {
+        try { favoritosSet = clienteDAO.listarFavoritosSet(clienteLogado.getId()); }
+        catch (Exception e) { JOptionPane.showMessageDialog(this, util.Erros.mensagem(e)); }
     }
 
     // ── Inicialização ────────────────────────────────────────────────────
@@ -106,7 +112,7 @@ public class TelaLoja extends JFrame {
         btnFav.addActionListener(e -> {
             new TelaFavoritos(this, clienteLogado).setVisible(true);
             // Recarrega favoritos ao voltar
-            favoritosSet = clienteDAO.listarFavoritosSet(clienteLogado.getId());
+            recarregarFavoritos();
         });
         btnPedidos.addActionListener(e ->
             new TelaMeusPedidos(this, clienteLogado).setVisible(true));
@@ -231,7 +237,7 @@ public class TelaLoja extends JFrame {
                 painelGaleria.setLayout(new GridLayout(0, 3, 14, 14));
             }
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Erro ao carregar produtos: " + ex.getMessage());
+            JOptionPane.showMessageDialog(this, "Erro ao carregar produtos: " + util.Erros.mensagem(ex));
         }
         painelGaleria.revalidate();
         painelGaleria.repaint();
@@ -310,6 +316,7 @@ public class TelaLoja extends JFrame {
         btnFavBtn.setPreferredSize(new Dimension(60, 34));
         btnFavBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
         btnFavBtn.addActionListener(e -> {
+            try {
             if (favoritosSet.contains(p.getId())) {
                 clienteDAO.removerFavorito(clienteLogado.getId(), p.getId());
                 favoritosSet.remove(p.getId());
@@ -322,6 +329,9 @@ public class TelaLoja extends JFrame {
                 btnFavBtn.setText("* Fav");
                 btnFavBtn.setForeground(TemaLoja.AMARELO_FAV);
                 btnFavBtn.setBackground(new Color(255, 243, 205));
+            }
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this, util.Erros.mensagem(ex), "Favoritos", JOptionPane.ERROR_MESSAGE);
             }
         });
 

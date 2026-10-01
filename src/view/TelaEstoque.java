@@ -116,7 +116,7 @@ public class TelaEstoque extends JFrame {
                 int qtd = estoqueDAO.getQuantidade(p.getId());
                 modeloTabela.addRow(new Object[]{p.getId(), p.getNome(), qtd, 5, qtd <= 5 ? "ESTOQUE BAIXO" : "OK"});
             }
-        } catch (Exception ex) { JOptionPane.showMessageDialog(this, "Erro: " + ex.getMessage()); }
+        } catch (Exception ex) { JOptionPane.showMessageDialog(this, "Erro: " + util.Erros.mensagem(ex)); }
     }
 
     private void movimentar(boolean entrada) {
@@ -148,7 +148,7 @@ public class TelaEstoque extends JFrame {
             } catch (NumberFormatException e) {
                 JOptionPane.showMessageDialog(this, "Quantidade invalida.");
             } catch (Exception e) {
-                JOptionPane.showMessageDialog(this, "Erro: " + e.getMessage());
+                JOptionPane.showMessageDialog(this, "Erro: " + util.Erros.mensagem(e));
             }
         }
     }
@@ -164,6 +164,6 @@ public class TelaEstoque extends JFrame {
             Tema.aplicarTabelaDark(t);
             t.setPreferredScrollableViewportSize(new Dimension(400, 180));
             JOptionPane.showMessageDialog(this, Tema.scrollDark(t), "Produtos com Estoque Baixo", JOptionPane.WARNING_MESSAGE);
-        } catch (Exception e) { JOptionPane.showMessageDialog(this, "Erro: " + e.getMessage()); }
+        } catch (Exception e) { JOptionPane.showMessageDialog(this, "Erro: " + util.Erros.mensagem(e)); }
     }
 }

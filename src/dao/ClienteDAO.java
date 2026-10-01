@@ -13,20 +13,18 @@ public class ClienteDAO {
 
     private static final Logger LOG = Logger.getLogger(ClienteDAO.class.getName());
 
-    public List<Cliente> listarTodos() {
+    public List<Cliente> listarTodos() throws SQLException {
         List<Cliente> lista = new ArrayList<>();
         String sql = "SELECT * FROM clientes WHERE ativo = true ORDER BY nome";
         try (Connection con = ConexaoBanco.getConexao();
              PreparedStatement ps = con.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
             while (rs.next()) lista.add(mapear(rs));
-        } catch (SQLException e) {
-            LOG.log(Level.SEVERE, "Erro ao listar clientes.", e);
-        }
+        } catch (SQLException e) { throw e; }
         return lista;
     }
 
-    public List<Cliente> buscarPorNome(String nome) {
+    public List<Cliente> buscarPorNome(String nome) throws SQLException {
         List<Cliente> lista = new ArrayList<>();
         // PostgreSQL: ILIKE = case-insensitive LIKE
         String sql = "SELECT * FROM clientes WHERE nome ILIKE ? AND ativo = true ORDER BY nome";
@@ -35,60 +33,58 @@ public class ClienteDAO {
             ps.setString(1, "%" + nome.trim() + "%");
             ResultSet rs = ps.executeQuery();
             while (rs.next()) lista.add(mapear(rs));
-        } catch (SQLException e) {
-            LOG.log(Level.SEVERE, "Erro ao buscar cliente por nome.", e);
-        }
+        } catch (SQLException e) { throw e; }
         return lista;
     }
 
-    public boolean salvar(Cliente c) {
+    public boolean salvar(Cliente c) throws SQLException {
         String sql = "INSERT INTO clientes (nome, cpf, email, telefone, endereco, criado_por) "
                    + "VALUES (?, ?, ?, ?, ?, ?)";
         try (Connection con = ConexaoBanco.getConexao();
-             PreparedStatement ps = con.prepareStatement(sql)) {
+             PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, c.getNome());
-            ps.setString(2, c.getCpf());
+            ps.setString(2, opcional(c.getCpf()));
             ps.setString(3, c.getEmail());
-            ps.setString(4, c.getTelefone());
-            ps.setString(5, c.getEndereco());
+            ps.setString(4, opcional(c.getTelefone()));
+            ps.setString(5, opcional(c.getEndereco()));
             if (Sessao.getIdUsuario() > 0) ps.setInt(6, Sessao.getIdUsuario());
             else ps.setNull(6, java.sql.Types.INTEGER);
-            return ps.executeUpdate() > 0;
-        } catch (SQLException e) {
-            LOG.log(Level.SEVERE, "Erro ao salvar cliente.", e);
-            return false;
-        }
+            if (ps.executeUpdate() != 1) throw new SQLException("Cliente não gravado.");
+            try (ResultSet rs = ps.getGeneratedKeys()) {
+                if (!rs.next()) throw new SQLException("Cliente sem identificador.");
+                c.setId(rs.getInt(1));
+            }
+            return true;
+        } catch (SQLException e) { throw e; }
     }
 
-    public boolean atualizar(Cliente c) {
+    public boolean atualizar(Cliente c) throws SQLException {
         String sql = "UPDATE clientes SET nome=?, cpf=?, email=?, telefone=?, endereco=? "
                    + "WHERE id=?";
         try (Connection con = ConexaoBanco.getConexao();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, c.getNome());
-            ps.setString(2, c.getCpf());
+            ps.setString(2, opcional(c.getCpf()));
             ps.setString(3, c.getEmail());
-            ps.setString(4, c.getTelefone());
-            ps.setString(5, c.getEndereco());
+            ps.setString(4, opcional(c.getTelefone()));
+            ps.setString(5, opcional(c.getEndereco()));
             ps.setInt(6, c.getId());
             return ps.executeUpdate() > 0;
-        } catch (SQLException e) {
-            LOG.log(Level.SEVERE, "Erro ao atualizar cliente.", e);
-            return false;
-        }
+        } catch (SQLException e) { throw e; }
     }
 
-    public boolean excluir(int id) {
+    public boolean excluir(int id) throws SQLException {
         // Soft delete: desativa em vez de apagar (preserva histórico de pedidos)
         String sql = "UPDATE clientes SET ativo = false WHERE id = ?";
         try (Connection con = ConexaoBanco.getConexao();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, id);
             return ps.executeUpdate() > 0;
-        } catch (SQLException e) {
-            LOG.log(Level.SEVERE, "Erro ao desativar cliente #" + id, e);
-            return false;
-        }
+        } catch (SQLException e) { throw e; }
+    }
+
+    private static String opcional(String texto) {
+        return texto == null || texto.isBlank() ? null : texto.trim();
     }
 
     private Cliente mapear(ResultSet rs) throws SQLException {

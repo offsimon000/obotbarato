@@ -161,7 +161,7 @@ public class TelaPedidos extends JFrame {
             produtos = produtoDAO.listarTodos();
             cbProduto.addItem("-- Selecione o produto --");
             for (Produto p : produtos) cbProduto.addItem(p.getNome() + "  |  R$ " + String.format("%.2f", p.getPreco()));
-        } catch (Exception e) { JOptionPane.showMessageDialog(this, "Erro: " + e.getMessage()); }
+        } catch (Exception e) { JOptionPane.showMessageDialog(this, "Erro: " + util.Erros.mensagem(e)); }
     }
 
     private void adicionarItem() {
@@ -202,7 +202,7 @@ public class TelaPedidos extends JFrame {
                 JOptionPane.showMessageDialog(this, "Pedido #" + pedidoAtual.getId() + " finalizado!");
                 dispose();
                 if (telaAnterior != null) telaAnterior.setVisible(true);
-            } catch (Exception e) { JOptionPane.showMessageDialog(this, "Erro: " + e.getMessage()); }
+            } catch (Exception e) { JOptionPane.showMessageDialog(this, "Erro: " + util.Erros.mensagem(e)); }
         }
     }
 }

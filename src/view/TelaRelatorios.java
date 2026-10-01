@@ -101,7 +101,7 @@ public class TelaRelatorios extends JFrame {
                 for (String[] row : dados) { modelo.addRow(row); total += Double.parseDouble(row[2].replace(",", ".")); }
                 lblTotalGeral.setText(String.format("Total Geral: R$ %.2f", total));
                 if (dados.isEmpty()) JOptionPane.showMessageDialog(this, "Nenhum pedido no periodo.");
-            } catch (Exception ex) { JOptionPane.showMessageDialog(this, "Erro: " + ex.getMessage()); }
+            } catch (Exception ex) { JOptionPane.showMessageDialog(this, "Erro: " + util.Erros.mensagem(ex)); }
         });
         return painel;
     }
@@ -132,7 +132,7 @@ public class TelaRelatorios extends JFrame {
                 List<String[]> dados = pedidoDAO.relatorioProdutosMaisVendidos();
                 for (String[] row : dados) modelo.addRow(row);
                 if (dados.isEmpty()) JOptionPane.showMessageDialog(this, "Nenhum dado encontrado.");
-            } catch (Exception ex) { JOptionPane.showMessageDialog(this, "Erro: " + ex.getMessage()); }
+            } catch (Exception ex) { JOptionPane.showMessageDialog(this, "Erro: " + util.Erros.mensagem(ex)); }
         });
         return painel;
     }
@@ -170,7 +170,7 @@ public class TelaRelatorios extends JFrame {
                 List<String[]> dados = estoqueDAO.listarEstoqueBaixo();
                 for (String[] row : dados) modelo.addRow(row);
                 if (dados.isEmpty()) JOptionPane.showMessageDialog(this, "Todos os produtos estao com estoque OK!");
-            } catch (Exception ex) { JOptionPane.showMessageDialog(this, "Erro: " + ex.getMessage()); }
+            } catch (Exception ex) { JOptionPane.showMessageDialog(this, "Erro: " + util.Erros.mensagem(ex)); }
         });
         return painel;
     }

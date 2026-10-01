@@ -1,6 +1,6 @@
-# Registro da primeira base corrigida — 30/09/2026
+# Registro do primeiro bloco concluído — 30/09/2026
 
-Entrega confirmada: desktop Swing, estilo visual atual, apresentação em 28/10/2026 e documentação alinhada ao código. Este registro descreve apenas o primeiro bloco de implementação.
+Entrega confirmada: desktop Swing, estilo visual atual, apresentação em 28/10/2026 e documentação alinhada ao código. Este registro descreve o fechamento das etapas 1 a 3, sem antecipar o aceite dos módulos seguintes.
 
 ## Alterações
 
@@ -16,14 +16,23 @@ Entrega confirmada: desktop Swing, estilo visual atual, apresentação em 28/10/
 - Histórico de cliente consulta os pedidos por ID do cliente no banco.
 - Migration inicial versionada com checksum, campos de auditoria e demonstração instalada separadamente, usando senhas compatíveis com o código.
 - Scripts de compilação, execução e testes em cluster PostgreSQL isolado.
+- Entrada oficial única e aliases dos nomes de login antigos.
+- Erros públicos de consulta, autenticação e gravação propagados; mensagens da interface distinguem banco indisponível, duplicidade e dados inválidos.
+- Formulários verificam os retornos de gravação/alteração; clientes recebem ID gerado e campos opcionais vazios são normalizados.
+- Lançador `Iniciar OBotBarato.cmd`, base local persistente com início/parada, backup e restauração em banco novo.
+- Escopo e critérios de entrega registrados em `ESCOPO_E_CRITERIOS.md`; estrutura e regras atuais em `CONTRATO_BASE.md`.
 
 ## Validação
 
-36 fontes de produção compiladas com `javac --release 17`. JAR gerado com a entrada `view.TelaLoginUnificado` e dependência JDBC relativa.
+38 fontes de produção compiladas com `javac --release 17`. JAR gerado com a entrada `view.TelaLoginUnificado` e dependência JDBC relativa. Compilação e roteiro de execução também verificados pelo Windows PowerShell 5.1, sem exigir instalação de PowerShell 7.
 
-11 cenários de integração aprovados no PostgreSQL 18.6. A evidência está em `ultimo-teste-integracao.txt` e o teste reproduzível em `../test/IntegracaoBanco.java`. Foram verificados rollback por falta de estoque no segundo item, falha proposital ao criar estoque do produto, concorrência na última unidade, total de venda conhecido, autenticação e instalação repetida, além dos outros casos descritos no README.
+20 cenários de integração aprovados no PostgreSQL 18.6. Evidência: `ultimo-teste-integracao.txt`; teste reproduzível: `../test/IntegracaoBanco.java`. Além dos testes iniciais de pedido, estoque e dinheiro, foram conferidos CRUD/duplicidade de clientes, alterações em registros inexistentes, favoritos, rollback por falha de regra, migrations alteradas/falhas/evoluções, falha de conexão nos DAOs e aliases de login.
 
-Os servidores temporários pertencem ao projeto, escutam apenas em loopback e são parados pelo script. O serviço PostgreSQL original não foi iniciado nem teve sua base alterada.
+Roteiro `../scripts/verificar-base.ps1` aprovado: instalação, autenticação das três contas, reinício da base, restauração em banco novo e preservação de pedido/itens/total R$ 34,50/estoque/auditoria. O roteiro removeu apenas seus próprios registros fictícios após a validação. Evidência: `validacao-base.txt`.
+
+As 13 telas existentes foram construídas no EDT sem mostrar janelas. Login e catálogo foram renderizados e inspecionados em `validacao-ui`; o estilo foi preservado. A verificação não cobre todas as interações dos módulos, que serão validadas nas próximas etapas.
+
+Os servidores temporários de teste escutam apenas em loopback e são parados pelo script. A base persistente de desenvolvimento continua disponível para executar o desktop; pode ser encerrada por `parar-banco.ps1`. O serviço PostgreSQL original manteve seu estado e sua base não foi alterada.
 
 ## Próximo bloco
 

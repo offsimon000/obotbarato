@@ -1,4 +1,6 @@
-param([string]$PgBin = 'C:/Program Files/PostgreSQL/18/bin')
+param([string]$PgBin)
+. (Join-Path $PSScriptRoot 'comum.ps1')
+$PgBin = Get-PostgresBin $PgBin
 $ErrorActionPreference = 'Stop'
 $raizProjeto = Split-Path -Parent $PSScriptRoot
 foreach ($nome in @('DB_URL', 'DB_USUARIO', 'DB_SENHA')) {
@@ -11,7 +13,8 @@ $pastaTeste = Join-Path $raizProjeto ('.local/teste-' + [Guid]::NewGuid().ToStri
 $dados = Join-Path $pastaTeste 'postgres'
 New-Item -ItemType Directory -Path $pastaTeste | Out-Null
 $bytesSenha = New-Object byte[] 24
-[Security.Cryptography.RandomNumberGenerator]::Fill($bytesSenha)
+$rng = [Security.Cryptography.RandomNumberGenerator]::Create()
+try { $rng.GetBytes($bytesSenha) } finally { $rng.Dispose() }
 $senhaTeste = [Convert]::ToBase64String($bytesSenha)
 $arquivoSenha = Join-Path $pastaTeste 'senha.txt'
 [IO.File]::WriteAllText($arquivoSenha, $senhaTeste, [Text.UTF8Encoding]::new($false))

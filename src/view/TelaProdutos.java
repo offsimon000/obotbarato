@@ -116,15 +116,15 @@ public class TelaProdutos extends JFrame {
                     String.format("R$ %.2f", p.getPreco()),
                     p.isAtivo() ? "Ativo" : "Inativo"
                 });
-        } catch (Exception ex) { erro(ex.getMessage()); }
+        } catch (Exception ex) { erro(util.Erros.mensagem(ex)); }
     }
 
     private void excluir() {
         int l = tabela.getSelectedRow();
         if (l < 0) { aviso("Selecione um produto."); return; }
         if (confirmar("Desativar este produto?"))
-            try { dao.excluir((int) modeloTabela.getValueAt(l, 0)); carregarTabela(""); }
-            catch (Exception ex) { erro(ex.getMessage()); }
+            try { if (!dao.excluir((int) modeloTabela.getValueAt(l, 0))) throw new java.sql.SQLException("Produto não encontrado."); carregarTabela(""); }
+            catch (Exception ex) { erro(util.Erros.mensagem(ex)); }
     }
 
     private void aviso(String m)   { JOptionPane.showMessageDialog(this, m, "Aviso", JOptionPane.WARNING_MESSAGE); }

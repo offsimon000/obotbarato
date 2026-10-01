@@ -130,7 +130,7 @@ public class TelaMeusPedidos extends JFrame {
                 modelo.addRow(new Object[]{"", "Nenhum pedido realizado ainda.", "", ""});
             }
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Erro: " + ex.getMessage());
+            JOptionPane.showMessageDialog(this, "Erro: " + util.Erros.mensagem(ex));
         }
     }
 }

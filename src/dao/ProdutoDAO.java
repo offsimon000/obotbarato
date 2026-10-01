@@ -14,7 +14,7 @@ public class ProdutoDAO {
 
     private static final Logger LOG = Logger.getLogger(ProdutoDAO.class.getName());
 
-    public List<Produto> listarTodos() {
+    public List<Produto> listarTodos() throws SQLException {
         List<Produto> lista = new ArrayList<>();
         // PostgreSQL: sem diferença aqui — JOIN padrão funciona igual
         String sql = "SELECT p.*, c.nome AS nome_categoria "
@@ -26,13 +26,11 @@ public class ProdutoDAO {
              PreparedStatement ps = con.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
             while (rs.next()) lista.add(mapear(rs));
-        } catch (SQLException e) {
-            LOG.log(Level.SEVERE, "Erro ao listar produtos.", e);
-        }
+        } catch (SQLException e) { throw e; }
         return lista;
     }
 
-    public List<Produto> buscarPorNome(String nome) {
+    public List<Produto> buscarPorNome(String nome) throws SQLException {
         List<Produto> lista = new ArrayList<>();
         // PostgreSQL: ILIKE para busca case-insensitive (MySQL usava LIKE que já ignora case)
         String sql = "SELECT p.*, c.nome AS nome_categoria "
@@ -45,9 +43,7 @@ public class ProdutoDAO {
             ps.setString(1, "%" + nome.trim() + "%");
             ResultSet rs = ps.executeQuery();
             while (rs.next()) lista.add(mapear(rs));
-        } catch (SQLException e) {
-            LOG.log(Level.SEVERE, "Erro ao buscar produto por nome.", e);
-        }
+        } catch (SQLException e) { throw e; }
         return lista;
     }
 
@@ -116,7 +112,7 @@ public class ProdutoDAO {
                    + "VALUES (?, 0, 5)";
         try (PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, idProduto);
-            ps.executeUpdate();
+            if (ps.executeUpdate() != 1) throw new SQLException("Estoque inicial não gravado.");
         }
     }
 

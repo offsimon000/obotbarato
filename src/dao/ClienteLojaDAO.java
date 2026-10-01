@@ -14,7 +14,7 @@ public class ClienteLojaDAO {
     private static final Logger LOG = Logger.getLogger(ClienteLojaDAO.class.getName());
 
     // ── Autenticação ─────────────────────────────────────────────────────
-    public Cliente autenticar(String email, String senhaPlana) {
+    public Cliente autenticar(String email, String senhaPlana) throws SQLException {
         if (email == null || senhaPlana == null
                 || email.isBlank() || senhaPlana.isBlank()) return null;
 
@@ -30,16 +30,14 @@ public class ClienteLojaDAO {
                 if (SenhaCripto.ehFormatoLegado(hash)) migrarSenha(c.getId(), senhaPlana);
                 return c;
             }
-        } catch (SQLException e) {
-            LOG.log(Level.SEVERE, "Erro ao autenticar cliente.", e);
-        }
+        } catch (SQLException e) { throw e; }
         return null;
     }
 
     // ── Cadastro ─────────────────────────────────────────────────────────
     /** Retorna null se sucesso, ou mensagem de erro. */
     public String cadastrar(String nome, String cpf, String email,
-                             String telefone, String endereco, String senhaPlana) {
+                             String telefone, String endereco, String senhaPlana) throws SQLException {
         String erroVal = validar(nome, email, senhaPlana);
         if (erroVal != null) return erroVal;
         if (emailExiste(email.trim().toLowerCase())) return "Este email ja esta cadastrado.";
@@ -49,29 +47,26 @@ public class ClienteLojaDAO {
         try (Connection con = ConexaoBanco.getConexao();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, nome.trim());
-            ps.setString(2, cpf.trim());
+            ps.setString(2, opcional(cpf));
             ps.setString(3, email.trim().toLowerCase());
-            ps.setString(4, telefone.trim());
-            ps.setString(5, endereco.trim());
+            ps.setString(4, opcional(telefone));
+            ps.setString(5, opcional(endereco));
             ps.setString(6, SenhaCripto.hashear(senhaPlana));
-            ps.executeUpdate();
+            if (ps.executeUpdate() != 1) throw new SQLException("Cadastro de cliente não gravado.");
             return null;
         } catch (SQLException e) {
-            LOG.log(Level.SEVERE, "Erro ao cadastrar cliente.", e);
-            return "Erro interno. Tente novamente.";
+            if ("23505".equals(e.getSQLState())) return "Email ou CPF já cadastrado.";
+            throw e;
         }
     }
 
-    public boolean emailExiste(String email) {
+    public boolean emailExiste(String email) throws SQLException {
         String sql = "SELECT 1 FROM clientes WHERE email = ? LIMIT 1";
         try (Connection con = ConexaoBanco.getConexao();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, email.trim().toLowerCase());
             return ps.executeQuery().next();
-        } catch (SQLException e) {
-            LOG.log(Level.WARNING, "Erro ao verificar email.", e);
-            return false;
-        }
+        } catch (SQLException e) { throw e; }
     }
 
     // ── Esqueci minha senha ───────────────────────────────────────────────
@@ -80,24 +75,21 @@ public class ClienteLojaDAO {
      * Verifica se existe cliente com esse email E cpf.
      * Usado na tela "Esqueci minha senha" como segundo fator.
      */
-    public boolean verificarEmailCpf(String email, String cpf) {
+    public boolean verificarEmailCpf(String email, String cpf) throws SQLException {
         String sql = "SELECT 1 FROM clientes WHERE email = ? AND cpf = ? AND ativo = true LIMIT 1";
         try (Connection con = ConexaoBanco.getConexao();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, email.trim().toLowerCase());
             ps.setString(2, cpf.trim());
             return ps.executeQuery().next();
-        } catch (SQLException e) {
-            LOG.log(Level.WARNING, "Erro ao verificar email+cpf.", e);
-            return false;
-        }
+        } catch (SQLException e) { throw e; }
     }
 
     /**
      * Redefine a senha do cliente pelo email.
      * Só chame após verificarEmailCpf retornar true.
      */
-    public boolean redefinirSenha(String email, String novaSenha) {
+    public boolean redefinirSenha(String email, String novaSenha) throws SQLException {
         if (novaSenha == null || novaSenha.length() < 6) return false;
         String sql = "UPDATE clientes SET senha = ? WHERE email = ?";
         try (Connection con = ConexaoBanco.getConexao();
@@ -105,16 +97,13 @@ public class ClienteLojaDAO {
             ps.setString(1, SenhaCripto.hashear(novaSenha));
             ps.setString(2, email.trim().toLowerCase());
             return ps.executeUpdate() > 0;
-        } catch (SQLException e) {
-            LOG.log(Level.SEVERE, "Erro ao redefinir senha.", e);
-            return false;
-        }
+        } catch (SQLException e) { throw e; }
     }
 
     // ── Favoritos ────────────────────────────────────────────────────────
 
     /** Uma única query — use isso na galeria, não ehFavorito() em loop */
-    public Set<Integer> listarFavoritosSet(int idCliente) {
+    public Set<Integer> listarFavoritosSet(int idCliente) throws SQLException {
         Set<Integer> ids = new HashSet<>();
         String sql = "SELECT id_produto FROM favoritos WHERE id_cliente = ?";
         try (Connection con = ConexaoBanco.getConexao();
@@ -122,33 +111,27 @@ public class ClienteLojaDAO {
             ps.setInt(1, idCliente);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) ids.add(rs.getInt("id_produto"));
-        } catch (SQLException e) {
-            LOG.log(Level.WARNING, "Erro ao listar favoritos.", e);
-        }
+        } catch (SQLException e) { throw e; }
         return ids;
     }
 
-    public boolean adicionarFavorito(int idCliente, int idProduto) {
+    public boolean adicionarFavorito(int idCliente, int idProduto) throws SQLException {
         String sql = "INSERT INTO favoritos (id_cliente, id_produto) VALUES (?, ?) "
                    + "ON CONFLICT (id_cliente, id_produto) DO NOTHING";
         try (Connection con = ConexaoBanco.getConexao();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, idCliente); ps.setInt(2, idProduto);
             ps.executeUpdate(); return true;
-        } catch (SQLException e) {
-            LOG.log(Level.WARNING, "Erro ao adicionar favorito.", e); return false;
-        }
+        } catch (SQLException e) { throw e; }
     }
 
-    public boolean removerFavorito(int idCliente, int idProduto) {
+    public boolean removerFavorito(int idCliente, int idProduto) throws SQLException {
         String sql = "DELETE FROM favoritos WHERE id_cliente = ? AND id_produto = ?";
         try (Connection con = ConexaoBanco.getConexao();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, idCliente); ps.setInt(2, idProduto);
             return ps.executeUpdate() > 0;
-        } catch (SQLException e) {
-            LOG.log(Level.WARNING, "Erro ao remover favorito.", e); return false;
-        }
+        } catch (SQLException e) { throw e; }
     }
 
     // ── Privados ─────────────────────────────────────────────────────────
@@ -164,6 +147,10 @@ public class ClienteLojaDAO {
         } catch (SQLException e) {
             LOG.log(Level.WARNING, "Falha ao migrar senha do cliente #" + id, e);
         }
+    }
+
+    private static String opcional(String texto) {
+        return texto == null || texto.isBlank() ? null : texto.trim();
     }
 
     private String validar(String nome, String email, String senha) {

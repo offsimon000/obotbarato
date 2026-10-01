@@ -108,7 +108,7 @@ public class TelaClientes extends JFrame {
             List<Cliente> lista = busca.isEmpty() ? dao.listarTodos() : dao.buscarPorNome(busca);
             for (Cliente c : lista)
                 modeloTabela.addRow(new Object[]{c.getId(), c.getNome(), c.getCpf(), c.getEmail(), c.getTelefone()});
-        } catch (Exception ex) { erro(ex.getMessage()); }
+        } catch (Exception ex) { erro(util.Erros.mensagem(ex)); }
     }
 
     private void abrirFormulario(Integer id) {
@@ -124,7 +124,7 @@ public class TelaClientes extends JFrame {
                         endereco.setText(c.getEndereco()); break;
                     }
                 }
-            } catch (Exception ignored) {}
+            } catch (Exception ex) { erro(util.Erros.mensagem(ex)); return; }
         }
 
         JPanel form = new JPanel(new GridBagLayout());
@@ -154,9 +154,10 @@ public class TelaClientes extends JFrame {
                 c.setNome(nome.getText().trim()); c.setCpf(cpf.getText().trim());
                 c.setEmail(email.getText().trim()); c.setTelefone(telefone.getText().trim());
                 c.setEndereco(endereco.getText().trim());
-                if (id == null) dao.salvar(c); else dao.atualizar(c);
+                boolean salvo = id == null ? dao.salvar(c) : dao.atualizar(c);
+                if (!salvo) throw new java.sql.SQLException("Cliente não encontrado para atualização.");
                 carregarTabela("");
-            } catch (Exception ex) { erro(ex.getMessage()); }
+            } catch (Exception ex) { erro(util.Erros.mensagem(ex)); }
         }
     }
 
@@ -164,8 +165,8 @@ public class TelaClientes extends JFrame {
         int l = tabela.getSelectedRow();
         if (l < 0) { aviso("Selecione um cliente."); return; }
         if (confirmar("Excluir este cliente?"))
-            try { dao.excluir((int) modeloTabela.getValueAt(l, 0)); carregarTabela(""); }
-            catch (Exception ex) { erro(ex.getMessage()); }
+            try { if (!dao.excluir((int) modeloTabela.getValueAt(l, 0))) throw new java.sql.SQLException("Cliente não encontrado."); carregarTabela(""); }
+            catch (Exception ex) { erro(util.Erros.mensagem(ex)); }
     }
 
     private void aviso(String m) { JOptionPane.showMessageDialog(this, m, "Aviso", JOptionPane.WARNING_MESSAGE); }

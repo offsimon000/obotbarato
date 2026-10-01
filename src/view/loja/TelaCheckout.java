@@ -297,7 +297,7 @@ public class TelaCheckout extends JFrame {
                 try {
                     if (get()) trocarEtapa(criarEtapaConfirmacao());
                 } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(TelaCheckout.this, "Erro ao processar: " + ex.getMessage());
+                    JOptionPane.showMessageDialog(TelaCheckout.this, "Erro ao processar: " + util.Erros.mensagem(ex));
                 }
             }
         };

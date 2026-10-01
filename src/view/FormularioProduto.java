@@ -109,7 +109,7 @@ public class FormularioProduto extends JDialog {
                 categorias.put(rs.getString("nome"), rs.getInt("id"));
                 cbCategoria.addItem(rs.getString("nome"));
             }
-        } catch (Exception e) { JOptionPane.showMessageDialog(this, "Erro ao carregar categorias: " + e.getMessage()); }
+        } catch (Exception e) { JOptionPane.showMessageDialog(this, "Erro ao carregar categorias: " + util.Erros.mensagem(e)); }
     }
 
     private void carregarDados() {
@@ -126,7 +126,7 @@ public class FormularioProduto extends JDialog {
                 for (Map.Entry<String, Integer> e : categorias.entrySet())
                     if (e.getValue() == idCat) { cbCategoria.setSelectedItem(e.getKey()); break; }
             }
-        } catch (Exception e) { JOptionPane.showMessageDialog(this, "Erro: " + e.getMessage()); }
+        } catch (Exception e) { JOptionPane.showMessageDialog(this, "Erro: " + util.Erros.mensagem(e)); }
     }
 
     private void salvar() {
@@ -148,7 +148,7 @@ public class FormularioProduto extends JDialog {
         } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(this, "Preco invalido.");
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Erro: " + e.getMessage());
+            JOptionPane.showMessageDialog(this, "Erro: " + util.Erros.mensagem(e));
         }
     }
 }

@@ -321,7 +321,7 @@ public class TelaLoginUnificado extends JFrame {
         lblStatus.setText("Verificando...");
 
         SwingWorker<Object, Void> worker = new SwingWorker<>() {
-            protected Object doInBackground() {
+            protected Object doInBackground() throws Exception {
                 Usuario u = usuarioDAO.autenticar(login, senha);
                 if (u != null) return u;
                 Cliente c = clienteDAO.autenticar(login, senha);
@@ -344,6 +344,7 @@ public class TelaLoginUnificado extends JFrame {
                         dispose(); new TelaInicial((Usuario) res).setVisible(true);
                     } else if (res instanceof Cliente) {
                         tentativasFalhas = 0;
+                        Sessao.encerrar();
                         dispose(); new TelaLoja((Cliente) res).setVisible(true);
                     } else {
                         tentativasFalhas++;
@@ -354,7 +355,7 @@ public class TelaLoginUnificado extends JFrame {
                             : "Email/login ou senha incorretos.");
                     }
                 } catch (Exception e) {
-                    erro(lblStatus, "Erro de conexao. Verifique o banco.");
+                    erro(lblStatus, util.Erros.mensagem(e));
                 }
             }
         };
@@ -372,6 +373,7 @@ public class TelaLoginUnificado extends JFrame {
             erro(lblStatus, "As senhas nao conferem."); return;
         }
 
+        try {
         String resultado = clienteDAO.cadastrar(
             fNome.getText(), fCpf.getText(), fEmail.getText(),
             fTel.getText(), fEnd.getText(), senha);
@@ -381,13 +383,13 @@ public class TelaLoginUnificado extends JFrame {
             lblStatus.setForeground(Tema.VERDE_SUCESSO);
             lblStatus.setText("Conta criada! Entrando...");
             SwingWorker<Cliente, Void> w = new SwingWorker<>() {
-                protected Cliente doInBackground() {
+                protected Cliente doInBackground() throws Exception {
                     return clienteDAO.autenticar(fEmail.getText().trim(), senha);
                 }
                 protected void done() {
                     try {
                         Cliente c = get();
-                        if (c != null) { dispose(); new TelaLoja(c).setVisible(true); }
+                        if (c != null) { Sessao.encerrar(); dispose(); new TelaLoja(c).setVisible(true); }
                         else cardLayout.show(painelConteudo, TELA_LOGIN);
                     } catch (Exception ex) { cardLayout.show(painelConteudo, TELA_LOGIN); }
                 }
@@ -396,6 +398,7 @@ public class TelaLoginUnificado extends JFrame {
         } else {
             erro(lblStatus, resultado);
         }
+        } catch (Exception e) { erro(lblStatus, util.Erros.mensagem(e)); }
     }
 
     private void verificarParaRedefinir(JTextField txtEmail, JTextField txtCpf,
@@ -409,7 +412,9 @@ public class TelaLoginUnificado extends JFrame {
         }
 
         // Verifica se existe cliente com esse email e CPF
-        boolean existe = clienteDAO.verificarEmailCpf(email, cpf);
+        boolean existe;
+        try { existe = clienteDAO.verificarEmailCpf(email, cpf); }
+        catch (Exception e) { erro(lblStatus, util.Erros.mensagem(e)); return; }
         if (!existe) {
             erro(lblStatus, "Nao encontramos uma conta com esses dados.");
             return;
@@ -438,7 +443,9 @@ public class TelaLoginUnificado extends JFrame {
             if (nova.length() < 6) { erro(lblNova, "Minimo 6 caracteres."); return; }
             if (!nova.equals(confirm)) { erro(lblNova, "As senhas nao conferem."); return; }
 
-            boolean ok = clienteDAO.redefinirSenha(email, nova);
+            boolean ok;
+            try { ok = clienteDAO.redefinirSenha(email, nova); }
+            catch (Exception e) { erro(lblNova, util.Erros.mensagem(e)); return; }
             if (ok) {
                 lblNova.setForeground(Tema.VERDE_SUCESSO);
                 lblNova.setText("Senha alterada! Faca login.");

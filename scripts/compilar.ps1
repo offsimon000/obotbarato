@@ -10,9 +10,17 @@ if ([string]::IsNullOrWhiteSpace($JavaHome)) {
 }
 $classes = Join-Path $raizProjeto 'build/classes'
 $driver = Join-Path $raizProjeto 'lib/postgresql-42.7.13.jar'
+if (-not (Test-Path -LiteralPath $driver)) { throw 'Driver PostgreSQL ausente na pasta lib.' }
+# Limpa somente classes geradas, após validar o alvo e recusar atalhos/junções.
+$raizAbsoluta = [IO.Path]::GetFullPath($raizProjeto)
+if (-not [IO.Path]::GetFullPath($classes).StartsWith($raizAbsoluta + [IO.Path]::DirectorySeparatorChar, [StringComparison]::OrdinalIgnoreCase)) { throw 'Diretorio de compilacao fora do projeto.' }
+foreach ($pastaVerificada in @((Join-Path $raizProjeto 'build'), $classes)) {
+    if ((Test-Path -LiteralPath $pastaVerificada) -and ((Get-Item -LiteralPath $pastaVerificada).Attributes -band [IO.FileAttributes]::ReparsePoint)) { throw 'Diretorio de compilacao nao pode ser um atalho/juncao.' }
+}
+if (Test-Path -LiteralPath $classes) { Remove-Item -LiteralPath $classes -Recurse -Force }
 New-Item -ItemType Directory -Force -Path $classes, (Join-Path $raizProjeto 'dist/lib') | Out-Null
 $fontes = @(Get-ChildItem -LiteralPath (Join-Path $raizProjeto 'src') -Filter '*.java' -Recurse | ForEach-Object {
-    '"' + [IO.Path]::GetRelativePath($raizProjeto, $_.FullName).Replace('\','/') + '"'
+    '"' + $_.FullName.Substring($raizAbsoluta.Length).TrimStart([char[]]'\/').Replace('\','/') + '"'
 })
 $argumentos = Join-Path $raizProjeto 'build/fontes.txt'
 [IO.File]::WriteAllLines($argumentos, $fontes, [Text.UTF8Encoding]::new($false))

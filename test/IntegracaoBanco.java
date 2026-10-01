@@ -3,6 +3,8 @@ import model.*;
 import util.*;
 import java.math.BigDecimal;
 import java.nio.file.Path;
+import java.nio.file.Files;
+import java.nio.charset.StandardCharsets;
 import java.sql.*;
 import java.util.concurrent.*;
 
@@ -120,6 +122,92 @@ public final class IntegracaoBanco {
         exigir(pedidos.listarPorCliente(cliente).size() == 3, "Histórico do cliente incorreto.");
         exigir(pedidos.listarPorCliente(Integer.MAX_VALUE).isEmpty(), "Histórico vazou pedidos de outro cliente.");
         ok("Consulta de histórico filtrada por cliente no banco");
+
+        Cliente novo = new Cliente(); novo.setNome("Cliente Teste CRUD"); novo.setEmail("crud@teste.local");
+        novo.setCpf(""); novo.setTelefone(""); novo.setEndereco("");
+        ClienteDAO clientes = new ClienteDAO();
+        exigir(clientes.salvar(novo) && novo.getId() > 0, "Cliente sem ID gerado.");
+        exigir(texto("SELECT cpf IS NULL FROM clientes WHERE id=" + novo.getId()).equals("t"), "CPF vazio não normalizado.");
+        novo.setNome("Cliente Alterado"); exigir(clientes.atualizar(novo), "Cliente não atualizado.");
+        novo.setEmail("cliente@demo.local");
+        rejeitar(() -> clientes.atualizar(novo), SQLException.class);
+        exigir(texto("SELECT email FROM clientes WHERE id=" + novo.getId()).equals("crud@teste.local"), "Atualização duplicada alterou o cadastro.");
+        exigir(clientes.excluir(novo.getId()), "Cliente não desativado.");
+        exigir(clientes.buscarPorNome("Cliente Alterado").isEmpty(), "Cliente inativo na lista.");
+        ok("Cadastro, atualização, duplicidade e desativação de cliente sem sucesso falso");
+
+        Produto inexistente = modelo("Inexistente", "1.00"); inexistente.setId(Integer.MAX_VALUE);
+        exigir(!new ProdutoDAO().atualizar(inexistente) && !new ProdutoDAO().excluir(Integer.MAX_VALUE), "Produto inexistente retornou sucesso.");
+        novo.setId(Integer.MAX_VALUE); novo.setEmail("naoexiste@teste.local");
+        exigir(!clientes.atualizar(novo) && !clientes.excluir(novo.getId()), "Cliente inexistente retornou sucesso.");
+        rejeitar(() -> estoque.entrada(Integer.MAX_VALUE, 1), SQLException.class);
+        rejeitar(() -> estoque.atualizar(Integer.MAX_VALUE, 1), SQLException.class);
+        ok("Alterações em registros inexistentes não retornam sucesso");
+
+        ClienteLojaDAO loja = new ClienteLojaDAO();
+        exigir(loja.adicionarFavorito(cliente, p.getId()), "Favorito não inserido.");
+        exigir(loja.adicionarFavorito(cliente, p.getId()), "Favorito repetido não idempotente.");
+        exigir(loja.listarFavoritosSet(cliente).contains(p.getId()), "Favorito ausente.");
+        exigir(numero("SELECT COUNT(*) FROM favoritos WHERE id_cliente=" + cliente + " AND id_produto=" + p.getId()) == 1, "Favorito duplicado.");
+        exigir(loja.removerFavorito(cliente, p.getId()) && !loja.listarFavoritosSet(cliente).contains(p.getId()), "Favorito não removido.");
+        ok("Favoritos persistidos sem duplicação");
+
+        long categoriasAntes = numero("SELECT COUNT(*) FROM categorias");
+        rejeitar(() -> Transacao.executar(con -> {
+            try (Statement st = con.createStatement()) { st.execute("INSERT INTO categorias(nome) VALUES ('Rollback de runtime')"); }
+            throw new IllegalArgumentException("Falha proposital após a gravação");
+        }), IllegalArgumentException.class);
+        exigir(numero("SELECT COUNT(*) FROM categorias") == categoriasAntes, "Falha de runtime não desfez gravação.");
+        ok("Rollback também em falha de regra depois de executar SQL");
+
+        Files.createDirectories(Path.of(".local"));
+        Path migrations = Files.createTempDirectory(Path.of(".local"), "migrations-teste-");
+        Path base = migrations.resolve("V001__base_desktop.sql");
+        Files.copy(Path.of("sql/V001__base_desktop.sql"), base);
+        Files.writeString(base, Files.readString(base) + "\n-- alteração indevida", StandardCharsets.UTF_8);
+        rejeitar(() -> InicializarBanco.aplicarMigrations(migrations), SQLException.class);
+        exigir(numero("SELECT COUNT(*) FROM schema_migrations") == 1, "Migration alterada foi aceita.");
+        ok("Checksum impede alteração de migration já aplicada");
+
+        Files.write(base, Files.readAllBytes(Path.of("sql/V001__base_desktop.sql")));
+        Path segunda = migrations.resolve("V002__teste_evolucao.sql");
+        Files.writeString(segunda, "CREATE TABLE teste_evolucao(id INT); INSERT INTO categorias(nome) VALUES(NULL);", StandardCharsets.UTF_8);
+        rejeitar(() -> InicializarBanco.aplicarMigrations(migrations), SQLException.class);
+        exigir(texto("SELECT to_regclass('public.teste_evolucao') IS NULL").equals("t"), "Migration falha deixou tabela parcial.");
+        exigir(numero("SELECT COUNT(*) FROM schema_migrations") == 1, "Migration falha registrada.");
+        Files.writeString(segunda, "CREATE TABLE teste_evolucao(id INT);", StandardCharsets.UTF_8);
+        InicializarBanco.aplicarMigrations(migrations);
+        InicializarBanco.aplicarMigrations(migrations);
+        exigir(numero("SELECT COUNT(*) FROM schema_migrations") == 2, "Evolução não aplicada/reexecutada corretamente.");
+        ok("Migration falha é desfeita; evolução válida pode ser aplicada e reexecutada");
+
+        String configOriginal = System.getProperty("obotbarato.config");
+        Path invalida = Files.createTempFile(Path.of(".local"), "banco-invalido-", ".properties");
+        Files.writeString(invalida, "url=jdbc:postgresql://127.0.0.1:1/indisponivel\nusuario=teste\nsenha=\n", StandardCharsets.UTF_8);
+        try {
+            System.setProperty("obotbarato.config", invalida.toAbsolutePath().toString());
+            rejeitar(() -> new UsuarioDAO().autenticar("admin", "admin123"), SQLException.class);
+            rejeitar(() -> loja.autenticar("cliente@demo.local", "cliente123"), SQLException.class);
+            rejeitar(() -> clientes.listarTodos(), SQLException.class);
+            rejeitar(() -> new ProdutoDAO().listarTodos(), SQLException.class);
+            rejeitar(() -> loja.listarFavoritosSet(cliente), SQLException.class);
+            rejeitar(() -> pedidos.listarTodos(), SQLException.class);
+        } finally {
+            if (configOriginal == null) System.clearProperty("obotbarato.config");
+            else System.setProperty("obotbarato.config", configOriginal);
+        }
+        exigir(new UsuarioDAO().autenticar("admin", "admin123") != null, "Conexão não recuperou após restaurar configuração.");
+        ok("Falha de conexão propaga erro em todos os DAOs e permite recuperação");
+
+        rejeitar(() -> modelo("Inválido", "-0.01"), IllegalArgumentException.class);
+        rejeitar(() -> new Produto().setPreco(Double.NaN), IllegalArgumentException.class);
+        rejeitar(() -> new Produto().setPreco(Double.POSITIVE_INFINITY), IllegalArgumentException.class);
+        exigir(modelo("Arredondamento", "1.005").getPrecoDecimal().equals(new BigDecimal("1.01")), "Arredondamento incorreto.");
+        ok("Moeda rejeita valores inválidos e arredonda meio centavo de forma definida");
+
+        exigir(view.TelaLogin.class.getSuperclass() == view.TelaLoginUnificado.class, "Login antigo não encaminha à entrada oficial.");
+        exigir(view.loja.TelaLojaLogin.class.getSuperclass() == view.TelaLoginUnificado.class, "Login antigo da loja não encaminha à entrada oficial.");
+        ok("Entradas legadas encaminham ao login oficial");
         System.out.println("APROVADO: " + cenarios + " cenários de integração em PostgreSQL real.");
     }
 

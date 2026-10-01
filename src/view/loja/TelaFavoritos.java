@@ -157,7 +157,7 @@ public class TelaFavoritos extends JFrame {
                 });
             }
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Erro ao carregar favoritos: " + ex.getMessage());
+            JOptionPane.showMessageDialog(this, "Erro ao carregar favoritos: " + util.Erros.mensagem(ex));
         }
     }
 
@@ -173,8 +173,10 @@ public class TelaFavoritos extends JFrame {
             "Remover \"" + p.getNome() + "\" dos favoritos?",
             "Confirmar", JOptionPane.YES_NO_OPTION);
         if (confirm == JOptionPane.YES_OPTION) {
-            clienteDAO.removerFavorito(clienteLogado.getId(), p.getId());
-            carregarFavoritos();
+            try {
+                clienteDAO.removerFavorito(clienteLogado.getId(), p.getId());
+                carregarFavoritos();
+            } catch (Exception ex) { JOptionPane.showMessageDialog(this, util.Erros.mensagem(ex)); }
         }
     }
 
