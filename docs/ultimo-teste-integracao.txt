@@ -1,0 +1,12 @@
+OK 1: Instalação e demonstração reexecutadas sem duplicação
+OK 2: Autenticação das credenciais de demonstração
+OK 3: Conexões independentes
+OK 4: Compra de um item, total decimal e prevenção de regravação do mesmo objeto
+OK 5: Compra de vários itens na mesma transação
+OK 6: Falta de estoque no segundo item desfaz pedido, itens e primeira baixa
+OK 7: Quantidades inválidas e pedido vazio rejeitados
+OK 8: Falha ao criar estoque inicial desfaz cadastro do produto
+OK 9: Duas compras simultâneas: apenas uma compra a última unidade
+OK 10: Relatório PostgreSQL com datas tipadas e totais conhecidos
+OK 11: Consulta de histórico filtrada por cliente no banco
+APROVADO: 11 cenários de integração em PostgreSQL real.
