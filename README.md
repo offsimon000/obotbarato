@@ -2,7 +2,7 @@
 
 Pasta oficial de desenvolvimento do projeto acadêmico. Aplicação Java Swing com PostgreSQL, mantendo o estilo visual original. Apresentação: **28/10/2026**.
 
-**Estado atual:** partes 1 e 2 e compra/pagamento simulado implementados: fundação, cadastros, permissões, acesso à loja e manutenção do catálogo. Veja `docs/COMO_TESTAR_PARTES_1_E_2.md` e `docs/PARTE_2_CADASTROS_E_ACESSO.md`. Compra e pagamento: `docs/COMPRA_E_PAGAMENTO_SIMULADO.md`. Gestão de pedidos é o próximo bloco. O plano completo está em `../analise/PLANO_FINALIZACAO_OBOTBARATO.md`; escopo e critérios estão em `docs/ESCOPO_E_CRITERIOS.md`. Os arquivos extraídos são referências preservadas.
+**Estado atual:** etapas 1 a 6 implementadas: fundação, cadastros, permissões, catálogo, compra/pagamento simulado e gestão/cancelamento de pedidos. Guias: `docs/COMO_TESTAR_PARTES_1_E_2.md`, `docs/PARTE_2_CADASTROS_E_ACESSO.md`, `docs/COMPRA_E_PAGAMENTO_SIMULADO.md` e `docs/GESTAO_E_CANCELAMENTO_PEDIDOS.md`. O próximo bloco reúne os módulos complementares da etapa 7. O plano completo está em `../analise/PLANO_FINALIZACAO_OBOTBARATO.md`; escopo e critérios estão em `docs/ESCOPO_E_CRITERIOS.md`. Os arquivos extraídos são referências preservadas.
 
 ## Pré-requisitos
 
@@ -86,15 +86,15 @@ O seed usa PBKDF2-HMAC-SHA256 com salt aleatório e 600.000 iterações. Hashes 
 
 O script cria um cluster exclusivo em `.local/teste-<identificador>`, escolhe uma porta livre, usa uma senha aleatória e escuta somente em `127.0.0.1`. Não inicia o serviço nem altera a base PostgreSQL antiga ou a de desenvolvimento. Ao terminar, para o cluster criado, preservando seus logs. As variáveis `DB_*` precisam estar ausentes para evitar redirecionar os testes.
 
-Os 20 cenários verificam instalação repetida, autenticação, conexões independentes, dinheiro, compra, rollback, concorrência, relatórios, filtro por cliente, duplicidades, registros inexistentes, favoritos, falha de conexão, evolução de migrations e aliases de login. A evidência fica em `docs/ultimo-teste-integracao.txt`. O mesmo script verifica evolução V1/V2, 15 cenários novos de cadastros/acesso e construção de 16 telas. Evidências adicionais: `docs/validacao-parte2.txt` e `docs/validacao-compra.txt`. Também são executados 14 cenários de compra/pagamento e o fluxo Swing do checkout.
+O script verifica 66 cenários: 20 regressões iniciais, 15 de cadastros/acesso, 14 de compra/pagamento e 17 de gestão/cancelamento. Inclui evolução V1/V3 → V4, rollback e concorrência, permissões, filtros e faturamento. Constrói 17 telas e aciona fluxos Swing de checkout e gestão. Evidências: `docs/ultimo-teste-integracao.txt`, `docs/validacao-parte2.txt`, `docs/validacao-compra.txt` e `docs/validacao-pedidos.txt`. O teste de gestão fornece respostas aos diálogos de confirmação/motivo sem exibir janelas.
 
-Para verificar também o ambiente persistente, reinício, restauração e construção das 16 telas atuais:
+Para verificar também o ambiente persistente, reinício, restauração e construção das 17 telas atuais:
 
 ```powershell
 ./scripts/verificar-base.ps1
 ```
 
-Esse roteiro cria registros fictícios próprios, confere seus valores antes/depois do reinício e da restauração, e remove somente esses registros de teste. As telas são construídas no EDT sem exibir janelas. Isso verifica a inicialização; não substitui os testes de interação de todos os módulos. Evidência: `docs/validacao-base.txt`; renderizações do login e catálogo: `docs/validacao-ui`.
+Esse roteiro cria registros fictícios próprios de retirada e cancelamento, confere valores, saldo, pagamento, imagem, devolução e histórico antes/depois do reinício e da restauração, e remove somente suas fixtures. As telas são construídas no EDT sem exibir janelas. Isso verifica a inicialização; não substitui os testes de interação de todos os módulos. Evidência: `docs/validacao-base.txt`; renderizações: `docs/validacao-ui`.
 
 ## Backup e restauração da base local
 
@@ -113,4 +113,4 @@ Guarde uma cópia do `.dump` fora da máquina para recuperação em caso de perd
 
 ## Limites desta versão de desenvolvimento
 
-As partes concluídas tratam persistência, permissões e manutenção dos cadastros/catálogo. Fluxo de preparo/entrega/cancelamento, cupons, avaliações, notificações, dashboard e documentação acadêmica final ainda dependem das próximas etapas. O JAR gerado serve para desenvolvimento; a instalação completa e o pacote da apresentação ainda serão validados.
+As etapas 1 a 6 tratam persistência, cadastros, compra, pagamento e entrega simulados, acompanhamento e cancelamento antes do envio. Cupons, perfil, avaliações, notificações, dashboard, revisão completa dos relatórios e documentação acadêmica final ainda dependem das próximas etapas. Não há devolução pós-envio ou estorno financeiro real. O JAR gerado serve para desenvolvimento; a instalação completa e o pacote da apresentação ainda serão validados.

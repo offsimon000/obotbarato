@@ -67,7 +67,7 @@ public final class CompraEPagamento {
         cart.liberar(reserva);exigir(cart.iniciarCheckout().equals(reserva),"Retry perde chave idempotente.");cart.concluir(reserva);exigir(cart.itens().isEmpty() && !cart.bloqueado(),"Compra confirmada não limpa carrinho.");cart.adicionar(p,1,10);cart.encerrar();exigir(cart.itens().isEmpty(),"Logout não limpa carrinho.");ok("Carrinho entrega cópias, bloqueia múltiplos checkouts, preserva chave de retry e limpa no sucesso/logout");
 
         Pedido viaAntiga=new Pedido();viaAntiga.setIdCliente(cliente.getId());viaAntiga.adicionarItem(item(p,1));negar(()->new PedidoDAO().salvar(viaAntiga),SQLException.class);ok("Cliente não burla checkout pela gravação administrativa antiga");
-        Sessao.iniciar(admin);String dia=texto("SELECT CURRENT_DATE::text");String total=texto("SELECT SUM(total)::text FROM pedidos WHERE status='finalizado' AND DATE(data_pedido)=CURRENT_DATE");
+        Sessao.iniciar(admin);String dia=texto("SELECT CURRENT_DATE::text");String total=texto("SELECT SUM(p.total)::text FROM pedidos p JOIN pagamentos pg ON pg.id_pedido=p.id WHERE p.status<>'cancelado' AND pg.status='confirmado' AND DATE(p.data_pedido)=CURRENT_DATE");
         var relatorio=new PedidoDAO().relatorioVendasPorPeriodo(dia,dia);exigir(new BigDecimal(relatorio.get(0)[2].replace(",",".")).compareTo(new BigDecimal(total))==0,"Relatório ignora descontos/pendências.");ok("Faturamento por período usa total final das compras confirmadas");
         System.out.println("APROVADO: "+cenarios+" cenários de compra e pagamento simulado em PostgreSQL real.");
     }

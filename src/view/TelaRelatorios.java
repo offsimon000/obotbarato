@@ -114,7 +114,7 @@ public class TelaRelatorios extends JFrame {
 
         JPanel topo = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
         topo.setBackground(Tema.BG_ESCURO);
-        JLabel info = new JLabel("Top 10 produtos mais vendidos (pedidos finalizados)");
+        JLabel info = new JLabel("Top 10 produtos: pagamento confirmado, sem cancelados; receita bruta dos itens");
         info.setFont(Tema.FONTE_LABEL); info.setForeground(Tema.TEXTO_SECUNDARIO);
         JButton btnGerar = Tema.botaoPrimario("Gerar Ranking");
         topo.add(info); topo.add(btnGerar);

@@ -37,11 +37,17 @@ public final class CicloPersistencia {
             Pedido pedido = new Pedido(); pedido.setIdCliente(cliente.getId()); pedido.setStatus("finalizado");
             pedido.adicionarItem(new ItemPedido(produto.getId(), marca, 3, 11.50));
             new PedidoDAO().salvar(pedido);
+            CodigoAcessoDAO acesso=new CodigoAcessoDAO();String codigo=acesso.emitir(cliente.getId());
+            exigir(acesso.redefinir(cliente.getEmail(),codigo,"fixture12345"),"Ativação própria da fixture falhou.");
+            Sessao.iniciarCliente(new ClienteLojaDAO().autenticar(cliente.getEmail(),"fixture12345"));
+            int cancelado=new CompraDAO().confirmar(cliente.getId(),List.of(new ItemPedido(produto.getId(),marca,2,11.50)),"pix",marca,"11999990000","Rua da validação, 100",UUID.randomUUID()).id();
+            new GestaoPedidoDAO().cancelar(cancelado,"Cancelamento próprio para verificar restauração");
             Properties dados = new Properties();
             dados.setProperty("marca", marca); dados.setProperty("categoria", Integer.toString(categoria));
             dados.setProperty("produto", Integer.toString(produto.getId())); dados.setProperty("cliente", Integer.toString(cliente.getId()));
             dados.setProperty("pedido", Integer.toString(pedido.getId())); dados.setProperty("admin", Integer.toString(admin.getId()));
             dados.setProperty("imagemHash",hashImagem(produto.getId()));
+            dados.setProperty("cancelado",Integer.toString(cancelado));
             try (var writer = Files.newBufferedWriter(arquivo, StandardCharsets.UTF_8)) { dados.store(writer, "Fixture exclusiva de validacao"); }
             Sessao.encerrar();
             System.out.println("OK: venda fictícia criada para testar reinício e backup.");
@@ -66,12 +72,21 @@ public final class CicloPersistencia {
         exigir(texto("SELECT subtotal::text FROM pedidos WHERE id="+pedido).equals("34.50"),"Subtotal não preservado.");
         exigir(texto("SELECT desconto::text FROM pedidos WHERE id="+pedido).equals("0.00"),"Desconto de balcão incorreto.");
         exigir(texto("SELECT metodo || '/' || status FROM pagamentos WHERE id_pedido="+pedido).equals("dinheiro/confirmado"),"Pagamento simulado não preservado.");
+        exigir(texto("SELECT status FROM pedidos WHERE id="+pedido).equals("entregue"),"Retirada não preservada.");
+        exigir(texto("SELECT COUNT(*) FROM historico_pedidos WHERE id_pedido="+pedido).equals("1"),"Histórico da retirada não preservado.");
+        if(dados.getProperty("cancelado")!=null){
+            int cancelado=Integer.parseInt(dados.getProperty("cancelado"));
+            exigir(texto("SELECT p.status || '/' || pg.status FROM pedidos p JOIN pagamentos pg ON pg.id_pedido=p.id WHERE p.id="+cancelado+" AND p.id_cliente="+cliente).equals("cancelado/cancelado"),"Cancelamento não preservado.");
+            exigir(texto("SELECT COUNT(*) FROM historico_pedidos WHERE id_pedido="+cancelado).equals("2"),"Histórico do cancelamento perdido.");
+            exigir(texto("SELECT COUNT(*) FROM movimentos_estoque WHERE id_pedido="+cancelado+" AND id_produto="+produto+" AND tipo='devolucao' AND quantidade=2 AND saldo=4").equals("1"),"Devolução/auditoria não preservada.");
+        }
         if(dados.getProperty("imagemHash")!=null)exigir(dados.getProperty("imagemHash").equals(hashImagem(produto)),"Imagem não preservada.");
         if (args[0].equals("verificar")) {
-            System.out.println("OK: pedido, item, total R$ 34,50, subtotal/desconto, pagamento, imagem, estoque e auditoria preservados em " + banco);
+            System.out.println("OK: pedido, item, total R$ 34,50, subtotal/desconto, pagamento, imagem, estoque, retirada entregue, cancelamento, devolução e histórico preservados em " + banco);
         } else if (args[0].equals("limpar")) {
             Transacao.executar(con -> {
                 try (Statement st = con.createStatement()) {
+                    if(dados.getProperty("cancelado")!=null)st.executeUpdate("DELETE FROM pedidos WHERE id="+Integer.parseInt(dados.getProperty("cancelado"))+" AND id_cliente="+cliente);
                     st.executeUpdate("DELETE FROM pedidos WHERE id=" + pedido + " AND id_cliente=" + cliente);
                     st.executeUpdate("DELETE FROM produtos WHERE id=" + produto);
                     st.executeUpdate("DELETE FROM clientes WHERE id=" + cliente);

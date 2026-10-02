@@ -1,4 +1,4 @@
-APROVADO: evolução V1 → V2/V3 preserva produto, preço, saldo, mínimo, pedido e itens; registra abertura e pagamento legado; reexecução idempotente.
+APROVADO: evolução V1 → V2/V3 → V4 preserva produto, preço, saldo, mínimo, pedido, itens e pagamento; mapeia balcão entregue/loja aberta sem inventar entrega ou devolução anterior; histórico de implantação e reexecução idempotente.
 OK 1: Operações administrativas negadas sem sessão
 OK 2: Vendedor consulta e atende, mas não gerencia usuários, categorias, estoque, desativação ou senhas
 OK 3: Cliente só consulta seu histórico e altera seus favoritos
@@ -21,6 +21,7 @@ OK tela: TelaProdutos
 OK tela: TelaClientes
 OK tela: TelaEstoque
 OK tela: TelaPedidos
+OK tela: TelaGestaoPedidos
 OK tela: TelaRelatorios
 OK tela: TelaPagamentos
 OK tela: FormularioProduto
@@ -31,4 +32,4 @@ OK tela: TelaFavoritos
 OK tela: TelaCarrinho
 OK tela: TelaCheckout
 OK tela: TelaMeusPedidos
-APROVADO: 16 telas inicializadas no EDT sem exibir janelas.
+APROVADO: 17 telas inicializadas no EDT sem exibir janelas.

@@ -102,7 +102,7 @@ public class TelaInicial extends JFrame {
         // Passa "this" para cada tela para que o botao Voltar funcione
         grid.add(criarCard("Produtos",    "Cadastro e categorias",  new Color(130, 80, 255),  () -> { setVisible(false); new TelaProdutos(this).setVisible(true); }));
         grid.add(criarCard("Clientes",    "Base de clientes",       new Color(60, 140, 255),  () -> { setVisible(false); new TelaClientes(this).setVisible(true); }));
-        grid.add(criarCard("Pedidos",     "Vendas e carrinho",      new Color(255, 80, 120),  () -> { setVisible(false); new TelaPedidos(usuarioLogado, this).setVisible(true); }));
+        grid.add(criarCard("Pedidos",     "Gestão, entrega e cancelamento", new Color(255, 80, 120), () -> { setVisible(false); new TelaGestaoPedidos(this).setVisible(true); }));
         grid.add(criarCard("Estoque",     "Entradas e saidas",      new Color(50, 200, 120),  () -> { setVisible(false); new TelaEstoque(this).setVisible(true); }));
         grid.add(criarCard("Relatorios",  "Vendas e analises",      new Color(255, 170, 40),  () -> { setVisible(false); new TelaRelatorios(this).setVisible(true); }));
         grid.add(criarCard("Pagamentos", "Simulação e consulta", Tema.ROXO_PRIMARIO, () -> { setVisible(false); new TelaPagamentos(this).setVisible(true); }));

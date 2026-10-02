@@ -10,7 +10,7 @@ Configurações externas existentes são preservadas. As variáveis `DB_URL`, `D
 
 ## Esquema e regras atuais
 
-O banco possui onze tabelas de negócio e uma de controle de migrations:
+O banco possui doze tabelas de negócio e uma de controle de migrations:
 
 | Tabela | Chave e regras principais |
 |---|---|
@@ -25,11 +25,12 @@ O banco possui onze tabelas de negócio e uma de controle de migrations:
 | `acessos_cliente` | Cliente PK/FK; hash do código, validade, tentativas e emissor. |
 | `movimentos_estoque` | ID; produto/data/tipo/delta/saldo/motivo e responsável. |
 | `pagamentos` | Pedido PK/FK; método e status de simulação, datas e confirmação administrativa. |
+| `historico_pedidos` | Pedido por FK; estado anterior/novo, data, motivo, IDs e nome do responsável no momento da operação. |
 | `schema_migrations` | Nome da migration como PK, SHA-256 do arquivo e data de aplicação. |
 
 Existem índices de categoria do produto, cliente/data do pedido e pedido/produto dos itens. As restrições de FK impedem referências inexistentes; as restrições únicas e de valores também são aplicadas no banco.
 
-Os status **atuais** são `aberto`, `finalizado` e `cancelado`; o padrão Java e SQL é `aberto`. O painel e o checkout existentes registram vendas como `finalizado`; relatórios de venda filtram esse status. O fluxo de preparo/envio/entrega e a operação de cancelamento ainda serão implementados na etapa 6, com novas migrations. A existência do valor `cancelado` na base não significa que o cancelamento já esteja disponível pela interface.
+Os status atuais são `aberto`, `em_preparo`, `enviado`, `entregue` e `cancelado`. Toda compra nova da loja começa aberta; pagamento confirmado é independente da entrega. Venda no balcão registra retirada entregue e pagamento simulado em dinheiro. Equipe avança uma etapa por vez, com pagamento confirmado; cliente cancela próprio aberto e equipe cancela antes do envio. Faturamento seleciona pagamentos confirmados e pedidos não cancelados. Regras completas: GESTAO_E_CANCELAMENTO_PEDIDOS.md.
 
 ## Transações, dinheiro e erros
 
@@ -56,3 +57,7 @@ A V2 preserva a V1 e adiciona manutenção, índices normalizados, imagens, recu
 ## Compra e pagamento
 
 A V3 inclui subtotal/desconto, origem, UUID idempotente, dados de entrega e pagamentos. O total deve ser subtotal menos desconto. Crédito/débito/PIX são confirmados como simulação; boleto exige admin. Pedidos anteriores preservam valores e recebem pagamento em dinheiro correspondente ao status anterior. Regras e testes: COMPRA_E_PAGAMENTO_SIMULADO.md.
+
+## Gestão e cancelamento
+
+A V4 separa o fluxo logístico do pagamento: antigo finalizado de balcão vira entregue; de loja vira aberto com pagamento preservado. Registra o estado da implantação, sem inventar história anterior nem devolver saldo de cancelamentos legados. Histórico de status, vínculo dos novos movimentos ao pedido, tipo devolucao, índice único de devolução por pedido/produto e data de cancelamento do pagamento são acrescentados sem alterar as migrations anteriores. Cancelamento exige motivo e confirma devolução, movimento, pedido, pagamento e histórico numa única transação; repetição autorizada não duplica efeitos. Consultas pessoais sempre restringem o titular no banco.

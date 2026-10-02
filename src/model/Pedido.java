@@ -13,7 +13,7 @@ public class Pedido {
     private int idCliente;
     private String nomeCliente;
     private Date dataPedido;
-    private String status; // "aberto", "finalizado", "cancelado"
+    private String status; // aberto → em_preparo → enviado → entregue, ou cancelado
     private BigDecimal total = new BigDecimal("0.00");
     private List<ItemPedido> itens;
     private String metodoPagamento;

@@ -30,6 +30,7 @@ public final class InicializacaoTelas {
                 TelaInicial painel = conferir(new TelaInicial(admin));
                 conferir(new TelaProdutos(painel)); imagem(conferir(new TelaClientes(painel)),"clientes.png");
                 imagem(conferir(new TelaEstoque(painel)),"estoque.png"); conferir(new TelaPedidos(admin, painel));
+                conferir(new TelaGestaoPedidos(painel));
                 conferir(new TelaRelatorios(painel)); conferir(new TelaPagamentos(painel)); imagem(conferir(new FormularioProduto(painel, null)),"formulario-produto.png");
                 imagem(conferir(new TelaUsuarios(painel)),"usuarios.png"); imagem(conferir(new TelaCategorias(painel)),"categorias.png");
                 imagem(painel,"painel-admin.png");

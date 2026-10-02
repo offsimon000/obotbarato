@@ -43,12 +43,28 @@ public class EstoqueDAO {
     }
     /** Usada pelo pedido já autorizado e dentro de sua transação. */
     public void saida(Connection c,int id,int qtd)throws SQLException{
+        saida(c,id,qtd,null);
+    }
+    void saida(Connection c,int id,int qtd,Integer pedido)throws SQLException{
         if(c.getAutoCommit())throw new IllegalArgumentException("Saída de venda exige transação.");
         // Revalida a identidade também no ponto público de movimentação compartilhada.
         if(Sessao.getIdUsuario()>0) Acesso.equipe(c,false);else Acesso.cliente(c,Sessao.getIdCliente());
-        mover(c,id,qtd,false,"venda","Baixa por venda");
+        mover(c,id,qtd,false,"venda","Baixa por venda",pedido);
+    }
+    /** A gestão já bloqueou e autorizou o pedido; devolução usa a mesma transação. */
+    void devolver(Connection c,int pedido,int produto,int qtd,String motivo)throws SQLException{
+        if(c.getAutoCommit())throw new IllegalArgumentException("Devolução exige transação.");
+        validar(qtd);
+        // Mesma ordem de locks usada pelas compras: produto e depois saldo, por ID.
+        try(PreparedStatement p=c.prepareStatement("SELECT e.quantidade FROM produtos pr JOIN estoque e ON e.id_produto=pr.id WHERE pr.id=? FOR UPDATE OF pr,e")){
+            p.setInt(1,produto);try(ResultSet r=p.executeQuery()){if(!r.next())throw new SQLException("Produto sem estoque para devolução.");if((long)r.getInt(1)+qtd>Integer.MAX_VALUE)throw new IllegalArgumentException("O saldo excederia o limite do estoque.");}
+        }
+        mover(c,produto,qtd,true,"devolucao",motivo.substring(0,Math.min(motivo.length(),255)),pedido);
     }
     private void mover(Connection c,int id,int qtd,boolean entrada,String tipo,String motivo)throws SQLException{
+        mover(c,id,qtd,entrada,tipo,motivo,null);
+    }
+    private void mover(Connection c,int id,int qtd,boolean entrada,String tipo,String motivo,Integer pedido)throws SQLException{
         validar(qtd);String sql=entrada?"UPDATE estoque SET quantidade=quantidade+? WHERE id_produto=? RETURNING quantidade":
                 "UPDATE estoque SET quantidade=quantidade-? WHERE id_produto=? AND quantidade>=? RETURNING quantidade";
         int saldo;
@@ -56,13 +72,17 @@ public class EstoqueDAO {
             p.setInt(1,qtd);p.setInt(2,id);if(!entrada)p.setInt(3,qtd);
             try(ResultSet r=p.executeQuery()){if(!r.next())throw new SQLException("Estoque insuficiente ou produto inexistente: "+id);saldo=r.getInt(1);}
         }
-        registrar(c,id,tipo,entrada?qtd:-qtd,saldo,motivo);
+        registrar(c,id,tipo,entrada?qtd:-qtd,saldo,motivo,pedido);
     }
     static void registrar(Connection c,int id,String tipo,int qtd,int saldo,String motivo)throws SQLException{
-        try(PreparedStatement p=c.prepareStatement("INSERT INTO movimentos_estoque(id_produto,tipo,quantidade,saldo,motivo,id_usuario,id_cliente) VALUES(?,?,?,?,?,?,?)")){
+        registrar(c,id,tipo,qtd,saldo,motivo,null);
+    }
+    private static void registrar(Connection c,int id,String tipo,int qtd,int saldo,String motivo,Integer pedido)throws SQLException{
+        try(PreparedStatement p=c.prepareStatement("INSERT INTO movimentos_estoque(id_produto,tipo,quantidade,saldo,motivo,id_usuario,id_cliente,id_pedido) VALUES(?,?,?,?,?,?,?,?)")){
             p.setInt(1,id);p.setString(2,tipo);p.setInt(3,qtd);p.setInt(4,saldo);p.setString(5,motivo);
             if(Sessao.getIdUsuario()>0)p.setInt(6,Sessao.getIdUsuario());else p.setNull(6,Types.INTEGER);
             if(Sessao.getIdCliente()>0)p.setInt(7,Sessao.getIdCliente());else p.setNull(7,Types.INTEGER);
+            if(pedido!=null)p.setInt(8,pedido);else p.setNull(8,Types.INTEGER);
             if(p.executeUpdate()!=1)throw new SQLException("Movimento não registrado.");
         }
     }

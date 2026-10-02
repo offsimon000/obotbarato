@@ -17,6 +17,8 @@ Implementação da etapa 4 do plano. Desktop Java 17/Swing/PostgreSQL, mantendo 
 | Registrar venda | Sim | Sim | Compra própria |
 | Consultar relatórios e pedidos gerais | Sim | Sim | Não |
 | Histórico pessoal e favoritos | Na sessão de cliente | Na sessão de cliente | Somente próprios |
+| Avançar entrega simulada | Sim, uma etapa por vez | Sim, uma etapa por vez | Não |
+| Cancelar pedido | Antes do envio | Antes do envio | Somente próprio e aberto |
 
 `Acesso` revalida identidade, ativação e perfil no banco. DAOs e telas aplicam a matriz; consultas públicas de catálogo não expõem dados de clientes. `Sessao.isAdminAtivo()` identifica apenas admin, e `Sessao.sair()` limpa identidades e fecha as janelas antes de abrir o login. O banco possui credencial técnica compartilhada pelo desktop; esta matriz protege as operações do aplicativo, não é um isolamento por usuário do PostgreSQL.
 
@@ -46,4 +48,4 @@ Imagem PNG/JPEG opcional é validada por tamanho (até 5 MB) e dimensões (até 
 
 ## Limites desta entrega
 
-Parte 2 fecha a manutenção e o acesso. Compra, revalidação de preço/disponibilidade e pagamento simulado foram concluídos na etapa 5 (COMPRA_E_PAGAMENTO_SIMULADO.md). Transições/cancelamento de pedidos, perfil, cupons, avaliações e notificações continuam nos próximos blocos. Parte das consultas antigas ainda roda no EDT e existe SQL de filtro de categorias na loja; sua reorganização faz parte da etapa 8. A documentação acadêmica final ainda será regenerada com todos os módulos concluídos.
+Parte 2 fecha a manutenção e o acesso. Compra/pagamento estão concluídos na etapa 5 (COMPRA_E_PAGAMENTO_SIMULADO.md); transições e cancelamento na etapa 6 (GESTAO_E_CANCELAMENTO_PEDIDOS.md). Perfil, cupons, avaliações e notificações continuam nos próximos blocos. Parte das consultas antigas ainda roda no EDT e existe SQL de filtro de categorias na loja; sua reorganização faz parte da etapa 8. A documentação acadêmica final ainda será regenerada com todos os módulos concluídos.

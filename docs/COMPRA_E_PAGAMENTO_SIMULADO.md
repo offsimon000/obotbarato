@@ -1,6 +1,6 @@
 # Compra e pagamento simulado — etapa 5
 
-Desktop Swing, mantendo o tema existente. A etapa implementa compra, descontos, entrega informada e pagamento fictício. Preparo, envio, entrega e cancelamento são a próxima etapa.
+Desktop Swing, mantendo o tema existente. A etapa implementa compra, descontos, entrega informada e pagamento fictício. Preparo, envio, entrega e cancelamento também estão implementados na etapa 6; veja GESTAO_E_CANCELAMENTO_PEDIDOS.md.
 
 ## Regras implementadas
 
@@ -21,7 +21,7 @@ Desktop Swing, mantendo o tema existente. A etapa implementa compra, descontos, 
 
 Pedidos anteriores recebem subtotal igual ao total, desconto zero, origem balcão e pagamento em dinheiro correspondente ao status anterior. As vendas do painel continuam com desconto zero/pagamento fictício em dinheiro; sua gravação agora revalida preço e ativação do produto e é exclusiva da equipe.
 
-Nesta versão, pedido `aberto` representa pagamento pendente, e `finalizado` representa compra confirmada para os relatórios existentes. O pagamento tem status próprio. A etapa 6 evoluirá o pedido para preparo/envio/entrega/cancelamento. O relatório de faturamento por período soma total final dos pedidos confirmados; a revisão completa de rankings/exportação permanece na etapa 8.
+Com a V4, toda compra nova da loja começa `aberto`, com pagamento próprio pendente/confirmado. A confirmação de boleto muda somente o pagamento e registra evento no histórico. Preparo/envio/entrega são operações separadas da equipe. Faturamento soma total final de pedidos não cancelados com pagamento confirmado; a revisão completa de rankings/exportação permanece na etapa 8.
 
 ## Como testar manualmente
 
@@ -31,7 +31,7 @@ Nesta versão, pedido `aberto` representa pagamento pendente, e `finalizado` rep
 4. Selecione PIX e confira 10% de desconto, ou débito e 5%. Para um subtotal de R$ 99,99, PIX desconta R$ 10,00 e totaliza R$ 89,99; débito desconta R$ 5,00 e totaliza R$ 94,99.
 5. Com checkout aberto, tente alterar o carrinho por outra janela ou iniciar outro checkout: deve recusar. Fechar antes da confirmação preserva os itens e libera o carrinho.
 6. Confirme a compra. Deve aparecer número do pedido, pagamento **SIMULADO** e total final. Carrinho vazio e estoque menor. Feche a confirmação ou clique Ver meus pedidos: a compra não pode reaparecer no carrinho.
-7. Abra Meus pedidos → selecione o pedido → Detalhes. Confira itens, desconto, total e endereço informado.
+7. Abra Meus pedidos → selecione o pedido → Detalhes e histórico. Confira itens, desconto, total e endereço informado.
 8. Faça outra compra por boleto: pagamento pendente. Saia, entre como admin (`admin` / `admin123`) → Pagamentos → selecione o pedido → Confirmar simulação. O pagamento passa a confirmado, sem nova baixa de estoque.
 9. Entre como vendedor e confira que ele consulta pagamentos/detalhes, mas não tem o botão para confirmar. Retorne ao cliente e atualize o histórico: pagamento confirmado.
 10. Para verificar preço/estoque alterado durante a compra, concorrência ou falha após a baixa sem arriscar dados da demonstração, use os testes automáticos.

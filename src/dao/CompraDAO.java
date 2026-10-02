@@ -45,17 +45,18 @@ public final class CompraDAO {
             BigDecimal desconto=PagamentoSimulado.desconto(subtotal,metodo),total=subtotal.subtract(desconto);
             String pagamento=PagamentoSimulado.status(metodo);int id;
             try(PreparedStatement p=con.prepareStatement("INSERT INTO pedidos(id_cliente,status,total,subtotal,desconto,origem,chave_compra,destinatario,telefone_entrega,endereco_entrega) VALUES(?,?,?,?,?,'loja',?,?,?,?) RETURNING id")){
-                p.setInt(1,idCliente);p.setString(2,pagamento.equals("confirmado")?"finalizado":"aberto");p.setBigDecimal(3,total);p.setBigDecimal(4,subtotal);p.setBigDecimal(5,desconto);p.setObject(6,chave);p.setString(7,destinatario);p.setString(8,tel);p.setString(9,end);
+                p.setInt(1,idCliente);p.setString(2,"aberto");p.setBigDecimal(3,total);p.setBigDecimal(4,subtotal);p.setBigDecimal(5,desconto);p.setObject(6,chave);p.setString(7,destinatario);p.setString(8,tel);p.setString(9,end);
                 try(ResultSet r=p.executeQuery()){if(!r.next())throw new SQLException("Pedido não gravado.");id=r.getInt(1);}
             }
             for(ItemPedido item:copia.values()){
                 try(PreparedStatement p=con.prepareStatement("INSERT INTO itens_pedido(id_pedido,id_produto,quantidade,preco_unitario) VALUES(?,?,?,?)")){
                     p.setInt(1,id);p.setInt(2,item.getIdProduto());p.setInt(3,item.getQuantidade());p.setBigDecimal(4,item.getPrecoUnitarioDecimal());p.executeUpdate();
-                }new EstoqueDAO().saida(con,item.getIdProduto(),item.getQuantidade());
+                }new EstoqueDAO().saida(con,item.getIdProduto(),item.getQuantidade(),id);
             }
             try(PreparedStatement p=con.prepareStatement("INSERT INTO pagamentos(id_pedido,metodo,status,confirmado_em) VALUES(?,?,?,CASE WHEN ?='confirmado' THEN CURRENT_TIMESTAMP ELSE NULL END)")){
                 p.setInt(1,id);p.setString(2,metodo);p.setString(3,pagamento);p.setString(4,pagamento);p.executeUpdate();
             }
+            GestaoPedidoDAO.registrar(con,id,null,"aberto","Compra na loja; pagamento simulado "+pagamento);
             return new Resultado(id,subtotal,desconto,total,metodo,pagamento);
         });
     }
@@ -65,12 +66,13 @@ public final class CompraDAO {
             try(PreparedStatement p=con.prepareStatement("SELECT p.status,pg.status FROM pedidos p JOIN pagamentos pg ON pg.id_pedido=p.id WHERE p.id=? FOR UPDATE OF p,pg")){
                 p.setInt(1,id);try(ResultSet r=p.executeQuery()){
                     if(!r.next())throw new IllegalArgumentException("Pedido não encontrado.");
+                    if(r.getString(1).equals("cancelado") || r.getString(2).equals("cancelado"))throw new IllegalArgumentException("Pedido cancelado não pode ter pagamento confirmado.");
                     if(r.getString(2).equals("confirmado"))return null;
                     if(!r.getString(1).equals("aberto") || !r.getString(2).equals("pendente"))throw new IllegalArgumentException("Este pagamento não pode ser confirmado.");
                 }
             }
             try(PreparedStatement p=con.prepareStatement("UPDATE pagamentos SET status='confirmado',confirmado_em=CURRENT_TIMESTAMP,confirmado_por=? WHERE id_pedido=?")){p.setInt(1,Sessao.getIdUsuario());p.setInt(2,id);p.executeUpdate();}
-            try(PreparedStatement p=con.prepareStatement("UPDATE pedidos SET status='finalizado' WHERE id=?")){p.setInt(1,id);p.executeUpdate();}return null;
+            GestaoPedidoDAO.registrar(con,id,"aberto","aberto","Pagamento simulado confirmado pelo administrador");return null;
         });
     }
     public List<String[]> listarPagamentos()throws SQLException {
@@ -88,7 +90,7 @@ public final class CompraDAO {
                 p.setInt(1,id);if(!equipe)p.setInt(2,Sessao.getIdCliente());
                 try(ResultSet r=p.executeQuery()){
                     if(!r.next())throw new IllegalArgumentException("Pedido não encontrado.");
-                    texto.append("Pedido #").append(id).append(" — ").append(r.getTimestamp("data_pedido")).append("\nCliente: ").append(r.getString("nome")).append("\nStatus do pedido: ").append(r.getString("status"));
+                    texto.append("Pedido #").append(id).append(" — ").append(r.getTimestamp("data_pedido")).append("\nCliente: ").append(r.getString("nome")).append("\nOrigem: ").append(r.getString("origem")).append("\nStatus do pedido: ").append(StatusPedido.nome(r.getString("status")));
                     texto.append("\nPagamento SIMULADO: ").append(PagamentoSimulado.NOMES.get(r.getString("metodo"))).append(" / ").append(r.getString("pagamento"));
                     texto.append("\nSubtotal: ").append(PagamentoSimulado.moeda(r.getBigDecimal("subtotal"))).append("\nDesconto: ").append(PagamentoSimulado.moeda(r.getBigDecimal("desconto"))).append("\nTotal: ").append(PagamentoSimulado.moeda(r.getBigDecimal("total")));
                     texto.append("\nEntrega simulada: ").append(Objects.toString(r.getString("destinatario"),"Retirada no balcão")).append("\n").append(Objects.toString(r.getString("endereco_entrega"),"")).append("\n").append(Objects.toString(r.getString("telefone_entrega"),"")).append("\n\nItens:\n");
@@ -96,7 +98,7 @@ public final class CompraDAO {
             }
             try(PreparedStatement p=c.prepareStatement("SELECT pr.nome,i.quantidade,i.preco_unitario FROM itens_pedido i JOIN produtos pr ON pr.id=i.id_produto WHERE i.id_pedido=? ORDER BY i.id")){
                 p.setInt(1,id);try(ResultSet r=p.executeQuery()){while(r.next())texto.append(r.getInt(2)).append(" × ").append(r.getString(1)).append(" / ").append(PagamentoSimulado.moeda(r.getBigDecimal(3))).append("\n");}
-            }return texto.toString();
+            }texto.append(GestaoPedidoDAO.historico(c,id));return texto.toString();
         }
     }
     private static Resultado resultado(ResultSet r)throws SQLException{return new Resultado(r.getInt("id"),r.getBigDecimal("subtotal"),r.getBigDecimal("desconto"),r.getBigDecimal("total"),r.getString("metodo"),r.getString("pagamento"));}

@@ -23,6 +23,9 @@ public class PedidoDAO {
         pedido.recalcularTotal();
         int id = Transacao.executar(con -> {
             util.Acesso.equipe(con,false);
+            // Compatibilidade dos chamadores antigos: finalizado significava retirada no balcão.
+            if(!java.util.Set.of("finalizado","entregue").contains(java.util.Objects.toString(pedido.getStatus(),"")))
+                throw new IllegalArgumentException("Venda no balcão deve ser concluída como retirada e pagamento simulado em dinheiro.");
             util.Acesso.venda(con, pedido.getIdCliente());
             try(Statement s=con.createStatement()){s.execute("SELECT pg_advisory_xact_lock_shared(726282)");}
             List<ItemPedido> ordenados=pedido.getItens().stream().sorted(java.util.Comparator.comparingInt(ItemPedido::getIdProduto)).toList();
@@ -39,7 +42,7 @@ public class PedidoDAO {
                     "INSERT INTO pedidos (id_cliente, status, total, registrado_por,subtotal) VALUES (?,?,?,?,?)",
                     Statement.RETURN_GENERATED_KEYS)) {
                 ps.setInt(1, pedido.getIdCliente());
-                ps.setString(2, pedido.getStatus());
+                ps.setString(2, "entregue");
                 ps.setBigDecimal(3, pedido.getTotalDecimal());
                 if (Sessao.getIdUsuario() > 0) ps.setInt(4, Sessao.getIdUsuario());
                 else ps.setNull(4, Types.INTEGER);
@@ -59,17 +62,19 @@ public class PedidoDAO {
                     ps.setInt(3, item.getQuantidade());
                     ps.setBigDecimal(4, item.getPrecoUnitarioDecimal());
                     if (ps.executeUpdate() != 1) throw new SQLException("Não foi possível gravar o item.");
-                    estoqueDAO.saida(con, item.getIdProduto(), item.getQuantidade());
+                    estoqueDAO.saida(con, item.getIdProduto(), item.getQuantidade(),idNovo);
                 }
             }
             try(PreparedStatement pg=con.prepareStatement("INSERT INTO pagamentos(id_pedido,metodo,status,confirmado_em) VALUES(?,'dinheiro',?,CASE WHEN ?='confirmado' THEN CURRENT_TIMESTAMP ELSE NULL END)")){
-                String pagamento="finalizado".equals(pedido.getStatus())?"confirmado":"cancelado".equals(pedido.getStatus())?"cancelado":"pendente";
+                String pagamento="confirmado";
                 pg.setInt(1,idNovo);pg.setString(2,pagamento);pg.setString(3,pagamento);pg.executeUpdate();
             }
+            GestaoPedidoDAO.registrar(con,idNovo,null,"entregue","Retirada no balcão; pagamento simulado em dinheiro confirmado");
             return idNovo;
         });
         // O objeto só recebe o ID depois da confirmação de toda a transação.
         pedido.setId(id);
+        pedido.setStatus("entregue");
     }
 
     public List<Pedido> listarPorCliente(int idCliente) throws SQLException {
@@ -112,10 +117,10 @@ public class PedidoDAO {
         LocalDate fim = LocalDate.parse(dataFim);
         if (fim.isBefore(inicio)) throw new IllegalArgumentException("Data final anterior à inicial.");
         List<String[]> lista = new ArrayList<>();
-        String sql = "SELECT DATE(data_pedido) AS dia, COUNT(*) AS qtd_pedidos, SUM(total) AS total_dia "
-                   + "FROM pedidos WHERE status = 'finalizado' "
-                   + "AND DATE(data_pedido) BETWEEN ? AND ? "
-                   + "GROUP BY DATE(data_pedido) ORDER BY dia";
+        String sql = "SELECT DATE(p.data_pedido) AS dia, COUNT(*) AS qtd_pedidos, SUM(p.total) AS total_dia "
+                   + "FROM pedidos p JOIN pagamentos pg ON pg.id_pedido=p.id WHERE p.status <> 'cancelado' AND pg.status='confirmado' "
+                   + "AND DATE(p.data_pedido) BETWEEN ? AND ? "
+                   + "GROUP BY DATE(p.data_pedido) ORDER BY dia";
         try (Connection con = ConexaoBanco.getConexao();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setDate(1, Date.valueOf(inicio));
@@ -141,7 +146,8 @@ public class PedidoDAO {
                    + "FROM itens_pedido i "
                    + "JOIN produtos p ON i.id_produto = p.id "
                    + "JOIN pedidos pd ON i.id_pedido = pd.id "
-                   + "WHERE pd.status = 'finalizado' "
+                   + "JOIN pagamentos pg ON pg.id_pedido=pd.id "
+                   + "WHERE pd.status <> 'cancelado' AND pg.status='confirmado' "
                    + "GROUP BY p.id, p.nome ORDER BY total_vendido DESC LIMIT 10";
         try (Connection con = ConexaoBanco.getConexao();
              PreparedStatement ps = con.prepareStatement(sql);

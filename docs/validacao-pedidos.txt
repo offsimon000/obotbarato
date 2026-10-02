@@ -1,0 +1,20 @@
+APROVADO: evolução V1 → V2/V3 → V4 preserva produto, preço, saldo, mínimo, pedido, itens e pagamento; mapeia balcão entregue/loja aberta sem inventar entrega ou devolução anterior; histórico de implantação e reexecução idempotente.
+OK 1: Compra paga nasce aberta, com histórico e movimento vinculados ao pedido
+OK 2: Equipe segue aberto → preparo → enviado → entregue, sem saltos, retornos ou avanço repetido
+OK 3: Enviados e entregues não podem ser cancelados por este fluxo
+OK 4: Boleto pendente bloqueia preparo; confirmação muda só pagamento e registra evento uma vez
+OK 5: Cliente cancela aberto, preserva valores/datas e recebe uma devolução única auditada
+OK 6: Cancelamento de boleto pendente impede confirmação posterior
+OK 7: Cliente não cancela em preparo; equipe cancela antes do envio
+OK 8: Consulta, detalhes e cancelamento exigem sessão e titularidade real
+OK 9: Motivo obrigatório e limitado, sem alterações em pedidos inválidos
+OK 10: Duas solicitações simultâneas devolvem estoque apenas uma vez
+OK 11: Duas telas avançando o mesmo estado produzem uma única transição
+OK 12: Disputa entre envio e cancelamento termina num único estado coerente
+OK 13: Disputa confirmação/cancelamento nunca deixa pedido cancelado com pagamento confirmado
+OK 14: Falha no histórico após devolver dois produtos desfaz estoque, movimentos, pedido e pagamento
+OK 15: Cancelamento devolve todos os itens, inclusive produtos desativados após a compra
+OK 16: Filtros combinados de data/cliente/status/origem e detalhes com histórico seguro
+OK 17: Faturamento exclui cancelados/pendentes; venda no balcão registra retirada entregue e pagamento simulado
+APROVADO: 17 cenários de gestão e cancelamento em PostgreSQL real.
+APROVADO: fluxo Swing de filtro → avanço → cancelamento pela equipe, duplo clique e cancelamento pessoal; confirmação/motivo fornecidos pelo teste, sem janelas visíveis.

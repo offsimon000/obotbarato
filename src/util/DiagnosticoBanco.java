@@ -31,7 +31,7 @@ public final class DiagnosticoBanco {
                 System.out.println("OK: conexão com banco " + rs.getString(1));
                 System.out.println("Servidor: " + rs.getString(2).split(" on ")[0]);
             }
-            String[] tabelas = {"schema_migrations", "usuarios", "clientes", "categorias", "produtos",
+            String[] tabelas = {"historico_pedidos", "schema_migrations", "usuarios", "clientes", "categorias", "produtos",
                     "estoque", "pedidos", "itens_pedido", "favoritos", "acessos_cliente", "movimentos_estoque", "pagamentos"};
             for (String tabela : tabelas) {
                 try (PreparedStatement ps = con.prepareStatement("SELECT to_regclass(?) IS NOT NULL")) {

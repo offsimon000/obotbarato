@@ -1,16 +1,17 @@
 # Estado atual — 02/10/2026
 
-Partes 1 e 2 concluídas; etapa 5 de compra/pagamento simulado também concluída. Desktop Java Swing/PostgreSQL e estilo visual preservados. A versão continua em desenvolvimento, com apresentação prevista para 28/10/2026.
+Etapas 1 a 6 concluídas: partes 1 e 2, compra/pagamento simulado e gestão/cancelamento de pedidos. Desktop Java Swing/PostgreSQL e estilo visual preservados. A versão continua em desenvolvimento, com apresentação prevista para 28/10/2026.
 
 - Cadastros, permissões, usuários/último admin, recuperação/ativação por código, validações/máscaras, categorias, imagens, estoque mínimo e histórico: PARTE_2_CADASTROS_E_ACESSO.md.
 - Carrinho com reserva, entrega informada, revalidação de preço/estoque, confirmação idempotente, descontos PIX/débito, pagamento fictício persistido e boleto confirmado por admin: COMPRA_E_PAGAMENTO_SIMULADO.md.
-- Como abrir e testar: COMO_TESTAR_PARTES_1_E_2.md e Testar Partes 1 e 2.cmd (agora inclui também compra/pagamento).
+- Filtros de pedidos, venda no balcão separada, estados de entrega independentes do pagamento, histórico, cancelamento autorizado e devolução única: GESTAO_E_CANCELAMENTO_PEDIDOS.md.
+- Como abrir e testar: COMO_TESTAR_PARTES_1_E_2.md e Testar Partes 1 e 2.cmd (inclui também compra/pagamento e gestão/cancelamento).
 
-51 fontes de produção compiladas. Banco isolado: 20 regressões iniciais + 15 cenários de acesso/cadastros + 14 de compra/pagamento; evolução V1/V2/V3 preservando dados, pedido e itens; construção de 16 telas. Fluxo Swing do checkout aprovado, incluindo duplo clique, fechamento e continuidade. Evidências: ultimo-teste-integracao.txt, validacao-parte2.txt e validacao-compra.txt. Capturas dos cadastros e checkout foram inspecionadas em validacao-ui.
+54 fontes de produção compiladas. Banco isolado: 20 regressões iniciais + 15 cenários de acesso/cadastros + 14 de compra/pagamento + 17 de gestão/cancelamento (66 cenários). Evolução V1/V3 → V4 preserva dados, pedidos, itens, pagamentos e saldos, com registro explícito de implantação. Construção de 17 telas. Fluxos Swing de checkout e gestão, incluindo duplo clique, filtro, avanço e cancelamento pessoal/da equipe. Evidências: ultimo-teste-integracao.txt, validacao-parte2.txt, validacao-compra.txt e validacao-pedidos.txt. Capturas em validacao-ui.
 
-A base local foi atualizada preservando dados, com backups anteriores às evoluções. A verificação de reinício/restauração inclui pedido, total, subtotal/desconto, pagamento, imagem, estoque e auditoria; resultado em validacao-base.txt. O serviço/banco PostgreSQL antigo é preservado.
+A base local foi atualizada preservando dados, com backups anteriores às evoluções. A verificação de reinício/restauração inclui pedido, total, subtotal/desconto, pagamento, imagem, estoque, retirada entregue, cancelamento, devolução e histórico; resultado em validacao-base.txt. O serviço/banco PostgreSQL antigo é preservado.
 
-Próximo bloco: etapa 6, gestão/transições/histórico/cancelamento de pedidos. Perfil, cupons, avaliações, notificações, dashboard, relatórios finais, documentação acadêmica e empacotamento continuam pendentes. Os registros históricos do primeiro bloco são mantidos abaixo.
+Próximo bloco: etapa 7, começando por perfil e cupons; depois avaliações, notificações e dashboard. Relatórios finais, validação completa, documentação acadêmica e empacotamento continuam pendentes. Os registros históricos do primeiro bloco são mantidos abaixo.
 ---
 # Registro do primeiro bloco concluído — 30/09/2026
 

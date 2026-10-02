@@ -22,6 +22,10 @@ public class TelaPedidos extends JFrame {
     private List<Produto> produtos;
     private Usuario usuarioLogado;
     private JFrame telaAnterior;
+    private boolean salvando;
+    private JButton btnFinalizar;
+    private JButton btnVoltar;
+    private final int sessaoUsuario=util.Sessao.getIdUsuario();
 
     private ClienteDAO clienteDAO = new ClienteDAO();
     private ProdutoDAO produtoDAO = new ProdutoDAO();
@@ -36,10 +40,11 @@ public class TelaPedidos extends JFrame {
     }
 
     private void initComponents() {
-        setTitle("OBotBarato - Novo Pedido");
+        setTitle("OBotBarato - Nova venda no balcão");
         setSize(780, 600);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        addWindowListener(new java.awt.event.WindowAdapter(){public void windowClosing(java.awt.event.WindowEvent e){if(!salvando){dispose();if(telaAnterior!=null && util.Sessao.getIdUsuario()==sessaoUsuario)telaAnterior.setVisible(true);}}});
 
         JPanel painel = new JPanel(new BorderLayout());
         painel.setBackground(Tema.BG_ESCURO);
@@ -53,11 +58,11 @@ public class TelaPedidos extends JFrame {
 
         JPanel headerEsq = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
         headerEsq.setOpaque(false);
-        headerEsq.add(Tema.botaoVoltar(this, telaAnterior));
+        btnVoltar=Tema.botaoVoltar(this,telaAnterior);headerEsq.add(btnVoltar);
         JSeparator sep = new JSeparator(JSeparator.VERTICAL);
         sep.setForeground(Tema.BORDA); sep.setPreferredSize(new Dimension(1, 20));
         headerEsq.add(sep);
-        JLabel lblTitulo = new JLabel("Novo Pedido");
+        JLabel lblTitulo = new JLabel("Venda no balcão — retirada e pagamento simulado");
         lblTitulo.setFont(new Font("Segoe UI", Font.BOLD, 17));
         lblTitulo.setForeground(Tema.TEXTO_PRIMARIO);
         headerEsq.add(lblTitulo);
@@ -140,7 +145,7 @@ public class TelaPedidos extends JFrame {
         JPanel btns = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
         btns.setOpaque(false);
         JButton btnRemover   = Tema.botaoSecundario("Remover Item");
-        JButton btnFinalizar = Tema.botaoPrimario("Finalizar Pedido");
+        btnFinalizar = Tema.botaoPrimario("Concluir retirada");
         btnFinalizar.setBackground(Tema.VERDE_SUCESSO);
 
         btnRemover.addActionListener(e -> removerItem());
@@ -166,11 +171,12 @@ public class TelaPedidos extends JFrame {
     }
 
     private void adicionarItem() {
+        if(salvando)return;
         int idx = cbProduto.getSelectedIndex();
         if (idx <= 0) { JOptionPane.showMessageDialog(this, "Selecione um produto."); return; }
         Produto p = produtos.get(idx - 1);
         int qtd = (int) spnQtd.getValue();
-        ItemPedido item = new ItemPedido(p.getId(), p.getNome(), qtd, p.getPreco());
+        ItemPedido item = new ItemPedido();item.setIdProduto(p.getId());item.setNomeProduto(p.getNome());item.setQuantidade(qtd);item.setPrecoUnitario(p.getPrecoDecimal());
         pedidoAtual.adicionarItem(item);
         modeloItens.addRow(new Object[]{
             p.getNome(), qtd,
@@ -181,6 +187,7 @@ public class TelaPedidos extends JFrame {
     }
 
     private void removerItem() {
+        if(salvando)return;
         int l = tabelaItens.getSelectedRow();
         if (l < 0) { JOptionPane.showMessageDialog(this, "Selecione um item."); return; }
         pedidoAtual.removerItem(pedidoAtual.getItens().get(l));
@@ -189,21 +196,20 @@ public class TelaPedidos extends JFrame {
     }
 
     private void finalizarPedido() {
+        if(salvando)return;
         if (cbCliente.getSelectedIndex() <= 0) { JOptionPane.showMessageDialog(this, "Selecione um cliente."); return; }
         if (pedidoAtual.getItens().isEmpty())  { JOptionPane.showMessageDialog(this, "Adicione ao menos um item."); return; }
         Cliente cli = clientes.get(cbCliente.getSelectedIndex() - 1);
         int confirm = JOptionPane.showConfirmDialog(this,
-            String.format("Finalizar pedido de %s?\nTotal: R$ %.2f", cli.getNome(), pedidoAtual.getTotal()),
-            "Confirmar Pedido", JOptionPane.YES_NO_OPTION);
+            String.format("Concluir retirada de %s?\nTotal: R$ %.2f\nPagamento SIMULADO em dinheiro. A retirada será registrada como entregue.", cli.getNome(), pedidoAtual.getTotal()),
+            "Venda no balcão", JOptionPane.YES_NO_OPTION);
         if (confirm == JOptionPane.YES_OPTION) {
-            try {
-                pedidoAtual.setIdCliente(cli.getId());
-                pedidoAtual.setStatus("finalizado");
-                pedidoDAO.salvar(pedidoAtual);
-                JOptionPane.showMessageDialog(this, "Pedido #" + pedidoAtual.getId() + " finalizado!");
-                dispose();
-                if (telaAnterior != null) telaAnterior.setVisible(true);
-            } catch (Exception e) { JOptionPane.showMessageDialog(this, "Erro: " + util.Erros.mensagem(e)); }
+            pedidoAtual.setIdCliente(cli.getId());pedidoAtual.setStatus("entregue");
+            salvando=true;btnFinalizar.setEnabled(false);btnVoltar.setEnabled(false);cbCliente.setEnabled(false);cbProduto.setEnabled(false);
+            new SwingWorker<Void,Void>(){
+                protected Void doInBackground()throws Exception{pedidoDAO.salvar(pedidoAtual);return null;}
+                protected void done(){salvando=false;if(util.Sessao.getIdUsuario()!=sessaoUsuario)return;btnFinalizar.setEnabled(true);btnVoltar.setEnabled(true);cbCliente.setEnabled(true);cbProduto.setEnabled(true);try{get();JOptionPane.showMessageDialog(TelaPedidos.this,"Pedido #"+pedidoAtual.getId()+" entregue no balcão. Pagamento simulado confirmado.");dispose();if(telaAnterior!=null)telaAnterior.setVisible(true);}catch(Exception e){JOptionPane.showMessageDialog(TelaPedidos.this,"Erro: "+util.Erros.mensagem(e));}}
+            }.execute();
         }
     }
 }
