@@ -1,4 +1,4 @@
-# Contrato da base desktop — primeiro bloco
+# Contrato da base desktop — partes 1 e 2
 
 ## Entrada e execução
 
@@ -10,18 +10,20 @@ Configurações externas existentes são preservadas. As variáveis `DB_URL`, `D
 
 ## Esquema e regras atuais
 
-O banco possui oito tabelas de negócio e uma de controle de migrations:
+O banco possui dez tabelas de negócio e uma de controle de migrations:
 
 | Tabela | Chave e regras principais |
 |---|---|
 | `usuarios` | ID; login único; nome, senha e perfil obrigatórios; perfil `admin` ou `vendedor`; ativo. |
-| `categorias` | ID; nome obrigatório e único. |
+| `categorias` | ID; nome obrigatório e único; ativo. |
 | `produtos` | ID; nome obrigatório; preço `NUMERIC(10,2)` não negativo; categoria e responsável por cadastro por FK; ativo. |
 | `estoque` | Produto como PK/FK; quantidade e mínimo não negativos; padrão inicial 0 e mínimo 5. |
 | `clientes` | ID; nome/e-mail obrigatórios; e-mail e CPF únicos; senha opcional para cadastro administrativo; responsável e ativo. CPF, telefone e endereço vazios são normalizados para NULL. |
 | `pedidos` | ID; cliente obrigatório por FK; data padrão do servidor; status e total obrigatórios; responsável pelo registro opcional. |
 | `itens_pedido` | ID; pedido/produto por FK; quantidade positiva; preço unitário decimal não negativo. |
 | `favoritos` | PK composta cliente/produto, impedindo duplicação; FKs. |
+| `acessos_cliente` | Cliente PK/FK; hash do código, validade, tentativas e emissor. |
+| `movimentos_estoque` | ID; produto/data/tipo/delta/saldo/motivo e responsável. |
 | `schema_migrations` | Nome da migration como PK, SHA-256 do arquivo e data de aplicação. |
 
 Existem índices de categoria do produto, cliente/data do pedido e pedido/produto dos itens. As restrições de FK impedem referências inexistentes; as restrições únicas e de valores também são aplicadas no banco.
@@ -36,12 +38,16 @@ Pedido e produto só recebem ID depois de confirmada a transação composta. Fal
 
 Preços, subtotais e total nos modelos/persistência usam `BigDecimal`, escala de dois centavos e arredondamento HALF_UP. A API de leitura `double` das telas antigas foi mantida por compatibilidade. As regras adicionais de desconto e pagamento pertencem à etapa 5.
 
-As operações públicas dos DAOs não substituem falha de banco por lista vazia, senha incorreta ou resultado de gravação falso. Operações sem um registro correspondente retornam ausência e os formulários verificam o resultado. `Erros` traduz falhas para mensagens da interface, incluindo indisponibilidade, driver ausente, duplicidade e restrições; os detalhes técnicos vão para o registro. A atualização automática de hash legado pode registrar um aviso sem negar uma autenticação já verificada; a revisão de senhas completa pertence à etapa 4.
+As operações públicas dos DAOs não substituem falha de banco por lista vazia, senha incorreta ou resultado de gravação falso. Operações sem um registro correspondente retornam ausência e os formulários verificam o resultado. `Erros` traduz falhas para mensagens da interface, incluindo indisponibilidade, driver ausente, duplicidade e restrições; os detalhes técnicos vão para o registro. Falhas de migração de hash são propagadas; MD5 e SHA256+salt antigos são migrados para PBKDF2 no login. As permissões são revalidadas por `Acesso` no banco.
 
 ## Instalação, demonstração e restauração
 
 `InicializarBanco` aplica migrations na ordem dos nomes, com exclusão mútua transacional e registro de checksum. Reexecutar não reaplica versões. Alterar arquivo já aplicado é rejeitado. Uma migration falha não deixa esquema parcial ou registro de versão confirmado. A base legada sem histórico de migrations permanece como referência; este instalador trabalha em base nova.
 
-`--demo` é separado da criação do esquema. Instala três contas e cinco produtos fictícios. As senhas são geradas no formato SHA-256 com salt aceito pelo código atual. Reexecutar não redefine as contas, duplica produtos ou repõe estoque já consumido.
+`--demo` é separado da criação do esquema. Instala três contas e cinco produtos fictícios. As senhas são geradas com PBKDF2-HMAC-SHA256 e salt aleatório. Reexecutar não redefine as contas, duplica produtos ou repõe estoque já consumido.
 
 `backup.ps1` salva o banco local em formato custom do PostgreSQL. `restaurar-backup.ps1` sempre cria um banco novo, preservando o principal, e gera uma configuração separada. A validação confere registros, itens, total, estoque e auditoria após reinício e após restauração.
+
+## Evolução da parte 2
+
+A V2 preserva a V1 e adiciona manutenção, índices normalizados, imagens, recuperação por código e histórico de estoque. Produto, saldo inicial e movimento são atômicos; vendas também registram movimentos dentro da mesma transação. O alerta lê o mínimo salvo. Regras completas, matriz e formatos: PARTE_2_CADASTROS_E_ACESSO.md. Testes: COMO_TESTAR_PARTES_1_E_2.md.

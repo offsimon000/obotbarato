@@ -34,8 +34,10 @@ try {
     if ($LASTEXITCODE -ne 0) { throw "Falha no initdb. Consulte $pastaTeste/initdb.log" }
     $processo = Start-Process -FilePath $pgCtl -ArgumentList @('-D', ('"' + $dados + '"'), '-l', ('"' + (Join-Path $pastaTeste 'servidor.log') + '"'), '-o', ('"-h 127.0.0.1 -p ' + $portaTeste + '"'), '-w', 'start') -WindowStyle Hidden -PassThru -RedirectStandardOutput (Join-Path $pastaTeste 'inicio.log') -RedirectStandardError (Join-Path $pastaTeste 'inicio-erro.log')
     # Aguarda só pg_ctl. Start-Process -Wait aguarda também o servidor filho permanente.
-    if (-not $processo.WaitForExit(30000)) { throw 'Tempo limite ao iniciar cluster isolado.' }
-    if ($processo.ExitCode -ne 0) { throw "Falha ao iniciar PostgreSQL isolado. Consulte $pastaTeste/inicio-erro.log" }
+    $handleProcesso=$processo.Handle
+    if (-not $processo.WaitForExit(60000)) { throw 'Tempo limite ao iniciar cluster isolado.' }
+    & $pgCtl -D $dados status > (Join-Path $pastaTeste 'status.log') 2>&1
+    if ($LASTEXITCODE -ne 0) { throw "Falha ao iniciar PostgreSQL isolado. Consulte $pastaTeste/inicio-erro.log" }
     $iniciado = $true
     $senhaAnterior = $env:PGPASSWORD
     try {
@@ -44,15 +46,23 @@ try {
         if ($LASTEXITCODE -ne 0) { throw 'Falha ao criar base de teste.' }
     } finally { $env:PGPASSWORD = $senhaAnterior }
     New-Item -ItemType Directory -Force -Path 'build/test/classes' | Out-Null
-    & javac --release 17 -encoding UTF-8 -cp 'build/classes;lib/postgresql-42.7.13.jar' -d 'build/test/classes' 'test/IntegracaoBanco.java'
+    & javac --release 17 -encoding UTF-8 -cp 'build/classes;lib/postgresql-42.7.13.jar' -d 'build/test/classes' 'test/IntegracaoBanco.java' 'test/CadastrosEAcesso.java' 'test/EvolucaoDaBase.java' 'test/InicializacaoTelas.java'
     if ($LASTEXITCODE -ne 0) { throw 'Falha ao compilar testes.' }
+    & java '-Dfile.encoding=UTF-8' "-Dobotbarato.config=$arquivoConfig" -cp 'build/test/classes;build/classes;lib/postgresql-42.7.13.jar' EvolucaoDaBase | Tee-Object -FilePath (Join-Path $pastaTeste 'evolucao.txt')
+    if ($LASTEXITCODE -ne 0) { throw 'Teste de evolucao V1/V2 falhou.' }
     & java '-Dfile.encoding=UTF-8' "-Dobotbarato.config=$arquivoConfig" -cp 'build/test/classes;build/classes;lib/postgresql-42.7.13.jar' IntegracaoBanco | Tee-Object -FilePath (Join-Path $pastaTeste 'resultado.txt')
     if ($LASTEXITCODE -ne 0) { throw 'Teste de integracao falhou.' }
+    & java '-Dfile.encoding=UTF-8' "-Dobotbarato.config=$arquivoConfig" -cp 'build/test/classes;build/classes;lib/postgresql-42.7.13.jar' CadastrosEAcesso | Tee-Object -FilePath (Join-Path $pastaTeste 'parte2.txt')
+    if ($LASTEXITCODE -ne 0) { throw 'Teste de cadastros e acesso falhou.' }
+    & java '-Dfile.encoding=UTF-8' "-Dobotbarato.config=$arquivoConfig" -cp 'build/test/classes;build/classes;lib/postgresql-42.7.13.jar' InicializacaoTelas | Tee-Object -FilePath (Join-Path $pastaTeste 'telas.txt')
+    if ($LASTEXITCODE -ne 0) { throw 'Teste de inicializacao das telas falhou.' }
+    $evidencia=[IO.File]::ReadAllText((Join-Path $pastaTeste 'evolucao.txt'))+[IO.File]::ReadAllText((Join-Path $pastaTeste 'parte2.txt'))+[IO.File]::ReadAllText((Join-Path $pastaTeste 'telas.txt'))
+    [IO.File]::WriteAllText((Join-Path $raizProjeto 'docs/validacao-parte2.txt'),$evidencia,[Text.UTF8Encoding]::new($false))
     New-Item -ItemType Directory -Force -Path 'docs' | Out-Null
-    Copy-Item -LiteralPath (Join-Path $pastaTeste 'resultado.txt') -Destination 'docs/ultimo-teste-integracao.txt' -Force
+    [IO.File]::WriteAllText((Join-Path $raizProjeto 'docs/ultimo-teste-integracao.txt'),[IO.File]::ReadAllText((Join-Path $pastaTeste 'resultado.txt')),[Text.UTF8Encoding]::new($false))
 } finally {
     if ($iniciado -or (Test-Path -LiteralPath (Join-Path $dados 'postmaster.pid'))) {
-        & $pgCtl -D $dados -m fast -w stop > (Join-Path $pastaTeste 'parada.log') 2>&1
+        & $pgCtl -D $dados -m fast -t 60 -w stop > (Join-Path $pastaTeste 'parada.log') 2>&1
         if ($LASTEXITCODE -ne 0) { Write-Warning "Confira parada do cluster isolado em $dados" }
     }
     Pop-Location

@@ -32,7 +32,7 @@ public final class DiagnosticoBanco {
                 System.out.println("Servidor: " + rs.getString(2).split(" on ")[0]);
             }
             String[] tabelas = {"schema_migrations", "usuarios", "clientes", "categorias", "produtos",
-                    "estoque", "pedidos", "itens_pedido", "favoritos"};
+                    "estoque", "pedidos", "itens_pedido", "favoritos", "acessos_cliente", "movimentos_estoque"};
             for (String tabela : tabelas) {
                 try (PreparedStatement ps = con.prepareStatement("SELECT to_regclass(?) IS NOT NULL")) {
                     ps.setString(1, "public." + tabela);
@@ -42,6 +42,8 @@ public final class DiagnosticoBanco {
                     }
                 }
             }
+            st.executeQuery("SELECT ativo FROM categorias LIMIT 0").close();
+            st.executeQuery("SELECT imagem FROM produtos LIMIT 0").close();
             // Confere as colunas utilizadas pelos DAOs, sem consultar dados pessoais.
             st.executeQuery("SELECT criado_por FROM produtos LIMIT 0").close();
             st.executeQuery("SELECT criado_por FROM clientes LIMIT 0").close();

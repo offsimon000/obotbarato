@@ -25,6 +25,7 @@ public class TelaFavoritos extends JFrame {
     private final ProdutoDAO     produtoDAO = new ProdutoDAO();
 
     public TelaFavoritos(TelaLoja telaLoja, Cliente cliente) {
+        util.Acesso.telaCliente(cliente.getId());
         this.telaLoja      = telaLoja;
         this.clienteLogado = cliente;
         initComponents();

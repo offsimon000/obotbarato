@@ -1,72 +1,82 @@
 package dao;
-
-import util.ConexaoBanco;
+import util.*;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class EstoqueDAO {
-    public int getQuantidade(int idProduto) throws SQLException {
-        try (Connection con = ConexaoBanco.getConexao();
-             PreparedStatement ps = con.prepareStatement("SELECT quantidade FROM estoque WHERE id_produto = ?")) {
-            ps.setInt(1, idProduto);
-            try (ResultSet rs = ps.executeQuery()) {
-                return rs.next() ? rs.getInt("quantidade") : 0;
+    public int getQuantidade(int id)throws SQLException{
+        try(Connection c=ConexaoBanco.getConexao();PreparedStatement p=c.prepareStatement("SELECT quantidade FROM estoque WHERE id_produto=?")){
+            p.setInt(1,id);try(ResultSet r=p.executeQuery()){return r.next()?r.getInt(1):0;}
+        }
+    }
+    public int getMinimo(int id)throws SQLException{
+        Acesso.equipe();
+        try(Connection c=ConexaoBanco.getConexao();PreparedStatement p=c.prepareStatement("SELECT estoque_minimo FROM estoque WHERE id_produto=?")){
+            p.setInt(1,id);try(ResultSet r=p.executeQuery()){if(!r.next())throw new SQLException("Estoque inexistente.");return r.getInt(1);}
+        }
+    }
+    public void definirMinimo(int id,int minimo)throws SQLException{
+        if(minimo<0)throw new IllegalArgumentException("Mínimo não pode ser negativo.");
+        Transacao.executar(c->{Acesso.equipe(c,true);
+            try(PreparedStatement p=c.prepareStatement("UPDATE estoque SET estoque_minimo=? WHERE id_produto=?")){
+                p.setInt(1,minimo);p.setInt(2,id);if(p.executeUpdate()!=1)throw new SQLException("Estoque inexistente.");
+            }return null;
+        });
+    }
+    public void atualizar(int id,int quantidade)throws SQLException{
+        if(quantidade<0)throw new IllegalArgumentException("Estoque não pode ser negativo.");
+        Transacao.executar(c->{Acesso.equipe(c,true);int anterior;
+            try(PreparedStatement p=c.prepareStatement("SELECT quantidade FROM estoque WHERE id_produto=? FOR UPDATE")){
+                p.setInt(1,id);try(ResultSet r=p.executeQuery()){if(!r.next())throw new SQLException("Produto sem registro de estoque.");anterior=r.getInt(1);}
             }
+            try(PreparedStatement p=c.prepareStatement("UPDATE estoque SET quantidade=? WHERE id_produto=?")){p.setInt(1,quantidade);p.setInt(2,id);p.executeUpdate();}
+            registrar(c,id,"ajuste",quantidade-anterior,quantidade,"Ajuste de saldo");return null;
+        });
+    }
+    public void entrada(int id,int qtd)throws SQLException{entrada(id,qtd,"Reposição manual");}
+    public void entrada(int id,int qtd,String motivo)throws SQLException{manual(id,qtd,true,motivo);}
+    public void saida(int id,int qtd)throws SQLException{saida(id,qtd,"Saída manual");}
+    public void saida(int id,int qtd,String motivo)throws SQLException{manual(id,qtd,false,motivo);}
+    private void manual(int id,int qtd,boolean entrada,String motivo)throws SQLException{
+        validar(qtd);String m=Validacao.texto(motivo,"Motivo",3,255);
+        Transacao.executar(c->{Acesso.equipe(c,true);mover(c,id,qtd,entrada,entrada?"entrada":"saida",m);return null;});
+    }
+    /** Usada pelo pedido já autorizado e dentro de sua transação. */
+    public void saida(Connection c,int id,int qtd)throws SQLException{
+        if(c.getAutoCommit())throw new IllegalArgumentException("Saída de venda exige transação.");
+        // Revalida a identidade também no ponto público de movimentação compartilhada.
+        if(Sessao.getIdUsuario()>0) Acesso.equipe(c,false);else Acesso.cliente(c,Sessao.getIdCliente());
+        mover(c,id,qtd,false,"venda","Baixa por venda");
+    }
+    private void mover(Connection c,int id,int qtd,boolean entrada,String tipo,String motivo)throws SQLException{
+        validar(qtd);String sql=entrada?"UPDATE estoque SET quantidade=quantidade+? WHERE id_produto=? RETURNING quantidade":
+                "UPDATE estoque SET quantidade=quantidade-? WHERE id_produto=? AND quantidade>=? RETURNING quantidade";
+        int saldo;
+        try(PreparedStatement p=c.prepareStatement(sql)){
+            p.setInt(1,qtd);p.setInt(2,id);if(!entrada)p.setInt(3,qtd);
+            try(ResultSet r=p.executeQuery()){if(!r.next())throw new SQLException("Estoque insuficiente ou produto inexistente: "+id);saldo=r.getInt(1);}
+        }
+        registrar(c,id,tipo,entrada?qtd:-qtd,saldo,motivo);
+    }
+    static void registrar(Connection c,int id,String tipo,int qtd,int saldo,String motivo)throws SQLException{
+        try(PreparedStatement p=c.prepareStatement("INSERT INTO movimentos_estoque(id_produto,tipo,quantidade,saldo,motivo,id_usuario,id_cliente) VALUES(?,?,?,?,?,?,?)")){
+            p.setInt(1,id);p.setString(2,tipo);p.setInt(3,qtd);p.setInt(4,saldo);p.setString(5,motivo);
+            if(Sessao.getIdUsuario()>0)p.setInt(6,Sessao.getIdUsuario());else p.setNull(6,Types.INTEGER);
+            if(Sessao.getIdCliente()>0)p.setInt(7,Sessao.getIdCliente());else p.setNull(7,Types.INTEGER);
+            if(p.executeUpdate()!=1)throw new SQLException("Movimento não registrado.");
         }
     }
-
-    public void atualizar(int idProduto, int quantidade) throws SQLException {
-        if (quantidade < 0) throw new IllegalArgumentException("Estoque não pode ser negativo.");
-        try (Connection con = ConexaoBanco.getConexao();
-             PreparedStatement ps = con.prepareStatement("UPDATE estoque SET quantidade = ? WHERE id_produto = ?")) {
-            ps.setInt(1, quantidade);
-            ps.setInt(2, idProduto);
-            if (ps.executeUpdate() != 1) throw new SQLException("Produto sem registro de estoque.");
-        }
+    public List<String[]> historico(int id)throws SQLException{
+        Acesso.equipe();List<String[]> lista=new ArrayList<>();
+        try(Connection c=ConexaoBanco.getConexao();PreparedStatement p=c.prepareStatement("SELECT m.*,COALESCE(u.nome,cl.nome,'Instalação') AS responsavel FROM movimentos_estoque m LEFT JOIN usuarios u ON u.id=m.id_usuario LEFT JOIN clientes cl ON cl.id=m.id_cliente WHERE m.id_produto=? ORDER BY m.id DESC")){
+            p.setInt(1,id);try(ResultSet r=p.executeQuery()){while(r.next())lista.add(new String[]{r.getTimestamp("data_movimento").toString(),r.getString("tipo"),r.getString("quantidade"),r.getString("saldo"),r.getString("motivo"),r.getString("responsavel")});}
+        }return lista;
     }
-
-    public void entrada(int idProduto, int qtd) throws SQLException {
-        validarQuantidade(qtd);
-        try (Connection con = ConexaoBanco.getConexao();
-             PreparedStatement ps = con.prepareStatement("UPDATE estoque SET quantidade = quantidade + ? WHERE id_produto = ?")) {
-            ps.setInt(1, qtd);
-            ps.setInt(2, idProduto);
-            if (ps.executeUpdate() != 1) throw new SQLException("Produto sem registro de estoque.");
-        }
+    public List<String[]> listarEstoqueBaixo()throws SQLException{
+        Acesso.equipe();List<String[]> lista=new ArrayList<>();
+        try(Connection c=ConexaoBanco.getConexao();PreparedStatement p=c.prepareStatement("SELECT p.nome,e.quantidade,e.estoque_minimo FROM estoque e JOIN produtos p ON p.id=e.id_produto WHERE p.ativo AND e.quantidade<=e.estoque_minimo ORDER BY e.quantidade");ResultSet r=p.executeQuery()){
+            while(r.next())lista.add(new String[]{r.getString(1),r.getString(2),r.getString(3)});
+        }return lista;
     }
-
-    public void saida(int idProduto, int qtd) throws SQLException {
-        try (Connection con = ConexaoBanco.getConexao()) { saida(con, idProduto, qtd); }
-    }
-
-    /** Participa da transação do pedido; não fecha a conexão recebida. */
-    public void saida(Connection con, int idProduto, int qtd) throws SQLException {
-        validarQuantidade(qtd);
-        try (PreparedStatement ps = con.prepareStatement(
-                "UPDATE estoque SET quantidade = quantidade - ? WHERE id_produto = ? AND quantidade >= ?")) {
-            ps.setInt(1, qtd);
-            ps.setInt(2, idProduto);
-            ps.setInt(3, qtd);
-            if (ps.executeUpdate() != 1)
-                throw new SQLException("Estoque insuficiente para o produto ID: " + idProduto);
-        }
-    }
-
-    private static void validarQuantidade(int qtd) {
-        if (qtd <= 0) throw new IllegalArgumentException("A quantidade deve ser maior que zero.");
-    }
-
-    public List<String[]> listarEstoqueBaixo() throws SQLException {
-        List<String[]> lista = new ArrayList<>();
-        String sql = "SELECT p.nome, e.quantidade, e.estoque_minimo FROM estoque e "
-                + "JOIN produtos p ON e.id_produto = p.id "
-                + "WHERE e.quantidade <= e.estoque_minimo AND p.ativo = true ORDER BY e.quantidade ASC";
-        try (Connection con = ConexaoBanco.getConexao();
-             PreparedStatement ps = con.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
-            while (rs.next()) lista.add(new String[]{rs.getString("nome"),
-                    rs.getString("quantidade"), rs.getString("estoque_minimo")});
-        }
-        return lista;
-    }
+    private static void validar(int qtd){if(qtd<=0)throw new IllegalArgumentException("A quantidade deve ser maior que zero.");}
 }

@@ -18,6 +18,7 @@ public class TelaMeusPedidos extends JFrame {
     private PedidoDAO pedidoDAO = new PedidoDAO();
 
     public TelaMeusPedidos(TelaLoja telaLoja, Cliente cliente) {
+        util.Acesso.telaCliente(cliente.getId());
         this.telaLoja      = telaLoja;
         this.clienteLogado = cliente;
         initComponents();

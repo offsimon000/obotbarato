@@ -16,6 +16,7 @@ public class TelaRelatorios extends JFrame {
     private JFrame telaAnterior;
 
     public TelaRelatorios(JFrame telaAnterior) {
+        util.Acesso.telaEquipe();
         this.telaAnterior = telaAnterior;
         initComponents();
     }

@@ -8,6 +8,12 @@ public class Cliente {
     private String email;
     private String telefone;
     private String endereco;
+    private boolean ativo=true;
+    private boolean acessoLoja;
+    public boolean isAtivo(){return ativo;}
+    public void setAtivo(boolean ativo){this.ativo=ativo;}
+    public boolean isAcessoLoja(){return acessoLoja;}
+    public void setAcessoLoja(boolean acesso){acessoLoja=acesso;}
 
     public Cliente() {}
 

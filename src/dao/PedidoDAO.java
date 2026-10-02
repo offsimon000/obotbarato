@@ -22,6 +22,7 @@ public class PedidoDAO {
         }
         pedido.recalcularTotal();
         int id = Transacao.executar(con -> {
+            util.Acesso.venda(con, pedido.getIdCliente());
             int idNovo;
             try (PreparedStatement ps = con.prepareStatement(
                     "INSERT INTO pedidos (id_cliente, status, total, registrado_por) VALUES (?,?,?,?)",
@@ -56,11 +57,12 @@ public class PedidoDAO {
     }
 
     public List<Pedido> listarPorCliente(int idCliente) throws SQLException {
+        if (Sessao.getIdUsuario()>0) util.Acesso.equipe(); else util.Acesso.cliente(idCliente);
         if (idCliente <= 0) throw new IllegalArgumentException("Cliente inválido.");
         return listar(idCliente);
     }
 
-    public List<Pedido> listarTodos() throws SQLException { return listar(null); }
+    public List<Pedido> listarTodos() throws SQLException { util.Acesso.equipe(); return listar(null); }
 
     private List<Pedido> listar(Integer idCliente) throws SQLException {
         List<Pedido> lista = new ArrayList<>();
@@ -88,6 +90,7 @@ public class PedidoDAO {
 
     // Relatório: total de vendas por período
     public List<String[]> relatorioVendasPorPeriodo(String dataInicio, String dataFim) throws SQLException {
+        util.Acesso.equipe();
         LocalDate inicio = LocalDate.parse(dataInicio);
         LocalDate fim = LocalDate.parse(dataFim);
         if (fim.isBefore(inicio)) throw new IllegalArgumentException("Data final anterior à inicial.");
@@ -115,6 +118,7 @@ public class PedidoDAO {
 
     // Relatório: produtos mais vendidos
     public List<String[]> relatorioProdutosMaisVendidos() throws SQLException {
+        util.Acesso.equipe();
         List<String[]> lista = new ArrayList<>();
         String sql = "SELECT p.nome, SUM(i.quantidade) AS total_vendido, SUM(i.quantidade * i.preco_unitario) AS receita "
                    + "FROM itens_pedido i "

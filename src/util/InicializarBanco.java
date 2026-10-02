@@ -102,8 +102,12 @@ public final class InicializarBanco {
                     ps.setInt(3, categoria); ps.setString(4, linha[1]); ps.setInt(5, categoria);
                     try (ResultSet rs = ps.executeQuery()) {
                         if (rs.next()) {
+                            int produtoNovo=rs.getInt(1);
                             try (PreparedStatement estoque = con.prepareStatement("INSERT INTO estoque(id_produto,quantidade) VALUES (?,20)")) {
-                                estoque.setInt(1, rs.getInt(1)); estoque.executeUpdate();
+                                estoque.setInt(1, produtoNovo); estoque.executeUpdate();
+                            }
+                            try(PreparedStatement movimento=con.prepareStatement("INSERT INTO movimentos_estoque(id_produto,tipo,quantidade,saldo,motivo) VALUES(?,'inicial',20,20,'Instalação da demonstração')")){
+                                movimento.setInt(1,produtoNovo);movimento.executeUpdate();
                             }
                         }
                     }

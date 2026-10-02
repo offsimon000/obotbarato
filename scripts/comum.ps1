@@ -69,14 +69,19 @@ function Invoke-ControlePostgres($Ambiente, [ValidateSet('start','stop')] [strin
     & $exe -D $Ambiente.Dados status *> $null
     $rodando = $LASTEXITCODE -eq 0
     if (($Acao -eq 'start' -and $rodando) -or ($Acao -eq 'stop' -and -not $rodando)) { return }
-    $argsPg = @('-D', ('"' + $Ambiente.Dados + '"'), '-w', '-t', '60')
+    $argsPg = @('-D', ('"' + $Ambiente.Dados + '"'), '-w', '-t', '180')
     if ($Acao -eq 'start') {
         $argsPg += @('-l', ('"' + (Join-Path $Ambiente.Pasta 'servidor.log') + '"'), '-o', ('"-h 127.0.0.1 -p ' + $Ambiente.Porta + '"'), 'start')
     } else { $argsPg += @('-m', 'fast', 'stop') }
     $nomeLog = $Acao + '-' + [Guid]::NewGuid().ToString('N')
     $processo = Start-Process -FilePath $exe -ArgumentList $argsPg -WindowStyle Hidden -PassThru -RedirectStandardOutput (Join-Path $Ambiente.Pasta ($nomeLog + '.log')) -RedirectStandardError (Join-Path $Ambiente.Pasta ($nomeLog + '-erro.log'))
     $handleProcesso = $processo.Handle
-    if (-not $processo.WaitForExit(60000)) { throw "Tempo limite no PostgreSQL. Consulte $($Ambiente.Pasta)/$nomeLog-erro.log" }
+    $cronometro=[Diagnostics.Stopwatch]::StartNew()
+    $proximoAviso=30
+    while (-not $processo.WaitForExit(1000)) {
+        if ($cronometro.Elapsed.TotalSeconds -ge 185) { throw "Tempo limite no PostgreSQL. Consulte $($Ambiente.Pasta)/$nomeLog-erro.log" }
+        if ($cronometro.Elapsed.TotalSeconds -ge $proximoAviso) { Write-Host "PostgreSQL: aguardando $Acao do ambiente local (sincronizacao do disco)."; $proximoAviso+=30 }
+    }
     # O estado real do cluster também evita ExitCode nulo no Windows PowerShell 5.1.
     & $exe -D $Ambiente.Dados status *> $null
     $estadoFinal = $LASTEXITCODE

@@ -18,6 +18,7 @@ public class TelaEstoque extends JFrame {
     private JFrame telaAnterior;
 
     public TelaEstoque(JFrame telaAnterior) {
+        util.Acesso.telaEquipe();
         this.telaAnterior = telaAnterior;
         initComponents();
         carregarTabela();
@@ -69,7 +70,7 @@ public class TelaEstoque extends JFrame {
             public Component prepareRenderer(TableCellRenderer r, int row, int col) {
                 Component c = super.prepareRenderer(r, row, col);
                 String sit = (String) getValueAt(row, 4);
-                if (sit != null && sit.contains("Baixo")) {
+                if (sit != null && sit.contains("BAIXO")) {
                     c.setBackground(new Color(255, 220, 220));
                     c.setForeground(Tema.VERMELHO_ERRO);
                 } else {
@@ -104,7 +105,20 @@ public class TelaEstoque extends JFrame {
         btnEntrada.addActionListener(e -> movimentar(true));
         btnSaida.addActionListener(e -> movimentar(false));
 
-        rodape.add(btnAtualizar); rodape.add(btnSaida); rodape.add(btnEntrada);
+                JButton historico=Tema.botaoSecundario("Histórico");
+        historico.addActionListener(e->{int l=tabela.getSelectedRow();if(l<0){JOptionPane.showMessageDialog(this,"Selecione um produto.");return;}
+            try{DefaultTableModel m=new DefaultTableModel(new String[]{"Data","Tipo","Quantidade","Saldo","Motivo","Responsável"},0){public boolean isCellEditable(int r,int c){return false;}};
+                for(String[] row:estoqueDAO.historico((int)modeloTabela.getValueAt(l,0)))m.addRow(row);
+                JTable t=new JTable(m);Tema.aplicarTabelaDark(t);t.setPreferredScrollableViewportSize(new Dimension(850,260));JOptionPane.showMessageDialog(this,Tema.scrollDark(t),"Movimentações",JOptionPane.INFORMATION_MESSAGE);
+            }catch(Exception ex){JOptionPane.showMessageDialog(this,util.Erros.mensagem(ex));}
+        });rodape.add(historico);rodape.add(btnAtualizar);
+        if(util.Sessao.isAdminAtivo()){
+            JButton minimo=Tema.botaoSecundario("Definir mínimo");
+            minimo.addActionListener(e->{int l=tabela.getSelectedRow();if(l<0){JOptionPane.showMessageDialog(this,"Selecione um produto.");return;}
+                String valor=JOptionPane.showInputDialog(this,"Estoque mínimo:",modeloTabela.getValueAt(l,3));if(valor==null)return;
+                try{estoqueDAO.definirMinimo((int)modeloTabela.getValueAt(l,0),Integer.parseInt(valor.trim()));carregarTabela();}catch(Exception ex){JOptionPane.showMessageDialog(this,ex instanceof NumberFormatException?"Mínimo inválido.":util.Erros.mensagem(ex));}
+            });rodape.add(minimo);rodape.add(btnSaida);rodape.add(btnEntrada);
+        }
         painel.add(rodape, BorderLayout.SOUTH);
         setContentPane(painel);
     }
@@ -114,7 +128,8 @@ public class TelaEstoque extends JFrame {
         try {
             for (Produto p : produtoDAO.listarTodos()) {
                 int qtd = estoqueDAO.getQuantidade(p.getId());
-                modeloTabela.addRow(new Object[]{p.getId(), p.getNome(), qtd, 5, qtd <= 5 ? "ESTOQUE BAIXO" : "OK"});
+                int min=estoqueDAO.getMinimo(p.getId());
+                modeloTabela.addRow(new Object[]{p.getId(), p.getNome(), qtd, min, qtd <= min ? "ESTOQUE BAIXO" : "OK"});
             }
         } catch (Exception ex) { JOptionPane.showMessageDialog(this, "Erro: " + util.Erros.mensagem(ex)); }
     }
@@ -124,9 +139,10 @@ public class TelaEstoque extends JFrame {
         if (l < 0) { JOptionPane.showMessageDialog(this, "Selecione um produto."); return; }
 
         JTextField txtQtd = Tema.campo(8);
+        JTextField motivo = Tema.campo(24); motivo.setText(entrada?"Reposição manual":"Saída manual");
         JPanel form = new JPanel(new GridBagLayout());
         form.setBackground(Tema.BG_ESCURO);
-        form.setPreferredSize(new Dimension(300, 130));
+        form.setPreferredSize(new Dimension(340, 190));
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.fill = GridBagConstraints.HORIZONTAL; gbc.insets = new Insets(6, 10, 6, 10); gbc.gridwidth = 2;
         JLabel lbl = new JLabel(entrada ? "QUANTIDADE DE ENTRADA" : "QUANTIDADE DE SAIDA");
@@ -136,6 +152,7 @@ public class TelaEstoque extends JFrame {
         JLabel lblProd = new JLabel("Produto: " + modeloTabela.getValueAt(l, 1));
         lblProd.setFont(Tema.FONTE_LABEL); lblProd.setForeground(Tema.TEXTO_SECUNDARIO);
         gbc.gridy = 2; form.add(lblProd, gbc);
+        gbc.gridy=3; form.add(new JLabel("Motivo"),gbc);gbc.gridy=4;form.add(motivo,gbc);
 
         int res = JOptionPane.showConfirmDialog(this, form,
             entrada ? "Entrada de Estoque" : "Saida de Estoque", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
@@ -143,7 +160,7 @@ public class TelaEstoque extends JFrame {
             try {
                 int qtd = Integer.parseInt(txtQtd.getText().trim());
                 int idP = (int) modeloTabela.getValueAt(l, 0);
-                if (entrada) estoqueDAO.entrada(idP, qtd); else estoqueDAO.saida(idP, qtd);
+                if (entrada) estoqueDAO.entrada(idP, qtd, motivo.getText()); else estoqueDAO.saida(idP, qtd, motivo.getText());
                 carregarTabela();
             } catch (NumberFormatException e) {
                 JOptionPane.showMessageDialog(this, "Quantidade invalida.");

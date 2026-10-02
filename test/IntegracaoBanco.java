@@ -21,10 +21,12 @@ public final class IntegracaoBanco {
         InicializarBanco.aplicarMigrations(Path.of("sql"));
         InicializarBanco.instalarDemonstracao();
         long produtosDemo = numero("SELECT COUNT(*) FROM produtos");
+        exigir(numero("SELECT COUNT(*) FROM movimentos_estoque WHERE tipo='inicial'")==produtosDemo,"Abertura da demonstração ausente.");
         InicializarBanco.aplicarMigrations(Path.of("sql"));
         InicializarBanco.instalarDemonstracao();
-        exigir(numero("SELECT COUNT(*) FROM schema_migrations") == 1, "Migration duplicada.");
+        exigir(numero("SELECT COUNT(*) FROM schema_migrations") == 2, "Migration duplicada.");
         exigir(numero("SELECT COUNT(*) FROM produtos") == produtosDemo, "Seed duplicou produtos.");
+        exigir(numero("SELECT COUNT(*) FROM movimentos_estoque WHERE tipo='inicial'")==produtosDemo,"Seed duplicou abertura.");
         exigir(numero("SELECT COUNT(*) FROM usuarios") == 2, "Seed duplicou usuários.");
         ok("Instalação e demonstração reexecutadas sem duplicação");
 
@@ -32,6 +34,7 @@ public final class IntegracaoBanco {
         exigir(new UsuarioDAO().autenticar("admin", "errada") == null, "Senha errada aceita.");
         Cliente c = new ClienteLojaDAO().autenticar("cliente@demo.local", "cliente123");
         exigir(c != null, "Cliente não autentica.");
+        Sessao.iniciar(new UsuarioDAO().autenticar("admin","admin123"));
         cliente = c.getId();
         categoria = (int) numero("SELECT MIN(id) FROM categorias");
         ok("Autenticação das credenciais de demonstração");
@@ -62,12 +65,14 @@ public final class IntegracaoBanco {
 
         long antesPedidos = numero("SELECT COUNT(*) FROM pedidos");
         long antesItens = numero("SELECT COUNT(*) FROM itens_pedido");
+        long antesMovimentos = numero("SELECT COUNT(*) FROM movimentos_estoque");
         Pedido falta = pedido(p, 1);
         falta.adicionarItem(item(q, 2));
         rejeitar(() -> pedidos.salvar(falta), SQLException.class);
         exigir(falta.getId() == 0, "Pedido falho ficou com ID.");
         exigir(numero("SELECT COUNT(*) FROM pedidos") == antesPedidos, "Pedido parcial persistido.");
         exigir(numero("SELECT COUNT(*) FROM itens_pedido") == antesItens, "Itens parciais persistidos.");
+        exigir(numero("SELECT COUNT(*) FROM movimentos_estoque") == antesMovimentos,"Movimento de venda parcial persistido.");
         exigir(estoque.getQuantidade(p.getId()) == 6 && estoque.getQuantidade(q.getId()) == 1, "Rollback não devolveu estoque.");
         ok("Falta de estoque no segundo item desfaz pedido, itens e primeira baixa");
 
@@ -145,12 +150,14 @@ public final class IntegracaoBanco {
         ok("Alterações em registros inexistentes não retornam sucesso");
 
         ClienteLojaDAO loja = new ClienteLojaDAO();
+        Sessao.iniciarCliente(c);
         exigir(loja.adicionarFavorito(cliente, p.getId()), "Favorito não inserido.");
         exigir(loja.adicionarFavorito(cliente, p.getId()), "Favorito repetido não idempotente.");
         exigir(loja.listarFavoritosSet(cliente).contains(p.getId()), "Favorito ausente.");
         exigir(numero("SELECT COUNT(*) FROM favoritos WHERE id_cliente=" + cliente + " AND id_produto=" + p.getId()) == 1, "Favorito duplicado.");
         exigir(loja.removerFavorito(cliente, p.getId()) && !loja.listarFavoritosSet(cliente).contains(p.getId()), "Favorito não removido.");
         ok("Favoritos persistidos sem duplicação");
+        Sessao.iniciar(new UsuarioDAO().autenticar("admin","admin123"));
 
         long categoriasAntes = numero("SELECT COUNT(*) FROM categorias");
         rejeitar(() -> Transacao.executar(con -> {
@@ -166,19 +173,19 @@ public final class IntegracaoBanco {
         Files.copy(Path.of("sql/V001__base_desktop.sql"), base);
         Files.writeString(base, Files.readString(base) + "\n-- alteração indevida", StandardCharsets.UTF_8);
         rejeitar(() -> InicializarBanco.aplicarMigrations(migrations), SQLException.class);
-        exigir(numero("SELECT COUNT(*) FROM schema_migrations") == 1, "Migration alterada foi aceita.");
+        exigir(numero("SELECT COUNT(*) FROM schema_migrations") == 2, "Migration alterada foi aceita.");
         ok("Checksum impede alteração de migration já aplicada");
 
         Files.write(base, Files.readAllBytes(Path.of("sql/V001__base_desktop.sql")));
-        Path segunda = migrations.resolve("V002__teste_evolucao.sql");
+        Path segunda = migrations.resolve("V003__teste_evolucao.sql");
         Files.writeString(segunda, "CREATE TABLE teste_evolucao(id INT); INSERT INTO categorias(nome) VALUES(NULL);", StandardCharsets.UTF_8);
         rejeitar(() -> InicializarBanco.aplicarMigrations(migrations), SQLException.class);
         exigir(texto("SELECT to_regclass('public.teste_evolucao') IS NULL").equals("t"), "Migration falha deixou tabela parcial.");
-        exigir(numero("SELECT COUNT(*) FROM schema_migrations") == 1, "Migration falha registrada.");
+        exigir(numero("SELECT COUNT(*) FROM schema_migrations") == 2, "Migration falha registrada.");
         Files.writeString(segunda, "CREATE TABLE teste_evolucao(id INT);", StandardCharsets.UTF_8);
         InicializarBanco.aplicarMigrations(migrations);
         InicializarBanco.aplicarMigrations(migrations);
-        exigir(numero("SELECT COUNT(*) FROM schema_migrations") == 2, "Evolução não aplicada/reexecutada corretamente.");
+        exigir(numero("SELECT COUNT(*) FROM schema_migrations") == 3, "Evolução não aplicada/reexecutada corretamente.");
         ok("Migration falha é desfeita; evolução válida pode ser aplicada e reexecutada");
 
         String configOriginal = System.getProperty("obotbarato.config");

@@ -17,6 +17,7 @@ public class TelaProdutos extends JFrame {
     private JFrame telaAnterior;
 
     public TelaProdutos(JFrame telaAnterior) {
+        util.Acesso.telaEquipe();
         this.telaAnterior = telaAnterior;
         initComponents();
         carregarTabela("");
@@ -88,7 +89,7 @@ public class TelaProdutos extends JFrame {
 
         JButton btnNovo    = Tema.botaoPrimario("+ Novo Produto");
         JButton btnEditar  = Tema.botaoSecundario("Editar");
-        JButton btnExcluir = Tema.botaoSecundario("Excluir");
+        JButton btnExcluir = Tema.botaoSecundario("Desativar");
         btnExcluir.setForeground(Tema.VERMELHO_ERRO);
 
         btnNovo.addActionListener(e -> { new FormularioProduto(this, null).setVisible(true); carregarTabela(""); });
@@ -100,7 +101,7 @@ public class TelaProdutos extends JFrame {
         });
         btnExcluir.addActionListener(e -> excluir());
 
-        rodape.add(btnExcluir); rodape.add(btnEditar); rodape.add(btnNovo);
+        if(util.Sessao.isAdminAtivo()){ rodape.add(btnExcluir); rodape.add(btnEditar); rodape.add(btnNovo); }
         painel.add(rodape, BorderLayout.SOUTH);
 
         setContentPane(painel);
@@ -109,7 +110,7 @@ public class TelaProdutos extends JFrame {
     private void carregarTabela(String busca) {
         modeloTabela.setRowCount(0);
         try {
-            List<Produto> lista = busca.isEmpty() ? dao.listarTodos() : dao.buscarPorNome(busca);
+            List<Produto> lista = dao.listarManutencao(busca);
             for (Produto p : lista)
                 modeloTabela.addRow(new Object[]{
                     p.getId(), p.getNome(), p.getNomeCategoria(),

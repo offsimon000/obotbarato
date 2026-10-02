@@ -12,6 +12,15 @@ public class Produto {
     private int idCategoria;
     private String nomeCategoria;
     private boolean ativo;
+    private byte[] imagem;
+    private int estoqueInicial;
+    private int estoqueMinimo = 5;
+    public byte[] getImagem(){ return imagem == null ? null : imagem.clone(); }
+    public void setImagem(byte[] imagem){ this.imagem = imagem == null ? null : imagem.clone(); }
+    public int getEstoqueInicial(){ return estoqueInicial; }
+    public void setEstoqueInicial(int qtd){ if(qtd<0) throw new IllegalArgumentException("Estoque inicial inválido."); estoqueInicial=qtd; }
+    public int getEstoqueMinimo(){ return estoqueMinimo; }
+    public void setEstoqueMinimo(int qtd){ if(qtd<0) throw new IllegalArgumentException("Mínimo inválido."); estoqueMinimo=qtd; }
 
     public Produto() {}
 

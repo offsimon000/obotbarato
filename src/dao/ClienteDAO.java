@@ -10,10 +10,23 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class ClienteDAO {
+    public List<Cliente> listarManutencao(String busca) throws SQLException {
+        util.Acesso.equipe(); List<Cliente> lista=new ArrayList<>();
+        try(Connection c=ConexaoBanco.getConexao();PreparedStatement p=c.prepareStatement("SELECT * FROM clientes WHERE nome ILIKE ? ORDER BY nome")){
+            p.setString(1,"%"+busca.trim()+"%");try(ResultSet r=p.executeQuery()){while(r.next())lista.add(mapear(r));}
+        }return lista;
+    }
+    public void reativar(int id) throws SQLException {
+        util.Acesso.admin();
+        try(Connection c=ConexaoBanco.getConexao();PreparedStatement p=c.prepareStatement("UPDATE clientes SET ativo=true WHERE id=?")){
+            p.setInt(1,id);if(p.executeUpdate()!=1)throw new SQLException("Cliente inexistente.");
+        }
+    }
 
     private static final Logger LOG = Logger.getLogger(ClienteDAO.class.getName());
 
     public List<Cliente> listarTodos() throws SQLException {
+        util.Acesso.equipe();
         List<Cliente> lista = new ArrayList<>();
         String sql = "SELECT * FROM clientes WHERE ativo = true ORDER BY nome";
         try (Connection con = ConexaoBanco.getConexao();
@@ -25,6 +38,7 @@ public class ClienteDAO {
     }
 
     public List<Cliente> buscarPorNome(String nome) throws SQLException {
+        util.Acesso.equipe();
         List<Cliente> lista = new ArrayList<>();
         // PostgreSQL: ILIKE = case-insensitive LIKE
         String sql = "SELECT * FROM clientes WHERE nome ILIKE ? AND ativo = true ORDER BY nome";
@@ -38,6 +52,7 @@ public class ClienteDAO {
     }
 
     public boolean salvar(Cliente c) throws SQLException {
+        util.Acesso.equipe(); util.Validacao.cliente(c);
         String sql = "INSERT INTO clientes (nome, cpf, email, telefone, endereco, criado_por) "
                    + "VALUES (?, ?, ?, ?, ?, ?)";
         try (Connection con = ConexaoBanco.getConexao();
@@ -59,8 +74,9 @@ public class ClienteDAO {
     }
 
     public boolean atualizar(Cliente c) throws SQLException {
+        util.Acesso.equipe(); util.Validacao.cliente(c);
         String sql = "UPDATE clientes SET nome=?, cpf=?, email=?, telefone=?, endereco=? "
-                   + "WHERE id=?";
+                   + "WHERE id=? AND ativo=true";
         try (Connection con = ConexaoBanco.getConexao();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, c.getNome());
@@ -74,6 +90,7 @@ public class ClienteDAO {
     }
 
     public boolean excluir(int id) throws SQLException {
+        util.Acesso.admin();
         // Soft delete: desativa em vez de apagar (preserva histórico de pedidos)
         String sql = "UPDATE clientes SET ativo = false WHERE id = ?";
         try (Connection con = ConexaoBanco.getConexao();
@@ -95,6 +112,7 @@ public class ClienteDAO {
         c.setEmail(rs.getString("email"));
         c.setTelefone(rs.getString("telefone"));
         c.setEndereco(rs.getString("endereco"));
+        c.setAtivo(rs.getBoolean("ativo")); c.setAcessoLoja(rs.getString("senha")!=null);
         return c;
     }
 }

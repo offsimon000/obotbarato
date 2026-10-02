@@ -22,6 +22,7 @@ public class TelaCheckout extends JFrame {
     private PedidoDAO pedidoDAO = new PedidoDAO();
 
     public TelaCheckout(TelaCarrinho telaCarrinho, Cliente cliente, List<ItemPedido> carrinho, TelaLoja telaLoja) {
+        util.Acesso.telaCliente(cliente.getId());
         this.telaCarrinho  = telaCarrinho;
         this.clienteLogado = cliente;
         this.carrinho      = carrinho;

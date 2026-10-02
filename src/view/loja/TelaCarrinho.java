@@ -18,6 +18,7 @@ public class TelaCarrinho extends JFrame {
     private JTable tabela; // CORRECAO: tabela como campo (antes era local)
 
     public TelaCarrinho(TelaLoja telaLoja, Cliente cliente, List<ItemPedido> carrinho) {
+        util.Acesso.telaCliente(cliente.getId());
         this.telaLoja      = telaLoja;
         this.clienteLogado = cliente;
         this.carrinho      = carrinho;

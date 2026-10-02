@@ -7,6 +7,9 @@ public class Usuario {
     private String login;
     private String senha;
     private String perfil; // "admin" ou "vendedor"
+    private boolean ativo = true;
+    public boolean isAtivo() { return ativo; }
+    public void setAtivo(boolean ativo) { this.ativo = ativo; }
 
     public Usuario() {}
 

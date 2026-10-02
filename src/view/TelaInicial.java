@@ -13,6 +13,7 @@ public class TelaInicial extends JFrame {
     private Usuario usuarioLogado;
 
     public TelaInicial(Usuario usuario) {
+        util.Acesso.telaEquipe();
         this.usuarioLogado = usuario;
         initComponents();
     }
@@ -94,7 +95,7 @@ public class TelaInicial extends JFrame {
         painelPrincipal.add(header, BorderLayout.NORTH);
 
         // ── Grid de modulos ──
-        JPanel grid = new JPanel(new GridLayout(2, 3, 16, 16));
+        JPanel grid = new JPanel(new GridLayout(0, 3, 16, 16));
         grid.setOpaque(false);
         grid.setBorder(BorderFactory.createEmptyBorder(28, 28, 16, 28));
 
@@ -104,12 +105,16 @@ public class TelaInicial extends JFrame {
         grid.add(criarCard("Pedidos",     "Vendas e carrinho",      new Color(255, 80, 120),  () -> { setVisible(false); new TelaPedidos(usuarioLogado, this).setVisible(true); }));
         grid.add(criarCard("Estoque",     "Entradas e saidas",      new Color(50, 200, 120),  () -> { setVisible(false); new TelaEstoque(this).setVisible(true); }));
         grid.add(criarCard("Relatorios",  "Vendas e analises",      new Color(255, 170, 40),  () -> { setVisible(false); new TelaRelatorios(this).setVisible(true); }));
-        grid.add(criarCard("Sair",        "Voltar ao login",        new Color(100, 100, 120), () -> { Sessao.encerrar(); dispose(); new TelaLoginUnificado().setVisible(true); }));
+        grid.add(criarCard("Sair",        "Voltar ao login",        new Color(100, 100, 120), () -> { Sessao.sair(); }));
 
+        if (Sessao.isAdminAtivo()) {
+            grid.add(criarCard("Usuários", "Equipe e permissões", Tema.ROXO_PRIMARIO, () -> { setVisible(false); new TelaUsuarios(this).setVisible(true); }));
+            grid.add(criarCard("Categorias", "Organizar catálogo", Tema.ROXO_PRIMARIO, () -> { setVisible(false); new TelaCategorias(this).setVisible(true); }));
+        }
         painelPrincipal.add(grid, BorderLayout.CENTER);
 
         // ── Rodape ──
-        JLabel rodape = new JLabel("OBotBarato  2025 - Projeto Integrador", SwingConstants.CENTER);
+        JLabel rodape = new JLabel("OBotBarato  2026 - Projeto Integrador", SwingConstants.CENTER);
         rodape.setFont(new Font("Segoe UI", Font.PLAIN, 11));
         rodape.setForeground(Tema.TEXTO_HINT);
         rodape.setBorder(BorderFactory.createEmptyBorder(0, 0, 14, 0));

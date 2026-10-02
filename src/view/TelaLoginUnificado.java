@@ -20,7 +20,7 @@ import java.awt.geom.RoundRectangle2D;
  *
  * Funcionalidades:
  *   - Login (admin vai para gerenciamento, cliente vai para loja)
- *   - Esqueci minha senha (redefinição por CPF/email)
+ *   - Ativação/recuperação por código temporário
  *   - Cadastro de novo cliente
  */
 public class TelaLoginUnificado extends JFrame {
@@ -41,6 +41,7 @@ public class TelaLoginUnificado extends JFrame {
     private int tentativasFalhas = 0;
 
     public TelaLoginUnificado() {
+        Sessao.encerrar();
         initComponents();
     }
 
@@ -159,7 +160,7 @@ public class TelaLoginUnificado extends JFrame {
         p.add(txtSenha, g);
 
         // Link "Esqueci minha senha"
-        JButton btnEsqueci = linkBtn("Esqueci minha senha");
+        JButton btnEsqueci = linkBtn("Ativar acesso / Esqueci minha senha");
         btnEsqueci.setHorizontalAlignment(SwingConstants.RIGHT);
         btnEsqueci.addActionListener(e -> cardLayout.show(painelConteudo, TELA_SENHA));
         g.gridy = 6; g.insets = new Insets(0, 0, 20, 0);
@@ -222,6 +223,7 @@ public class TelaLoginUnificado extends JFrame {
             g.gridy = 1 + i * 2 + 1; g.insets = new Insets(0,0,10,0); p.add(campos[i], g);
         }
 
+        util.MascaraCampo.aplicarCpf(campos[1]); util.MascaraCampo.aplicarTelefone(campos[3]);
         JPasswordField fSenha   = campoSenha();
         JPasswordField fConfirm = campoSenha();
 
@@ -260,49 +262,30 @@ public class TelaLoginUnificado extends JFrame {
     // ═══════════════════════════════════════════════════════════════
 
     private JPanel criarTelaSenha() {
-        JPanel p = new JPanel(new GridBagLayout());
-        p.setOpaque(false);
-        p.setBorder(BorderFactory.createEmptyBorder(0, 40, 30, 40));
-
-        GridBagConstraints g = gbc();
-
-        g.gridy = 0; g.insets = new Insets(16, 0, 20, 0);
-        p.add(criarCabecalho("Redefinir senha", () ->
-            cardLayout.show(painelConteudo, TELA_LOGIN)), g);
-
-        // Instrução
-        JLabel instrucao = new JLabel(
-            "<html><div style='text-align:center'>"
-            + "Digite seu email e CPF cadastrados.<br>"
-            + "Se encontrarmos sua conta, voce podera criar uma nova senha."
-            + "</div></html>", SwingConstants.CENTER);
-        instrucao.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-        instrucao.setForeground(Tema.TEXTO_SECUNDARIO);
-        g.gridy = 1; g.insets = new Insets(0, 0, 22, 0);
-        p.add(instrucao, g);
-
-        // Campos
-        JTextField txtEmailR = campo();
-        JTextField txtCpf    = campo();
-
-        g.gridy = 2; g.insets = new Insets(0,0,4,0);  p.add(label("Email"), g);
-        g.gridy = 3; g.insets = new Insets(0,0,14,0); p.add(txtEmailR, g);
-        g.gridy = 4; g.insets = new Insets(0,0,4,0);  p.add(label("CPF cadastrado"), g);
-        g.gridy = 5; g.insets = new Insets(0,0,20,0); p.add(txtCpf, g);
-
-        JLabel lblStatus = new JLabel(" ", SwingConstants.CENTER);
-        lblStatus.setFont(new Font("Segoe UI", Font.PLAIN, 11));
-
-        JButton btnVerificar = botaoPrimario("Verificar minha conta");
-        btnVerificar.addActionListener(e ->
-            verificarParaRedefinir(txtEmailR, txtCpf, lblStatus, p, g));
-
-        g.gridy = 6; g.insets = new Insets(0,0,10,0); p.add(btnVerificar, g);
-        g.gridy = 7; g.insets = new Insets(0,0,0,0);  p.add(lblStatus, g);
-
-        return p;
+        JPanel p=new JPanel(new GridBagLayout());p.setOpaque(false);
+        p.setBorder(BorderFactory.createEmptyBorder(0,40,20,40));
+        GridBagConstraints g=gbc();g.gridy=0;p.add(criarCabecalho("Ativar / recuperar acesso",()->cardLayout.show(painelConteudo,TELA_LOGIN)),g);
+        JLabel instr=new JLabel("<html>Solicite um código ao administrador.<br>Válido por 30 minutos e uma utilização.</html>");
+        instr.setFont(Tema.FONTE_LABEL);g.gridy=1;p.add(instr,g);
+        JTextField email=campo(),codigo=campo();JPasswordField senha=campoSenha(),confirm=campoSenha();
+        String[] labels={"E-mail","Código temporário","Nova senha (8 a 128 caracteres)","Confirmar senha"};
+        JComponent[] campos={email,codigo,senha,confirm};
+        for(int i=0;i<4;i++){g.gridy=2+i*2;p.add(label(labels[i]),g);g.gridy++;p.add(campos[i],g);}
+        JLabel status=new JLabel(" ");status.setFont(new Font("Segoe UI",Font.PLAIN,11));
+        JButton salvar=botaoPrimario("Salvar acesso");
+        salvar.addActionListener(e->{
+            String nova=new String(senha.getPassword());
+            if(!nova.equals(new String(confirm.getPassword()))){erro(status,"As senhas não conferem.");return;}
+            salvar.setEnabled(false);
+            new SwingWorker<Boolean,Void>(){
+                protected Boolean doInBackground()throws Exception{return new dao.CodigoAcessoDAO().redefinir(email.getText(),codigo.getText(),nova);}
+                protected void done(){salvar.setEnabled(true);try{
+                    if(get()){senha.setText("");confirm.setText("");codigo.setText("");JOptionPane.showMessageDialog(TelaLoginUnificado.this,"Acesso salvo. Faça login com a nova senha.");cardLayout.show(painelConteudo,TELA_LOGIN);}
+                    else erro(status,"Código inválido, expirado ou bloqueado.");
+                }catch(Exception ex){erro(status,util.Erros.mensagem(ex));}}
+            }.execute();
+        });g.gridy=10;p.add(salvar,g);g.gridy=11;p.add(status,g);return p;
     }
-
     // ═══════════════════════════════════════════════════════════════
     // LÓGICAS DE AÇÃO
     // ═══════════════════════════════════════════════════════════════
@@ -344,7 +327,7 @@ public class TelaLoginUnificado extends JFrame {
                         dispose(); new TelaInicial((Usuario) res).setVisible(true);
                     } else if (res instanceof Cliente) {
                         tentativasFalhas = 0;
-                        Sessao.encerrar();
+                        Sessao.iniciarCliente((Cliente) res);
                         dispose(); new TelaLoja((Cliente) res).setVisible(true);
                     } else {
                         tentativasFalhas++;
@@ -362,108 +345,26 @@ public class TelaLoginUnificado extends JFrame {
         worker.execute();
     }
 
-    private void fazerCadastro(JTextField fNome, JTextField fCpf, JTextField fEmail,
-                                JTextField fTel, JTextField fEnd,
-                                JPasswordField fSenha, JPasswordField fConfirm,
-                                JLabel lblStatus) {
-        String senha   = new String(fSenha.getPassword());
-        String confirm = new String(fConfirm.getPassword());
-
-        if (!senha.equals(confirm)) {
-            erro(lblStatus, "As senhas nao conferem."); return;
-        }
-
-        try {
-        String resultado = clienteDAO.cadastrar(
-            fNome.getText(), fCpf.getText(), fEmail.getText(),
-            fTel.getText(), fEnd.getText(), senha);
-
-        if (resultado == null) {
-            // Sucesso — faz login automático
-            lblStatus.setForeground(Tema.VERDE_SUCESSO);
-            lblStatus.setText("Conta criada! Entrando...");
-            SwingWorker<Cliente, Void> w = new SwingWorker<>() {
-                protected Cliente doInBackground() throws Exception {
-                    return clienteDAO.autenticar(fEmail.getText().trim(), senha);
-                }
-                protected void done() {
-                    try {
-                        Cliente c = get();
-                        if (c != null) { Sessao.encerrar(); dispose(); new TelaLoja(c).setVisible(true); }
-                        else cardLayout.show(painelConteudo, TELA_LOGIN);
-                    } catch (Exception ex) { cardLayout.show(painelConteudo, TELA_LOGIN); }
-                }
-            };
-            w.execute();
-        } else {
-            erro(lblStatus, resultado);
-        }
-        } catch (Exception e) { erro(lblStatus, util.Erros.mensagem(e)); }
-    }
-
-    private void verificarParaRedefinir(JTextField txtEmail, JTextField txtCpf,
-                                         JLabel lblStatus, JPanel painel,
-                                         GridBagConstraints g) {
-        String email = txtEmail.getText().trim().toLowerCase();
-        String cpf   = txtCpf.getText().trim();
-
-        if (email.isEmpty() || cpf.isEmpty()) {
-            erro(lblStatus, "Preencha email e CPF."); return;
-        }
-
-        // Verifica se existe cliente com esse email e CPF
-        boolean existe;
-        try { existe = clienteDAO.verificarEmailCpf(email, cpf); }
-        catch (Exception e) { erro(lblStatus, util.Erros.mensagem(e)); return; }
-        if (!existe) {
-            erro(lblStatus, "Nao encontramos uma conta com esses dados.");
-            return;
-        }
-
-        // Mostra campos de nova senha
-        lblStatus.setText(" ");
-        JPasswordField fNovaSenha   = campoSenha();
-        JPasswordField fNovConfirm  = campoSenha();
-        JLabel lblNova = new JLabel(" ", SwingConstants.CENTER);
-        lblNova.setFont(new Font("Segoe UI", Font.PLAIN, 11));
-
-        g.gridy = 8; g.insets = new Insets(14,0,4,0);
-        painel.add(label("Nova senha"), g);
-        g.gridy = 9; g.insets = new Insets(0,0,10,0);
-        painel.add(fNovaSenha, g);
-        g.gridy = 10; g.insets = new Insets(0,0,4,0);
-        painel.add(label("Confirmar nova senha"), g);
-        g.gridy = 11; g.insets = new Insets(0,0,14,0);
-        painel.add(fNovConfirm, g);
-
-        JButton btnSalvar = botaoPrimario("Salvar nova senha");
-        btnSalvar.addActionListener(ev -> {
-            String nova    = new String(fNovaSenha.getPassword());
-            String confirm = new String(fNovConfirm.getPassword());
-            if (nova.length() < 6) { erro(lblNova, "Minimo 6 caracteres."); return; }
-            if (!nova.equals(confirm)) { erro(lblNova, "As senhas nao conferem."); return; }
-
-            boolean ok;
-            try { ok = clienteDAO.redefinirSenha(email, nova); }
-            catch (Exception e) { erro(lblNova, util.Erros.mensagem(e)); return; }
-            if (ok) {
-                lblNova.setForeground(Tema.VERDE_SUCESSO);
-                lblNova.setText("Senha alterada! Faca login.");
-                Timer t = new Timer(2000, e2 -> cardLayout.show(painelConteudo, TELA_LOGIN));
-                t.setRepeats(false); t.start();
-            } else {
-                erro(lblNova, "Erro ao salvar. Tente novamente.");
+    private void fazerCadastro(JTextField fNome,JTextField fCpf,JTextField fEmail,JTextField fTel,JTextField fEnd,
+            JPasswordField fSenha,JPasswordField fConfirm,JLabel status) {
+        if(Boolean.TRUE.equals(status.getClientProperty("ocupado")))return;
+        String senha=new String(fSenha.getPassword());
+        if(!senha.equals(new String(fConfirm.getPassword()))){erro(status,"As senhas não conferem.");return;}
+        String nome=fNome.getText(),cpf=fCpf.getText(),email=fEmail.getText(),tel=fTel.getText(),end=fEnd.getText();
+        status.putClientProperty("ocupado",true);status.setText("Salvando...");
+        new SwingWorker<Cliente,Void>(){
+            private String mensagem;
+            protected Cliente doInBackground()throws Exception {
+                mensagem=clienteDAO.cadastrar(nome,cpf,email,tel,end,senha);
+                return mensagem==null?clienteDAO.autenticar(email,senha):null;
             }
-        });
-
-        g.gridy = 12; g.insets = new Insets(0,0,8,0); painel.add(btnSalvar, g);
-        g.gridy = 13; g.insets = new Insets(0,0,0,0); painel.add(lblNova, g);
-
-        painel.revalidate(); painel.repaint();
-        txtEmail.setEnabled(false);
-        txtCpf.setEnabled(false);
+            protected void done(){status.putClientProperty("ocupado",false);try{
+                Cliente c=get();
+                if(c!=null){fSenha.setText("");fConfirm.setText("");Sessao.iniciarCliente(c);dispose();new TelaLoja(c).setVisible(true);}
+                else erro(status,mensagem==null?"Cadastro salvo. Faça login.":mensagem);
+            }catch(Exception ex){erro(status,util.Erros.mensagem(ex));}}
+        }.execute();
     }
-
     // ═══════════════════════════════════════════════════════════════
     // COMPONENTES VISUAIS REUTILIZÁVEIS
     // ═══════════════════════════════════════════════════════════════

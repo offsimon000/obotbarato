@@ -1,108 +1,43 @@
 package util;
-
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
+import java.security.*;
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import java.util.HexFormat;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
 
-/**
- * Utilitário de criptografia de senhas.
- *
- * PROBLEMA RESOLVIDO: o projeto usava MD5 puro — algoritmo quebrado desde 2004,
- * sem salt, vulnerável a rainbow tables e brute force.
- *
- * SOLUÇÃO: SHA-256 com salt aleatório por usuário.
- * Formato armazenado no banco: "SALT:HASH" (ambos em Base64)
- *
- * Para projetos em produção real, use BCrypt (biblioteca externa).
- * SHA-256 + salt já é infinitamente mais seguro que MD5 puro.
- */
-public class SenhaCripto {
-
-    private static final String ALGORITMO  = "SHA-256";
-    private static final int    SALT_BYTES  = 16;
-
-    /**
-     * Gera hash seguro de uma senha nova.
-     * Retorna string no formato "SALT:HASH" para guardar no banco.
-     */
-    public static String hashear(String senhaPlana) {
-        if (senhaPlana == null || senhaPlana.isEmpty())
-            throw new IllegalArgumentException("Senha nao pode ser vazia.");
-        try {
-            byte[] salt = gerarSalt();
-            byte[] hash = calcularHash(senhaPlana, salt);
-            String saltB64 = Base64.getEncoder().encodeToString(salt);
-            String hashB64 = Base64.getEncoder().encodeToString(hash);
-            return saltB64 + ":" + hashB64;
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException("Algoritmo " + ALGORITMO + " nao disponivel.", e);
-        }
+/** PBKDF2-HMAC-SHA256; aceita MD5 e SHA256+salt antigos só para migração. */
+public final class SenhaCripto {
+    private static final int ITERACOES=600000;
+    private SenhaCripto() {}
+    public static String hashear(String senha) { Validacao.senha(senha); return migrar(senha); }
+    public static String migrar(String senha) {
+        if(senha==null || senha.isEmpty() || senha.length()>128) throw new IllegalArgumentException("Senha inválida.");
+        byte[] salt=new byte[16]; new SecureRandom().nextBytes(salt);
+        return "pbkdf2$"+ITERACOES+"$"+Base64.getEncoder().encodeToString(salt)+"$"+Base64.getEncoder().encodeToString(derivar(senha,salt,ITERACOES));
     }
-
-    /**
-     * Verifica se uma senha digitada corresponde ao hash armazenado.
-     * Aceita tanto o formato novo "SALT:HASH" quanto o legado MD5
-     * (para não quebrar usuários existentes na migração).
-     */
-    public static boolean verificar(String senhaPlana, String hashArmazenado) {
-        if (senhaPlana == null || hashArmazenado == null) return false;
+    private static byte[] derivar(String senha,byte[] salt,int iteracoes) {
+        PBEKeySpec spec=new PBEKeySpec(senha.toCharArray(),salt,iteracoes,256);
+        try { return SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256").generateSecret(spec).getEncoded(); }
+        catch(GeneralSecurityException e){ throw new IllegalStateException("PBKDF2 indisponível.",e); }
+        finally { spec.clearPassword(); }
+    }
+    public static boolean verificar(String senha,String hash) {
+        if(senha==null || hash==null || senha.length()>128) return false;
         try {
-            // Formato novo: contém ':'
-            if (hashArmazenado.contains(":")) {
-                String[] partes = hashArmazenado.split(":", 2);
-                if (partes.length != 2) return false;
-                byte[] salt = Base64.getDecoder().decode(partes[0]);
-                byte[] hashEsperado = Base64.getDecoder().decode(partes[1]);
-                byte[] hashDigitado = calcularHash(senhaPlana, salt);
-                return comparacaoSegura(hashEsperado, hashDigitado);
+            if(hash.startsWith("pbkdf2$")) {
+                String[] p=hash.split("\\$"); if(p.length!=4) return false;
+                int n=Integer.parseInt(p[1]); if(n<10000 || n>1000000) return false;
+                byte[] salt=Base64.getDecoder().decode(p[2]), esperado=Base64.getDecoder().decode(p[3]);
+                return salt.length==16 && esperado.length==32 && MessageDigest.isEqual(esperado,derivar(senha,salt,n));
             }
-            // Formato legado: MD5 hexadecimal (compatibilidade retroativa)
-            return hashArmazenado.equalsIgnoreCase(md5Legado(senhaPlana));
-        } catch (Exception e) {
-            return false; // hash corrompido — negar acesso
-        }
+            if(hash.contains(":")) {
+                String[] p=hash.split(":",2); MessageDigest md=MessageDigest.getInstance("SHA-256");
+                md.update(Base64.getDecoder().decode(p[0]));
+                return MessageDigest.isEqual(Base64.getDecoder().decode(p[1]),md.digest(senha.getBytes(StandardCharsets.UTF_8)));
+            }
+            return hash.matches("(?i)[0-9a-f]{32}") && MessageDigest.isEqual(HexFormat.of().parseHex(hash),MessageDigest.getInstance("MD5").digest(senha.getBytes(StandardCharsets.UTF_8)));
+        } catch(GeneralSecurityException | IllegalArgumentException e){ return false; }
     }
-
-    /**
-     * Verifica se um hash ainda está no formato legado (MD5).
-     * Útil para migrar usuários na próxima vez que fizerem login.
-     */
-    public static boolean ehFormatoLegado(String hash) {
-        return hash != null && !hash.contains(":") && hash.length() == 32;
-    }
-
-    // ═══════════════════════════════════════════════════════════════
-    // PRIVADOS
-    // ═══════════════════════════════════════════════════════════════
-
-    private static byte[] gerarSalt() {
-        SecureRandom rng = new SecureRandom();
-        byte[] salt = new byte[SALT_BYTES];
-        rng.nextBytes(salt);
-        return salt;
-    }
-
-    private static byte[] calcularHash(String senha, byte[] salt) throws NoSuchAlgorithmException {
-        MessageDigest md = MessageDigest.getInstance(ALGORITMO);
-        md.update(salt);
-        return md.digest(senha.getBytes(java.nio.charset.StandardCharsets.UTF_8));
-    }
-
-    /** Comparação em tempo constante — evita timing attacks */
-    private static boolean comparacaoSegura(byte[] a, byte[] b) {
-        if (a.length != b.length) return false;
-        int diff = 0;
-        for (int i = 0; i < a.length; i++) diff |= (a[i] ^ b[i]);
-        return diff == 0;
-    }
-
-    /** Compatibilidade com hashes MD5 antigos (hex lowercase) */
-    private static String md5Legado(String senha) throws NoSuchAlgorithmException {
-        MessageDigest md = MessageDigest.getInstance("MD5");
-        byte[] bytes = md.digest(senha.getBytes(java.nio.charset.StandardCharsets.UTF_8));
-        StringBuilder sb = new StringBuilder();
-        for (byte b : bytes) sb.append(String.format("%02x", b));
-        return sb.toString();
-    }
+    public static boolean ehFormatoLegado(String hash){ return hash!=null && !hash.startsWith("pbkdf2$"+ITERACOES+"$"); }
 }

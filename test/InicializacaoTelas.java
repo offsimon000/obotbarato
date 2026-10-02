@@ -28,10 +28,12 @@ public final class InicializacaoTelas {
                 imagem(login, "login.png");
                 Sessao.iniciar(admin);
                 TelaInicial painel = conferir(new TelaInicial(admin));
-                conferir(new TelaProdutos(painel)); conferir(new TelaClientes(painel));
-                conferir(new TelaEstoque(painel)); conferir(new TelaPedidos(admin, painel));
-                conferir(new TelaRelatorios(painel)); conferir(new FormularioProduto(painel, null));
-                Sessao.encerrar();
+                conferir(new TelaProdutos(painel)); imagem(conferir(new TelaClientes(painel)),"clientes.png");
+                imagem(conferir(new TelaEstoque(painel)),"estoque.png"); conferir(new TelaPedidos(admin, painel));
+                conferir(new TelaRelatorios(painel)); imagem(conferir(new FormularioProduto(painel, null)),"formulario-produto.png");
+                imagem(conferir(new TelaUsuarios(painel)),"usuarios.png"); imagem(conferir(new TelaCategorias(painel)),"categorias.png");
+                imagem(painel,"painel-admin.png");
+                Sessao.iniciarCliente(cliente);
                 TelaLoja loja = conferir(new TelaLoja(cliente));
                 imagem(loja, "loja.png");
                 conferir(new TelaFavoritos(loja, cliente));
@@ -51,8 +53,8 @@ public final class InicializacaoTelas {
         System.out.println("OK tela: " + tela.getClass().getSimpleName());
         return tela;
     }
-    private static void imagem(JFrame tela, String nome) throws Exception {
-        Container painel = tela.getContentPane();
+    private static void imagem(Window tela, String nome) throws Exception {
+        Container painel = tela instanceof JFrame ? ((JFrame)tela).getContentPane() : ((JDialog)tela).getContentPane();
         BufferedImage img = new BufferedImage(painel.getWidth(), painel.getHeight(), BufferedImage.TYPE_INT_RGB);
         Graphics2D g = img.createGraphics();
         try { painel.printAll(g); } finally { g.dispose(); }

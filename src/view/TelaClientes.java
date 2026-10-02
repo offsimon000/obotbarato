@@ -17,6 +17,7 @@ public class TelaClientes extends JFrame {
     private JFrame telaAnterior;
 
     public TelaClientes(JFrame telaAnterior) {
+        util.Acesso.telaEquipe();
         this.telaAnterior = telaAnterior;
         initComponents();
         carregarTabela("");
@@ -62,7 +63,7 @@ public class TelaClientes extends JFrame {
         barraBusca.add(txtBusca); barraBusca.add(btnBuscar);
 
         // ── Tabela ──
-        String[] colunas = {"ID", "Nome", "CPF", "Email", "Telefone"};
+        String[] colunas = {"ID", "Nome", "CPF", "Email", "Telefone", "Situação", "Acesso loja"};
         modeloTabela = new DefaultTableModel(colunas, 0) {
             public boolean isCellEditable(int r, int c) { return false; }
         };
@@ -86,7 +87,7 @@ public class TelaClientes extends JFrame {
 
         JButton btnNovo    = Tema.botaoPrimario("+ Novo Cliente");
         JButton btnEditar  = Tema.botaoSecundario("Editar");
-        JButton btnExcluir = Tema.botaoSecundario("Excluir");
+        JButton btnExcluir = Tema.botaoSecundario("Desativar");
         btnExcluir.setForeground(Tema.VERMELHO_ERRO);
 
         btnNovo.addActionListener(e -> abrirFormulario(null));
@@ -97,7 +98,20 @@ public class TelaClientes extends JFrame {
         });
         btnExcluir.addActionListener(e -> excluir());
 
-        rodape.add(btnExcluir); rodape.add(btnEditar); rodape.add(btnNovo);
+                if(util.Sessao.isAdminAtivo()) {
+            rodape.add(btnExcluir);
+            JButton reativar=Tema.botaoSecundario("Reativar"),codigo=Tema.botaoSecundario("Código de acesso");
+            reativar.addActionListener(e->{int l=tabela.getSelectedRow();if(l<0){aviso("Selecione um cliente.");return;}try{dao.reativar((int)modeloTabela.getValueAt(l,0));carregarTabela("");}catch(Exception ex){erro(util.Erros.mensagem(ex));}});
+            codigo.addActionListener(e->{int l=tabela.getSelectedRow();if(l<0){aviso("Selecione um cliente.");return;}
+                if(!confirmar("Emitir código para ativação ou recuperação? Entregue ao cliente após identificar o titular."))return;
+                try{String token=new dao.CodigoAcessoDAO().emitir((int)modeloTabela.getValueAt(l,0));
+                    JTextField campo=new JTextField(token,32);campo.setEditable(false);campo.selectAll();
+                    JPanel painelCodigo=new JPanel(new java.awt.GridLayout(0,1,4,8));painelCodigo.add(new JLabel("Copie e entregue ao cliente. Validade: 30 minutos; uso único."));painelCodigo.add(campo);
+                    JOptionPane.showMessageDialog(this,painelCodigo,"Código de acesso",JOptionPane.INFORMATION_MESSAGE);
+                }catch(Exception ex){erro(util.Erros.mensagem(ex));}
+            });rodape.add(reativar);rodape.add(codigo);
+        }
+        rodape.add(btnEditar);rodape.add(btnNovo);
         painel.add(rodape, BorderLayout.SOUTH);
         setContentPane(painel);
     }
@@ -105,9 +119,9 @@ public class TelaClientes extends JFrame {
     private void carregarTabela(String busca) {
         modeloTabela.setRowCount(0);
         try {
-            List<Cliente> lista = busca.isEmpty() ? dao.listarTodos() : dao.buscarPorNome(busca);
+            List<Cliente> lista = dao.listarManutencao(busca);
             for (Cliente c : lista)
-                modeloTabela.addRow(new Object[]{c.getId(), c.getNome(), c.getCpf(), c.getEmail(), c.getTelefone()});
+                modeloTabela.addRow(new Object[]{c.getId(), c.getNome(), c.getCpf(), c.getEmail(), c.getTelefone(), c.isAtivo()?"Ativo":"Inativo", c.isAcessoLoja()?"Ativado":"Pendente"});
         } catch (Exception ex) { erro(util.Erros.mensagem(ex)); }
     }
 
@@ -115,9 +129,10 @@ public class TelaClientes extends JFrame {
         JTextField nome = Tema.campo(22), cpf = Tema.campo(14),
                    email = Tema.campo(22), telefone = Tema.campo(15), endereco = Tema.campo(30);
 
+        util.MascaraCampo.aplicarCpf(cpf); util.MascaraCampo.aplicarTelefone(telefone);
         if (id != null) {
             try {
-                for (Cliente c : dao.listarTodos()) {
+                for (Cliente c : dao.listarManutencao("")) {
                     if (c.getId() == id) {
                         nome.setText(c.getNome()); cpf.setText(c.getCpf());
                         email.setText(c.getEmail()); telefone.setText(c.getTelefone());
@@ -164,7 +179,7 @@ public class TelaClientes extends JFrame {
     private void excluir() {
         int l = tabela.getSelectedRow();
         if (l < 0) { aviso("Selecione um cliente."); return; }
-        if (confirmar("Excluir este cliente?"))
+        if (confirmar("Desativar este cliente?"))
             try { if (!dao.excluir((int) modeloTabela.getValueAt(l, 0))) throw new java.sql.SQLException("Cliente não encontrado."); carregarTabela(""); }
             catch (Exception ex) { erro(util.Erros.mensagem(ex)); }
     }

@@ -1,3 +1,12 @@
+# Estado atual — 02/10/2026
+
+Partes 1 e 2 concluídas. A parte 2 implementa a etapa 4: usuários/permissões, último administrador, sessão, PBKDF2/migração, ativação e recuperação por código, validações/máscaras, categorias, imagens, estoque inicial/mínimo e histórico. Detalhes em PARTE_2_CADASTROS_E_ACESSO.md; roteiro manual e automático em COMO_TESTAR_PARTES_1_E_2.md.
+
+47 fontes de produção compiladas. Validação em banco isolado: evolução V1/V2, 20 regressões da parte 1, 15 cenários da parte 2 e construção de 15 telas. Evidências: ultimo-teste-integracao.txt e validacao-parte2.txt. Imagens das telas novas foram renderizadas e inspecionadas. O relatório anterior abaixo é histórico do primeiro bloco.
+
+O próximo bloco é checkout, pagamento simulado e gestão de pedidos. Documentação acadêmica final e empacotamento continuam pendentes.
+
+---
 # Registro do primeiro bloco concluído — 30/09/2026
 
 Entrega confirmada: desktop Swing, estilo visual atual, apresentação em 28/10/2026 e documentação alinhada ao código. Este registro descreve o fechamento das etapas 1 a 3, sem antecipar o aceite dos módulos seguintes.

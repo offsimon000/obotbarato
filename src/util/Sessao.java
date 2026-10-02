@@ -1,47 +1,22 @@
 package util;
-
 import model.Usuario;
+import model.Cliente;
+import java.awt.Window;
 
-/**
- * Controla a sessão do usuário administrativo logado.
- * Padrão Singleton estático — armazena o admin ativo durante a execução.
- *
- * Uso:
- *   Sessao.iniciar(usuario)    → ao fazer login
- *   Sessao.encerrar()          → ao fazer logout
- *   Sessao.getIdUsuario()      → nos DAOs, para auditoria
- */
-public class Sessao {
-
-    private static Usuario usuarioAtual;
-
+/** Uma identidade por processo desktop; operações revalidam o acesso no banco. */
+public final class Sessao {
+    private static volatile Usuario usuarioAtual;
+    private static volatile Cliente clienteAtual;
     private Sessao() {}
-
-    /** Inicia a sessão com o usuário autenticado. */
-    public static void iniciar(Usuario u) {
-        usuarioAtual = u;
-    }
-
-    /** Encerra a sessão (logout). */
-    public static void encerrar() {
-        usuarioAtual = null;
-    }
-
-    /** Retorna o usuário logado, ou null se não há sessão ativa. */
-    public static Usuario getUsuario() {
-        return usuarioAtual;
-    }
-
-    /**
-     * Retorna o ID do usuário logado.
-     * Retorna 0 se não há admin na sessão (ex: ação feita pelo cliente na loja).
-     */
-    public static int getIdUsuario() {
-        return usuarioAtual != null ? usuarioAtual.getId() : 0;
-    }
-
-    /** Verifica se há um admin logado na sessão. */
-    public static boolean isAdminAtivo() {
-        return usuarioAtual != null;
+    public static synchronized void iniciar(Usuario u) { clienteAtual=null; usuarioAtual=u; }
+    public static synchronized void iniciarCliente(Cliente c) { usuarioAtual=null; clienteAtual=c; }
+    public static synchronized void encerrar() { usuarioAtual=null; clienteAtual=null; }
+    public static Usuario getUsuario() { return usuarioAtual; }
+    public static int getIdUsuario() { Usuario u=usuarioAtual; return u==null?0:u.getId(); }
+    public static int getIdCliente() { Cliente c=clienteAtual; return c==null?0:c.getId(); }
+    public static boolean isAdminAtivo() { Usuario u=usuarioAtual; return u!=null && u.isAdmin(); }
+    public static void sair() {
+        encerrar(); for(Window w:Window.getWindows()) w.dispose();
+        new view.TelaLoginUnificado().setVisible(true);
     }
 }

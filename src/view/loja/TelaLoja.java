@@ -36,6 +36,7 @@ public class TelaLoja extends JFrame {
     private final ClienteLojaDAO clienteDAO = new ClienteLojaDAO();
 
     public TelaLoja(Cliente cliente) {
+        util.Acesso.telaCliente(cliente.getId());
         this.clienteLogado = cliente;
         // Carrega todos os favoritos de uma vez (evita N+1 queries na galeria)
         this.favoritosSet = new java.util.HashSet<>();
@@ -107,7 +108,7 @@ public class TelaLoja extends JFrame {
 
         JButton btnSair = TemaLoja.botaoFantasia("Sair");
         btnSair.setForeground(TemaLoja.VERMELHO_ERRO);
-        btnSair.addActionListener(e -> { dispose(); new view.TelaLoginUnificado().setVisible(true); });
+        btnSair.addActionListener(e -> { carrinho.clear(); favoritosSet.clear(); util.Sessao.sair(); });
 
         btnFav.addActionListener(e -> {
             new TelaFavoritos(this, clienteLogado).setVisible(true);
@@ -264,25 +265,7 @@ public class TelaLoja extends JFrame {
             BorderFactory.createEmptyBorder(12, 12, 12, 12)));
         card.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
-        // Imagem placeholder
-        JPanel img = new JPanel() {
-            protected void paintComponent(Graphics g) {
-                super.paintComponent(g);
-                Graphics2D g2 = (Graphics2D) g;
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                Color[] cores = {new Color(120,60,200), new Color(200,60,100),
-                                 new Color(60,160,100), new Color(60,120,220)};
-                g2.setColor(cores[p.getId() % cores.length]);
-                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 8, 8);
-                g2.setColor(Color.WHITE);
-                g2.setFont(new Font("Segoe UI", Font.BOLD, 11));
-                String cat = p.getNomeCategoria() != null ? p.getNomeCategoria() : "Produto";
-                FontMetrics fm = g2.getFontMetrics();
-                g2.drawString(cat, (getWidth()-fm.stringWidth(cat))/2, getHeight()/2+4);
-            }
-        };
-        img.setPreferredSize(new Dimension(0, 100));
-        img.setOpaque(false);
+        JPanel img = util.Imagens.painel(p.getImagem(),p.getNomeCategoria(),100);
         card.add(img, BorderLayout.NORTH);
 
         // Informações
@@ -314,6 +297,7 @@ public class TelaLoja extends JFrame {
         btnFavBtn.setFocusPainted(false);
         btnFavBtn.setBorderPainted(false);
         btnFavBtn.setPreferredSize(new Dimension(60, 34));
+        btnFavBtn.setMargin(new Insets(2,2,2,2));
         btnFavBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
         btnFavBtn.addActionListener(e -> {
             try {
@@ -401,7 +385,7 @@ public class TelaLoja extends JFrame {
         List<String> lista = new ArrayList<>();
         try (Connection con = ConexaoBanco.getConexao();
              PreparedStatement ps = con.prepareStatement(
-                 "SELECT nome FROM categorias ORDER BY nome");
+                 "SELECT nome FROM categorias WHERE ativo ORDER BY nome");
              ResultSet rs = ps.executeQuery()) {
             while (rs.next()) lista.add(rs.getString("nome"));
         } catch (Exception e) { /* ignora */ }

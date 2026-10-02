@@ -1,0 +1,33 @@
+APROVADO: evolução V1 → V2 preserva produto, preço, saldo, mínimo e registra abertura; reexecução idempotente.
+OK 1: Operações administrativas negadas sem sessão
+OK 2: Vendedor consulta e atende, mas não gerencia usuários, categorias, estoque, desativação ou senhas
+OK 3: Cliente só consulta seu histórico e altera seus favoritos
+OK 4: Usuários: criar, editar sem trocar senha, duplicidade, desativação e revogação da sessão
+OK 5: Último administrador não pode ser desativado ou rebaixado
+OK 6: PBKDF2 e migração transparente de MD5/SHA256 antigos, inclusive senha antiga curta
+OK 7: Ativação de cliente administrativo com código secreto de uso único
+OK 8: Recuperação: expiração, bloqueio após cinco erros, reemissão e substituição de senha
+OK 9: Validação compartilhada: CPF, email, fixo/celular, duplicidade com máscara diferente
+OK 10: Máscaras: edição no meio, substituição, limpeza, fixo e celular no EDT
+OK 11: Produto com imagem, saldo inicial e mínimo; categoria em uso protegida
+OK 12: Movimentações auditadas, mínimo real e rollback quando falta estoque
+OK 13: Falha ao gravar movimento desfaz a alteração de estoque
+OK 14: Desativação/reativação de produto e categoria preservam dados e catálogo
+OK 15: Cliente desativado perde acesso; reativação mantém senha; logout limpa identidade
+APROVADO: 15 cenários da parte 2 em PostgreSQL real.
+OK tela: TelaLoginUnificado
+OK tela: TelaInicial
+OK tela: TelaProdutos
+OK tela: TelaClientes
+OK tela: TelaEstoque
+OK tela: TelaPedidos
+OK tela: TelaRelatorios
+OK tela: FormularioProduto
+OK tela: TelaUsuarios
+OK tela: TelaCategorias
+OK tela: TelaLoja
+OK tela: TelaFavoritos
+OK tela: TelaCarrinho
+OK tela: TelaCheckout
+OK tela: TelaMeusPedidos
+APROVADO: 15 telas inicializadas no EDT sem exibir janelas.

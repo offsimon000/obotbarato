@@ -13,6 +13,7 @@ public final class Erros {
         Logger.getLogger("OBotBarato").log(Level.WARNING, "Operação não concluída", erro);
         if (erro instanceof SQLException) {
             String estado = ((SQLException) erro).getSQLState();
+            if ("42501".equals(estado)) return erro.getMessage();
             if ("IM003".equals(estado)) return "Driver do banco ausente. Recompile o projeto.";
             if (estado != null && (estado.startsWith("08") || estado.startsWith("28") || "3D000".equals(estado)))
                 return "Banco indisponível. Inicie a base e confira a configuração.";
