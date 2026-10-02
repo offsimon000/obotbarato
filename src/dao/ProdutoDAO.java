@@ -11,6 +11,13 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class ProdutoDAO {
+    public record Disponivel(Produto produto,int quantidade){}
+    public Disponivel buscarParaCarrinho(int id) throws SQLException {
+        util.Acesso.cliente(Sessao.getIdCliente());
+        try(Connection c=ConexaoBanco.getConexao();PreparedStatement p=c.prepareStatement("SELECT p.*,c.nome AS nome_categoria,e.quantidade FROM produtos p JOIN categorias c ON c.id=p.id_categoria JOIN estoque e ON e.id_produto=p.id WHERE p.id=? AND p.ativo AND c.ativo")){
+            p.setInt(1,id);try(ResultSet r=p.executeQuery()){if(!r.next())throw new IllegalArgumentException("Produto indisponível.");return new Disponivel(mapear(r),r.getInt("quantidade"));}
+        }
+    }
     public List<Produto> listarManutencao(String busca) throws SQLException {
         util.Acesso.equipe(); List<Produto> lista=new ArrayList<>();
         try(Connection c=ConexaoBanco.getConexao(); PreparedStatement ps=c.prepareStatement("SELECT p.*,c.nome AS nome_categoria FROM produtos p LEFT JOIN categorias c ON c.id=p.id_categoria WHERE p.nome ILIKE ? ORDER BY p.nome")){

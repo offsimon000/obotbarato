@@ -1,4 +1,4 @@
-# Contrato da base desktop — partes 1 e 2
+# Contrato da base desktop — fundação, cadastros e compra
 
 ## Entrada e execução
 
@@ -10,7 +10,7 @@ Configurações externas existentes são preservadas. As variáveis `DB_URL`, `D
 
 ## Esquema e regras atuais
 
-O banco possui dez tabelas de negócio e uma de controle de migrations:
+O banco possui onze tabelas de negócio e uma de controle de migrations:
 
 | Tabela | Chave e regras principais |
 |---|---|
@@ -24,6 +24,7 @@ O banco possui dez tabelas de negócio e uma de controle de migrations:
 | `favoritos` | PK composta cliente/produto, impedindo duplicação; FKs. |
 | `acessos_cliente` | Cliente PK/FK; hash do código, validade, tentativas e emissor. |
 | `movimentos_estoque` | ID; produto/data/tipo/delta/saldo/motivo e responsável. |
+| `pagamentos` | Pedido PK/FK; método e status de simulação, datas e confirmação administrativa. |
 | `schema_migrations` | Nome da migration como PK, SHA-256 do arquivo e data de aplicação. |
 
 Existem índices de categoria do produto, cliente/data do pedido e pedido/produto dos itens. As restrições de FK impedem referências inexistentes; as restrições únicas e de valores também são aplicadas no banco.
@@ -36,7 +37,7 @@ Cada operação independente recebe uma nova conexão. `Transacao.executar` cont
 
 Pedido e produto só recebem ID depois de confirmada a transação composta. Falha ao criar estoque inicial desfaz o produto. Falha em qualquer item desfaz pedido, itens e baixas anteriores. Quantidade zero/negativa não representa uma movimentação válida. Atualização direta do saldo permite zero e rejeita negativo.
 
-Preços, subtotais e total nos modelos/persistência usam `BigDecimal`, escala de dois centavos e arredondamento HALF_UP. A API de leitura `double` das telas antigas foi mantida por compatibilidade. As regras adicionais de desconto e pagamento pertencem à etapa 5.
+Preços, subtotais e total nos modelos/persistência usam `BigDecimal`, escala de dois centavos e arredondamento HALF_UP. A API de leitura `double` das telas antigas foi mantida por compatibilidade. PIX aplica 10% e débito 5%; subtotal/desconto/total e pagamento são persistidos na etapa 5.
 
 As operações públicas dos DAOs não substituem falha de banco por lista vazia, senha incorreta ou resultado de gravação falso. Operações sem um registro correspondente retornam ausência e os formulários verificam o resultado. `Erros` traduz falhas para mensagens da interface, incluindo indisponibilidade, driver ausente, duplicidade e restrições; os detalhes técnicos vão para o registro. Falhas de migração de hash são propagadas; MD5 e SHA256+salt antigos são migrados para PBKDF2 no login. As permissões são revalidadas por `Acesso` no banco.
 
@@ -51,3 +52,7 @@ As operações públicas dos DAOs não substituem falha de banco por lista vazia
 ## Evolução da parte 2
 
 A V2 preserva a V1 e adiciona manutenção, índices normalizados, imagens, recuperação por código e histórico de estoque. Produto, saldo inicial e movimento são atômicos; vendas também registram movimentos dentro da mesma transação. O alerta lê o mínimo salvo. Regras completas, matriz e formatos: PARTE_2_CADASTROS_E_ACESSO.md. Testes: COMO_TESTAR_PARTES_1_E_2.md.
+
+## Compra e pagamento
+
+A V3 inclui subtotal/desconto, origem, UUID idempotente, dados de entrega e pagamentos. O total deve ser subtotal menos desconto. Crédito/débito/PIX são confirmados como simulação; boleto exige admin. Pedidos anteriores preservam valores e recebem pagamento em dinheiro correspondente ao status anterior. Regras e testes: COMPRA_E_PAGAMENTO_SIMULADO.md.

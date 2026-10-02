@@ -1,0 +1,16 @@
+OK 1: Descontos calculados em decimal e arredondados para centavos
+OK 2: Compra PIX grava subtotal, desconto, total, pagamento e estoque juntos
+OK 3: Débito aplica 5%; crédito não inventa desconto ou cobrança real
+OK 4: Repetir a chave da compra retorna o pedido original sem baixar estoque de novo
+OK 5: Duas confirmações simultâneas da mesma tentativa produzem um pedido
+OK 6: Preço alterado exige revisão antes da compra, sem cobrança de novo valor silenciosa
+OK 7: Produto inativo, falta de estoque e entrega incompleta recusados
+OK 8: Compras diferentes disputam a última unidade com apenas um vencedor
+OK 9: Boleto pendente só é confirmado por admin e confirmação repetida não muda estoque
+OK 10: Detalhes preservam valores/entrega e não expõem pedido de outro cliente
+OK 11: Falha após baixar estoque desfaz pedido, itens, movimento e pagamento
+OK 12: Carrinho entrega cópias, bloqueia múltiplos checkouts, preserva chave de retry e limpa no sucesso/logout
+OK 13: Cliente não burla checkout pela gravação administrativa antiga
+OK 14: Faturamento por período usa total final das compras confirmadas
+APROVADO: 14 cenários de compra e pagamento simulado em PostgreSQL real.
+APROVADO: fluxo Swing de resumo → PIX → confirmação, duplo clique, fechamento antes/depois e continuar comprando; carrinho e estoque consistentes.

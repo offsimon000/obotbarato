@@ -22,16 +22,28 @@ public class PedidoDAO {
         }
         pedido.recalcularTotal();
         int id = Transacao.executar(con -> {
+            util.Acesso.equipe(con,false);
             util.Acesso.venda(con, pedido.getIdCliente());
+            try(Statement s=con.createStatement()){s.execute("SELECT pg_advisory_xact_lock_shared(726282)");}
+            List<ItemPedido> ordenados=pedido.getItens().stream().sorted(java.util.Comparator.comparingInt(ItemPedido::getIdProduto)).toList();
+            for(ItemPedido item:ordenados){
+                try(PreparedStatement p=con.prepareStatement("SELECT p.preco,e.quantidade FROM produtos p JOIN categorias c ON c.id=p.id_categoria JOIN estoque e ON e.id_produto=p.id WHERE p.id=? AND p.ativo AND c.ativo FOR UPDATE OF p,e")){
+                    p.setInt(1,item.getIdProduto());try(ResultSet r=p.executeQuery()){
+                        if(!r.next())throw new IllegalArgumentException("Produto indisponível.");
+                        if(r.getBigDecimal(1).compareTo(item.getPrecoUnitarioDecimal())!=0)throw new IllegalArgumentException("Preço alterado. Refaça os itens da venda.");
+                    }
+                }
+            }
             int idNovo;
             try (PreparedStatement ps = con.prepareStatement(
-                    "INSERT INTO pedidos (id_cliente, status, total, registrado_por) VALUES (?,?,?,?)",
+                    "INSERT INTO pedidos (id_cliente, status, total, registrado_por,subtotal) VALUES (?,?,?,?,?)",
                     Statement.RETURN_GENERATED_KEYS)) {
                 ps.setInt(1, pedido.getIdCliente());
                 ps.setString(2, pedido.getStatus());
                 ps.setBigDecimal(3, pedido.getTotalDecimal());
                 if (Sessao.getIdUsuario() > 0) ps.setInt(4, Sessao.getIdUsuario());
                 else ps.setNull(4, Types.INTEGER);
+                ps.setBigDecimal(5,pedido.getTotalDecimal());
                 if (ps.executeUpdate() != 1) throw new SQLException("Não foi possível gravar o pedido.");
                 try (ResultSet rs = ps.getGeneratedKeys()) {
                     if (!rs.next()) throw new SQLException("Pedido sem identificador gerado.");
@@ -41,7 +53,7 @@ public class PedidoDAO {
             EstoqueDAO estoqueDAO = new EstoqueDAO();
             try (PreparedStatement ps = con.prepareStatement(
                     "INSERT INTO itens_pedido (id_pedido, id_produto, quantidade, preco_unitario) VALUES (?,?,?,?)")) {
-                for (ItemPedido item : pedido.getItens()) {
+                for (ItemPedido item : ordenados) {
                     ps.setInt(1, idNovo);
                     ps.setInt(2, item.getIdProduto());
                     ps.setInt(3, item.getQuantidade());
@@ -49,6 +61,10 @@ public class PedidoDAO {
                     if (ps.executeUpdate() != 1) throw new SQLException("Não foi possível gravar o item.");
                     estoqueDAO.saida(con, item.getIdProduto(), item.getQuantidade());
                 }
+            }
+            try(PreparedStatement pg=con.prepareStatement("INSERT INTO pagamentos(id_pedido,metodo,status,confirmado_em) VALUES(?,'dinheiro',?,CASE WHEN ?='confirmado' THEN CURRENT_TIMESTAMP ELSE NULL END)")){
+                String pagamento="finalizado".equals(pedido.getStatus())?"confirmado":"cancelado".equals(pedido.getStatus())?"cancelado":"pendente";
+                pg.setInt(1,idNovo);pg.setString(2,pagamento);pg.setString(3,pagamento);pg.executeUpdate();
             }
             return idNovo;
         });
@@ -66,8 +82,8 @@ public class PedidoDAO {
 
     private List<Pedido> listar(Integer idCliente) throws SQLException {
         List<Pedido> lista = new ArrayList<>();
-        String sql = "SELECT p.*, c.nome AS cliente FROM pedidos p "
-                + "JOIN clientes c ON p.id_cliente = c.id "
+        String sql = "SELECT p.*, c.nome AS cliente,pg.metodo AS metodo_pagamento,pg.status AS status_pagamento FROM pedidos p "
+                + "JOIN clientes c ON p.id_cliente = c.id JOIN pagamentos pg ON pg.id_pedido=p.id "
                 + (idCliente != null ? "WHERE p.id_cliente = ? " : "")
                 + "ORDER BY p.data_pedido DESC, p.id DESC";
         try (Connection con = ConexaoBanco.getConexao(); PreparedStatement ps = con.prepareStatement(sql)) {
@@ -81,6 +97,7 @@ public class PedidoDAO {
                     p.setDataPedido(rs.getTimestamp("data_pedido"));
                     p.setStatus(rs.getString("status"));
                     p.setTotal(rs.getBigDecimal("total"));
+                    p.setMetodoPagamento(rs.getString("metodo_pagamento"));p.setStatusPagamento(rs.getString("status_pagamento"));
                     lista.add(p);
                 }
             }

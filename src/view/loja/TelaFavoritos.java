@@ -182,26 +182,8 @@ public class TelaFavoritos extends JFrame {
     }
 
     private void adicionarAoCarrinho() {
-        int linha = tabela.getSelectedRow();
-        if (linha < 0 || linha >= produtosExibidos.size()) {
-            JOptionPane.showMessageDialog(this, "Selecione um produto.");
-            return;
-        }
-        Produto p = produtosExibidos.get(linha);
-
-        // Adiciona ao carrinho da TelaLoja
-        List<ItemPedido> carrinho = telaLoja.getCarrinho();
-        for (ItemPedido item : carrinho) {
-            if (item.getIdProduto() == p.getId()) {
-                item.setQuantidade(item.getQuantidade() + 1);
-                telaLoja.atualizarBadgeCarrinho();
-                JOptionPane.showMessageDialog(this,
-                    p.getNome() + " — quantidade atualizada no carrinho!");
-                return;
-            }
-        }
-        carrinho.add(new ItemPedido(p.getId(), p.getNome(), 1, p.getPreco()));
-        telaLoja.atualizarBadgeCarrinho();
-        JOptionPane.showMessageDialog(this, p.getNome() + " adicionado ao carrinho!");
+        int linha=tabela.getSelectedRow();
+        if(linha<0 || linha>=produtosExibidos.size()){JOptionPane.showMessageDialog(this,"Selecione um produto.");return;}
+        telaLoja.adicionarAoCarrinho(produtosExibidos.get(linha));
     }
 }

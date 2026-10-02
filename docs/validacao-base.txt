@@ -11,9 +11,9 @@ Banco atualizado. Dados de demonstração: true
 OK: conexão com banco obotbarato
 Servidor: PostgreSQL 18.6
 OK: tabelas e colunas da base desktop disponíveis.
-OK: pedido, item, total R$ 34,50, estoque e auditoria preservados em obotbarato
-OK: pedido, item, total R$ 34,50, estoque e auditoria preservados em obotbarato_restaurado_20261002_074606_717bee27
-OK: somente os dados próprios da fixture foram removidos de obotbarato_restaurado_20261002_074606_717bee27
+OK: pedido, item, total R$ 34,50, subtotal/desconto, pagamento, imagem, estoque e auditoria preservados em obotbarato
+OK: pedido, item, total R$ 34,50, subtotal/desconto, pagamento, imagem, estoque e auditoria preservados em obotbarato_restaurado_20261002_081306_fb054396
+OK: somente os dados próprios da fixture foram removidos de obotbarato_restaurado_20261002_081306_fb054396
 OK: somente os dados próprios da fixture foram removidos de obotbarato
 OK tela: TelaLoginUnificado
 OK tela: TelaInicial
@@ -22,6 +22,7 @@ OK tela: TelaClientes
 OK tela: TelaEstoque
 OK tela: TelaPedidos
 OK tela: TelaRelatorios
+OK tela: TelaPagamentos
 OK tela: FormularioProduto
 OK tela: TelaUsuarios
 OK tela: TelaCategorias
@@ -30,7 +31,7 @@ OK tela: TelaFavoritos
 OK tela: TelaCarrinho
 OK tela: TelaCheckout
 OK tela: TelaMeusPedidos
-APROVADO: 15 telas inicializadas no EDT sem exibir janelas.
+APROVADO: 16 telas inicializadas no EDT sem exibir janelas.
 OK: driver ausente identificado sem abrir o aplicativo.
 OK: estado dos servicos PostgreSQL originais preservado.
 APROVADO: instalacao, autenticacao, reinicio, backup/restauracao e inicializacao das telas.

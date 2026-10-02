@@ -46,4 +46,4 @@ Imagem PNG/JPEG opcional é validada por tamanho (até 5 MB) e dimensões (até 
 
 ## Limites desta entrega
 
-Parte 2 fecha a manutenção e o acesso. Checkout, revalidação completa de preço/disponibilidade, pagamento simulado persistido, transições/cancelamento de pedidos, perfil, cupons, avaliações e notificações continuam nos próximos blocos. Parte das consultas antigas ainda roda no EDT e existe SQL de filtro de categorias na loja; sua reorganização faz parte da etapa 8. A documentação acadêmica final ainda será regenerada com todos os módulos concluídos.
+Parte 2 fecha a manutenção e o acesso. Compra, revalidação de preço/disponibilidade e pagamento simulado foram concluídos na etapa 5 (COMPRA_E_PAGAMENTO_SIMULADO.md). Transições/cancelamento de pedidos, perfil, cupons, avaliações e notificações continuam nos próximos blocos. Parte das consultas antigas ainda roda no EDT e existe SQL de filtro de categorias na loja; sua reorganização faz parte da etapa 8. A documentação acadêmica final ainda será regenerada com todos os módulos concluídos.

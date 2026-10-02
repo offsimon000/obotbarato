@@ -1,6 +1,6 @@
 # Como testar as partes 1 e 2
 
-Parte 1 = organização, execução, banco e integridade (etapas 1 a 3 do plano). Parte 2 = cadastros, permissões, acesso e catálogo (etapa 4). Compra completa, pagamento e gestão de pedidos pertencem aos próximos blocos.
+Parte 1 = organização, execução, banco e integridade (etapas 1 a 3 do plano). Parte 2 = cadastros, permissões, acesso e catálogo (etapa 4). Compra e pagamento simulado também foram implementados; roteiro em COMPRA_E_PAGAMENTO_SIMULADO.md. Gestão de pedidos e demais módulos continuam nos próximos blocos.
 
 ## Abrir o aplicativo
 
@@ -69,7 +69,7 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\verificar-base
 
 O primeiro comando usa cluster temporário isolado: testa atualização V1/V2, regressões da parte 1, regras da parte 2 e construção das telas. Ele não altera a base de desenvolvimento. O segundo verifica a base local, reinício, backup e restauração em banco novo; cria uma venda fictícia identificada e remove apenas seus próprios registros ao concluir. O serviço/banco PostgreSQL original é preservado.
 
-Procure **APROVADO** e ausência de erros nos resultados. Evidências ficam em `docs/ultimo-teste-integracao.txt`, `docs/validacao-parte2.txt` e `docs/validacao-base.txt`. Esses testes verificam regras e persistência; o roteiro manual acima confere também suas interações com as telas.
+O primeiro script também testa compra/pagamento simulado e o fluxo da interface do checkout, registrando docs/validacao-compra.txt. Procure **APROVADO** e ausência de erros nos resultados. Evidências ficam em `docs/ultimo-teste-integracao.txt`, `docs/validacao-parte2.txt` e `docs/validacao-base.txt`. Esses testes verificam regras e persistência; o roteiro manual acima confere também suas interações com as telas.
 
 ## Backup manual
 

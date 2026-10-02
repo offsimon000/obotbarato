@@ -15,6 +15,7 @@ public class TelaMeusPedidos extends JFrame {
     private TelaLoja telaLoja;
     private Cliente clienteLogado;
     private DefaultTableModel modelo;
+    private JTable tabela;
     private PedidoDAO pedidoDAO = new PedidoDAO();
 
     public TelaMeusPedidos(TelaLoja telaLoja, Cliente cliente) {
@@ -67,11 +68,11 @@ public class TelaMeusPedidos extends JFrame {
         painel.add(header, BorderLayout.NORTH);
 
         // Tabela
-        String[] colunas = {"# Pedido", "Data", "Total", "Status"};
+        String[] colunas = {"# Pedido", "Data", "Total", "Pedido", "Pagamento", "Método"};
         modelo = new DefaultTableModel(colunas, 0) {
             public boolean isCellEditable(int r, int c) { return false; }
         };
-        JTable tabela = new JTable(modelo) {
+        tabela = new JTable(modelo) {
             public Component prepareRenderer(javax.swing.table.TableCellRenderer r, int row, int col) {
                 Component c = super.prepareRenderer(r, row, col);
                 String status = (String) getValueAt(row, 3);
@@ -105,7 +106,10 @@ public class TelaMeusPedidos extends JFrame {
         lblInfo.setFont(TemaLoja.FONTE_LABEL);
         lblInfo.setForeground(TemaLoja.TEXTO_HINT);
         lblInfo.setBorder(BorderFactory.createEmptyBorder(6, 0, 10, 0));
-        painel.add(lblInfo, BorderLayout.SOUTH);
+        JPanel rodape=new JPanel(new BorderLayout());rodape.setBackground(TemaLoja.BG_CARD);rodape.add(lblInfo);
+        JButton detalhes=TemaLoja.botaoFantasia("Detalhes");detalhes.addActionListener(e->{int linha=tabela.getSelectedRow();if(linha<0 || modelo.getValueAt(linha,0).toString().isEmpty()){JOptionPane.showMessageDialog(this,"Selecione um pedido.");return;}
+            int id=Integer.parseInt(modelo.getValueAt(linha,0).toString().substring(1));view.TelaPagamentos.mostrarDetalhes(this,id);
+        });rodape.add(detalhes,BorderLayout.EAST);painel.add(rodape,BorderLayout.SOUTH);
 
         setContentPane(painel);
     }
@@ -122,7 +126,7 @@ public class TelaMeusPedidos extends JFrame {
                         "#" + p.getId(),
                         p.getDataPedido() != null ? sdf.format(p.getDataPedido()) : "-",
                         String.format("R$ %.2f", p.getTotal()),
-                        p.getStatus()
+                        p.getStatus(),p.getStatusPagamento(),util.PagamentoSimulado.NOMES.get(p.getMetodoPagamento())
                     });
                     count++;
                 }

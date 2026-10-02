@@ -1,11 +1,16 @@
 # Estado atual — 02/10/2026
 
-Partes 1 e 2 concluídas. A parte 2 implementa a etapa 4: usuários/permissões, último administrador, sessão, PBKDF2/migração, ativação e recuperação por código, validações/máscaras, categorias, imagens, estoque inicial/mínimo e histórico. Detalhes em PARTE_2_CADASTROS_E_ACESSO.md; roteiro manual e automático em COMO_TESTAR_PARTES_1_E_2.md.
+Partes 1 e 2 concluídas; etapa 5 de compra/pagamento simulado também concluída. Desktop Java Swing/PostgreSQL e estilo visual preservados. A versão continua em desenvolvimento, com apresentação prevista para 28/10/2026.
 
-47 fontes de produção compiladas. Validação em banco isolado: evolução V1/V2, 20 regressões da parte 1, 15 cenários da parte 2 e construção de 15 telas. Evidências: ultimo-teste-integracao.txt e validacao-parte2.txt. Imagens das telas novas foram renderizadas e inspecionadas. O relatório anterior abaixo é histórico do primeiro bloco.
+- Cadastros, permissões, usuários/último admin, recuperação/ativação por código, validações/máscaras, categorias, imagens, estoque mínimo e histórico: PARTE_2_CADASTROS_E_ACESSO.md.
+- Carrinho com reserva, entrega informada, revalidação de preço/estoque, confirmação idempotente, descontos PIX/débito, pagamento fictício persistido e boleto confirmado por admin: COMPRA_E_PAGAMENTO_SIMULADO.md.
+- Como abrir e testar: COMO_TESTAR_PARTES_1_E_2.md e Testar Partes 1 e 2.cmd (agora inclui também compra/pagamento).
 
-O próximo bloco é checkout, pagamento simulado e gestão de pedidos. Documentação acadêmica final e empacotamento continuam pendentes.
+51 fontes de produção compiladas. Banco isolado: 20 regressões iniciais + 15 cenários de acesso/cadastros + 14 de compra/pagamento; evolução V1/V2/V3 preservando dados, pedido e itens; construção de 16 telas. Fluxo Swing do checkout aprovado, incluindo duplo clique, fechamento e continuidade. Evidências: ultimo-teste-integracao.txt, validacao-parte2.txt e validacao-compra.txt. Capturas dos cadastros e checkout foram inspecionadas em validacao-ui.
 
+A base local foi atualizada preservando dados, com backups anteriores às evoluções. A verificação de reinício/restauração inclui pedido, total, subtotal/desconto, pagamento, imagem, estoque e auditoria; resultado em validacao-base.txt. O serviço/banco PostgreSQL antigo é preservado.
+
+Próximo bloco: etapa 6, gestão/transições/histórico/cancelamento de pedidos. Perfil, cupons, avaliações, notificações, dashboard, relatórios finais, documentação acadêmica e empacotamento continuam pendentes. Os registros históricos do primeiro bloco são mantidos abaixo.
 ---
 # Registro do primeiro bloco concluído — 30/09/2026
 

@@ -105,6 +105,7 @@ public class TelaInicial extends JFrame {
         grid.add(criarCard("Pedidos",     "Vendas e carrinho",      new Color(255, 80, 120),  () -> { setVisible(false); new TelaPedidos(usuarioLogado, this).setVisible(true); }));
         grid.add(criarCard("Estoque",     "Entradas e saidas",      new Color(50, 200, 120),  () -> { setVisible(false); new TelaEstoque(this).setVisible(true); }));
         grid.add(criarCard("Relatorios",  "Vendas e analises",      new Color(255, 170, 40),  () -> { setVisible(false); new TelaRelatorios(this).setVisible(true); }));
+        grid.add(criarCard("Pagamentos", "Simulação e consulta", Tema.ROXO_PRIMARIO, () -> { setVisible(false); new TelaPagamentos(this).setVisible(true); }));
         grid.add(criarCard("Sair",        "Voltar ao login",        new Color(100, 100, 120), () -> { Sessao.sair(); }));
 
         if (Sessao.isAdminAtivo()) {

@@ -16,6 +16,12 @@ public class Pedido {
     private String status; // "aberto", "finalizado", "cancelado"
     private BigDecimal total = new BigDecimal("0.00");
     private List<ItemPedido> itens;
+    private String metodoPagamento;
+    private String statusPagamento;
+    public String getMetodoPagamento(){return metodoPagamento;}
+    public void setMetodoPagamento(String metodo){metodoPagamento=metodo;}
+    public String getStatusPagamento(){return statusPagamento;}
+    public void setStatusPagamento(String status){statusPagamento=status;}
 
     public Pedido() {
         this.itens = new ArrayList<>();

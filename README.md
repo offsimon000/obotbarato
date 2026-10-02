@@ -2,7 +2,7 @@
 
 Pasta oficial de desenvolvimento do projeto acadêmico. Aplicação Java Swing com PostgreSQL, mantendo o estilo visual original. Apresentação: **28/10/2026**.
 
-**Estado atual:** partes 1 e 2 concluídas: fundação, cadastros, permissões, acesso à loja e manutenção do catálogo. Veja `docs/COMO_TESTAR_PARTES_1_E_2.md` e `docs/PARTE_2_CADASTROS_E_ACESSO.md`. Checkout, pagamentos e gestão de pedidos são o próximo bloco. O plano completo está em `../analise/PLANO_FINALIZACAO_OBOTBARATO.md`; escopo e critérios estão em `docs/ESCOPO_E_CRITERIOS.md`. Os arquivos extraídos são referências preservadas.
+**Estado atual:** partes 1 e 2 e compra/pagamento simulado implementados: fundação, cadastros, permissões, acesso à loja e manutenção do catálogo. Veja `docs/COMO_TESTAR_PARTES_1_E_2.md` e `docs/PARTE_2_CADASTROS_E_ACESSO.md`. Compra e pagamento: `docs/COMPRA_E_PAGAMENTO_SIMULADO.md`. Gestão de pedidos é o próximo bloco. O plano completo está em `../analise/PLANO_FINALIZACAO_OBOTBARATO.md`; escopo e critérios estão em `docs/ESCOPO_E_CRITERIOS.md`. Os arquivos extraídos são referências preservadas.
 
 ## Pré-requisitos
 
@@ -86,9 +86,9 @@ O seed usa PBKDF2-HMAC-SHA256 com salt aleatório e 600.000 iterações. Hashes 
 
 O script cria um cluster exclusivo em `.local/teste-<identificador>`, escolhe uma porta livre, usa uma senha aleatória e escuta somente em `127.0.0.1`. Não inicia o serviço nem altera a base PostgreSQL antiga ou a de desenvolvimento. Ao terminar, para o cluster criado, preservando seus logs. As variáveis `DB_*` precisam estar ausentes para evitar redirecionar os testes.
 
-Os 20 cenários verificam instalação repetida, autenticação, conexões independentes, dinheiro, compra, rollback, concorrência, relatórios, filtro por cliente, duplicidades, registros inexistentes, favoritos, falha de conexão, evolução de migrations e aliases de login. A evidência fica em `docs/ultimo-teste-integracao.txt`. O mesmo script verifica evolução V1/V2, 15 cenários novos de cadastros/acesso e construção de 15 telas. Evidência adicional: `docs/validacao-parte2.txt`.
+Os 20 cenários verificam instalação repetida, autenticação, conexões independentes, dinheiro, compra, rollback, concorrência, relatórios, filtro por cliente, duplicidades, registros inexistentes, favoritos, falha de conexão, evolução de migrations e aliases de login. A evidência fica em `docs/ultimo-teste-integracao.txt`. O mesmo script verifica evolução V1/V2, 15 cenários novos de cadastros/acesso e construção de 16 telas. Evidências adicionais: `docs/validacao-parte2.txt` e `docs/validacao-compra.txt`. Também são executados 14 cenários de compra/pagamento e o fluxo Swing do checkout.
 
-Para verificar também o ambiente persistente, reinício, restauração e construção das 15 telas atuais:
+Para verificar também o ambiente persistente, reinício, restauração e construção das 16 telas atuais:
 
 ```powershell
 ./scripts/verificar-base.ps1
@@ -113,4 +113,4 @@ Guarde uma cópia do `.dump` fora da máquina para recuperação em caso de perd
 
 ## Limites desta versão de desenvolvimento
 
-As partes concluídas tratam persistência, permissões e manutenção dos cadastros/catálogo. Checkout completo, preço revalidado, pagamento simulado persistido, fluxo de entrega/cancelamento, cupons, avaliações, notificações, dashboard e documentação acadêmica final ainda dependem das próximas etapas. O JAR gerado serve para desenvolvimento; a instalação completa e o pacote da apresentação ainda serão validados.
+As partes concluídas tratam persistência, permissões e manutenção dos cadastros/catálogo. Fluxo de preparo/entrega/cancelamento, cupons, avaliações, notificações, dashboard e documentação acadêmica final ainda dependem das próximas etapas. O JAR gerado serve para desenvolvimento; a instalação completa e o pacote da apresentação ainda serão validados.

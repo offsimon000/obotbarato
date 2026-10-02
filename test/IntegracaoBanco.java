@@ -24,7 +24,7 @@ public final class IntegracaoBanco {
         exigir(numero("SELECT COUNT(*) FROM movimentos_estoque WHERE tipo='inicial'")==produtosDemo,"Abertura da demonstração ausente.");
         InicializarBanco.aplicarMigrations(Path.of("sql"));
         InicializarBanco.instalarDemonstracao();
-        exigir(numero("SELECT COUNT(*) FROM schema_migrations") == 2, "Migration duplicada.");
+        exigir(numero("SELECT COUNT(*) FROM schema_migrations") == 3, "Migration duplicada.");
         exigir(numero("SELECT COUNT(*) FROM produtos") == produtosDemo, "Seed duplicou produtos.");
         exigir(numero("SELECT COUNT(*) FROM movimentos_estoque WHERE tipo='inicial'")==produtosDemo,"Seed duplicou abertura.");
         exigir(numero("SELECT COUNT(*) FROM usuarios") == 2, "Seed duplicou usuários.");
@@ -173,19 +173,19 @@ public final class IntegracaoBanco {
         Files.copy(Path.of("sql/V001__base_desktop.sql"), base);
         Files.writeString(base, Files.readString(base) + "\n-- alteração indevida", StandardCharsets.UTF_8);
         rejeitar(() -> InicializarBanco.aplicarMigrations(migrations), SQLException.class);
-        exigir(numero("SELECT COUNT(*) FROM schema_migrations") == 2, "Migration alterada foi aceita.");
+        exigir(numero("SELECT COUNT(*) FROM schema_migrations") == 3, "Migration alterada foi aceita.");
         ok("Checksum impede alteração de migration já aplicada");
 
         Files.write(base, Files.readAllBytes(Path.of("sql/V001__base_desktop.sql")));
-        Path segunda = migrations.resolve("V003__teste_evolucao.sql");
+        Path segunda = migrations.resolve("V004__teste_evolucao.sql");
         Files.writeString(segunda, "CREATE TABLE teste_evolucao(id INT); INSERT INTO categorias(nome) VALUES(NULL);", StandardCharsets.UTF_8);
         rejeitar(() -> InicializarBanco.aplicarMigrations(migrations), SQLException.class);
         exigir(texto("SELECT to_regclass('public.teste_evolucao') IS NULL").equals("t"), "Migration falha deixou tabela parcial.");
-        exigir(numero("SELECT COUNT(*) FROM schema_migrations") == 2, "Migration falha registrada.");
+        exigir(numero("SELECT COUNT(*) FROM schema_migrations") == 3, "Migration falha registrada.");
         Files.writeString(segunda, "CREATE TABLE teste_evolucao(id INT);", StandardCharsets.UTF_8);
         InicializarBanco.aplicarMigrations(migrations);
         InicializarBanco.aplicarMigrations(migrations);
-        exigir(numero("SELECT COUNT(*) FROM schema_migrations") == 3, "Evolução não aplicada/reexecutada corretamente.");
+        exigir(numero("SELECT COUNT(*) FROM schema_migrations") == 4, "Evolução não aplicada/reexecutada corretamente.");
         ok("Migration falha é desfeita; evolução válida pode ser aplicada e reexecutada");
 
         String configOriginal = System.getProperty("obotbarato.config");

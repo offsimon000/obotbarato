@@ -28,6 +28,9 @@ public final class CicloPersistencia {
             });
             Produto produto = new Produto(); produto.setNome(marca); produto.setIdCategoria(categoria);
             produto.setPreco(new BigDecimal("11.50")); produto.setAtivo(true);
+            java.io.ByteArrayOutputStream imagem=new java.io.ByteArrayOutputStream();
+            javax.imageio.ImageIO.write(new java.awt.image.BufferedImage(12,12,java.awt.image.BufferedImage.TYPE_INT_RGB),"png",imagem);
+            produto.setImagem(imagem.toByteArray());
             new ProdutoDAO().salvar(produto); new EstoqueDAO().entrada(produto.getId(), 7);
             Cliente cliente = new Cliente(); cliente.setNome(marca); cliente.setEmail(UUID.randomUUID() + "@teste.local");
             new ClienteDAO().salvar(cliente);
@@ -38,6 +41,7 @@ public final class CicloPersistencia {
             dados.setProperty("marca", marca); dados.setProperty("categoria", Integer.toString(categoria));
             dados.setProperty("produto", Integer.toString(produto.getId())); dados.setProperty("cliente", Integer.toString(cliente.getId()));
             dados.setProperty("pedido", Integer.toString(pedido.getId())); dados.setProperty("admin", Integer.toString(admin.getId()));
+            dados.setProperty("imagemHash",hashImagem(produto.getId()));
             try (var writer = Files.newBufferedWriter(arquivo, StandardCharsets.UTF_8)) { dados.store(writer, "Fixture exclusiva de validacao"); }
             Sessao.encerrar();
             System.out.println("OK: venda fictícia criada para testar reinício e backup.");
@@ -59,8 +63,12 @@ public final class CicloPersistencia {
         exigir(texto("SELECT criado_por FROM produtos WHERE id=" + produto).equals(Integer.toString(admin)), "Auditoria do produto incorreta.");
         exigir(texto("SELECT criado_por FROM clientes WHERE id=" + cliente).equals(Integer.toString(admin)), "Auditoria do cliente incorreta.");
         exigir(texto("SELECT COUNT(*) FROM itens_pedido WHERE id_pedido=" + pedido).equals("1"), "Itens do pedido não preservados.");
+        exigir(texto("SELECT subtotal::text FROM pedidos WHERE id="+pedido).equals("34.50"),"Subtotal não preservado.");
+        exigir(texto("SELECT desconto::text FROM pedidos WHERE id="+pedido).equals("0.00"),"Desconto de balcão incorreto.");
+        exigir(texto("SELECT metodo || '/' || status FROM pagamentos WHERE id_pedido="+pedido).equals("dinheiro/confirmado"),"Pagamento simulado não preservado.");
+        if(dados.getProperty("imagemHash")!=null)exigir(dados.getProperty("imagemHash").equals(hashImagem(produto)),"Imagem não preservada.");
         if (args[0].equals("verificar")) {
-            System.out.println("OK: pedido, item, total R$ 34,50, estoque e auditoria preservados em " + banco);
+            System.out.println("OK: pedido, item, total R$ 34,50, subtotal/desconto, pagamento, imagem, estoque e auditoria preservados em " + banco);
         } else if (args[0].equals("limpar")) {
             Transacao.executar(con -> {
                 try (Statement st = con.createStatement()) {
@@ -77,6 +85,11 @@ public final class CicloPersistencia {
     private static String texto(String sql) throws SQLException {
         try (Connection con = ConexaoBanco.getConexao(); Statement st = con.createStatement(); ResultSet rs = st.executeQuery(sql)) {
             exigir(rs.next(), "Registro da fixture ausente."); return rs.getString(1);
+        }
+    }
+    private static String hashImagem(int id)throws Exception{
+        try(Connection c=ConexaoBanco.getConexao();PreparedStatement p=c.prepareStatement("SELECT imagem FROM produtos WHERE id=?")){
+            p.setInt(1,id);try(ResultSet r=p.executeQuery()){exigir(r.next(),"Produto não encontrado.");return java.util.HexFormat.of().formatHex(java.security.MessageDigest.getInstance("SHA-256").digest(r.getBytes(1)));}
         }
     }
     private static void exigir(boolean condicao, String msg) { if (!condicao) throw new AssertionError(msg); }

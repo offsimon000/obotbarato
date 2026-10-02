@@ -12,7 +12,8 @@ public class TelaCarrinho extends JFrame {
 
     private TelaLoja telaLoja;
     private Cliente clienteLogado;
-    private List<ItemPedido> carrinho;
+    private model.Carrinho carrinho;
+    private TelaCheckout checkout;
     private DefaultTableModel modelo;
     private JLabel lblTotal;
     private JTable tabela; // CORRECAO: tabela como campo (antes era local)
@@ -21,14 +22,14 @@ public class TelaCarrinho extends JFrame {
         util.Acesso.telaCliente(cliente.getId());
         this.telaLoja      = telaLoja;
         this.clienteLogado = cliente;
-        this.carrinho      = carrinho;
+        this.carrinho      = telaLoja.getModeloCarrinho();
         initComponents();
         carregarTabela();
     }
 
     private void initComponents() {
         setTitle("OBotBarato - Carrinho");
-        setSize(680, 500);
+        setSize(900, 500);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
@@ -129,7 +130,8 @@ public class TelaCarrinho extends JFrame {
         JButton btnCheckout = TemaLoja.botaoPrimario("Finalizar Compra");
         btnCheckout.addActionListener(e -> irParaCheckout());
 
-        btns.add(btnRemover); btns.add(btnLimpar); btns.add(btnCheckout);
+        JButton quantidade=TemaLoja.botaoFantasia("Quantidade");quantidade.addActionListener(e->alterarQuantidade());
+        btns.add(quantidade);btns.add(btnRemover);btns.add(btnLimpar);btns.add(btnCheckout);
         rodape.add(btns, BorderLayout.EAST);
         return rodape;
     }
@@ -137,15 +139,15 @@ public class TelaCarrinho extends JFrame {
     // CORRECAO: usa this.tabela (campo) ao inves de variavel local
     public void carregarTabela() {
         modelo.setRowCount(0);
-        double total = 0;
-        for (ItemPedido item : carrinho) {
+        java.math.BigDecimal total = new java.math.BigDecimal("0.00");
+        for (ItemPedido item : carrinho.itens()) {
             modelo.addRow(new Object[]{
                 item.getNomeProduto(),
                 item.getQuantidade(),
                 String.format("R$ %.2f", item.getPrecoUnitario()),
                 String.format("R$ %.2f", item.getSubtotal())
             });
-            total += item.getSubtotal();
+            total = total.add(item.getSubtotalDecimal());
         }
         lblTotal.setText(String.format("Total: R$ %.2f", total));
     }
@@ -156,7 +158,7 @@ public class TelaCarrinho extends JFrame {
             JOptionPane.showMessageDialog(this, "Selecione um item para remover.");
             return;
         }
-        carrinho.remove(linha);
+        try{carrinho.remover(carrinho.itens().get(linha).getIdProduto());}catch(Exception ex){JOptionPane.showMessageDialog(this,util.Erros.mensagem(ex));return;}
         carregarTabela();
         telaLoja.atualizarBadgeCarrinho();
     }
@@ -164,17 +166,27 @@ public class TelaCarrinho extends JFrame {
     private void limparCarrinho() {
         if (JOptionPane.showConfirmDialog(this, "Limpar todo o carrinho?",
                 "Confirmar", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
-            carrinho.clear();
+            try{carrinho.limpar();}catch(Exception ex){JOptionPane.showMessageDialog(this,util.Erros.mensagem(ex));return;}
             carregarTabela();
             telaLoja.atualizarBadgeCarrinho();
         }
     }
 
     private void irParaCheckout() {
-        if (carrinho.isEmpty()) {
+        if (carrinho.itens().isEmpty()) {
             JOptionPane.showMessageDialog(this, "Seu carrinho esta vazio.");
             return;
         }
-        new TelaCheckout(this, clienteLogado, carrinho, telaLoja).setVisible(true);
+        if(checkout!=null && checkout.isDisplayable()){checkout.toFront();return;}
+        java.util.UUID chave=null;
+        try{chave=carrinho.iniciarCheckout();checkout=new TelaCheckout(this,clienteLogado,carrinho.itens(),telaLoja,chave);checkout.setVisible(true);}
+        catch(Exception ex){if(chave!=null)carrinho.liberar(chave);JOptionPane.showMessageDialog(this,util.Erros.mensagem(ex));}
     }
-}
+    private void alterarQuantidade(){
+        int linha=tabela.getSelectedRow();if(linha<0){JOptionPane.showMessageDialog(this,"Selecione um item.");return;}
+        ItemPedido item=carrinho.itens().get(linha);
+        String quantidade=JOptionPane.showInputDialog(this,"Nova quantidade:",item.getQuantidade());if(quantidade==null)return;
+        try{var atual=new dao.ProdutoDAO().buscarParaCarrinho(item.getIdProduto());carrinho.definir(atual.produto(),Integer.parseInt(quantidade.trim()),atual.quantidade());atualizar();}
+        catch(Exception ex){JOptionPane.showMessageDialog(this,ex instanceof NumberFormatException?"Quantidade inválida.":util.Erros.mensagem(ex));}
+    }
+    private void atualizar(){carregarTabela();telaLoja.atualizarBadgeCarrinho();}}

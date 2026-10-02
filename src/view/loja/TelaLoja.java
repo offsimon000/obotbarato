@@ -21,7 +21,7 @@ public class TelaLoja extends JFrame {
 
     private Cliente clienteLogado;
     private List<Produto> produtosExibidos = new ArrayList<>();
-    private List<ItemPedido> carrinho      = new ArrayList<>();
+    private final model.Carrinho carrinho = new model.Carrinho();
     private Set<Integer> favoritosSet;     // carregado UMA vez, não por produto
     private JLabel lblCarrinho;
     private JPanel painelGaleria;
@@ -102,13 +102,13 @@ public class TelaLoja extends JFrame {
         lblCarrinho.setCursor(new Cursor(Cursor.HAND_CURSOR));
         lblCarrinho.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
-                new TelaCarrinho(TelaLoja.this, clienteLogado, carrinho).setVisible(true);
+                new TelaCarrinho(TelaLoja.this, clienteLogado, getCarrinho()).setVisible(true);
             }
         });
 
         JButton btnSair = TemaLoja.botaoFantasia("Sair");
         btnSair.setForeground(TemaLoja.VERMELHO_ERRO);
-        btnSair.addActionListener(e -> { carrinho.clear(); favoritosSet.clear(); util.Sessao.sair(); });
+        btnSair.addActionListener(e -> { carrinho.encerrar(); favoritosSet.clear(); util.Sessao.sair(); });
 
         btnFav.addActionListener(e -> {
             new TelaFavoritos(this, clienteLogado).setVisible(true);
@@ -349,31 +349,20 @@ public class TelaLoja extends JFrame {
     }
 
     // ── Ações ────────────────────────────────────────────────────────────
-    private void adicionarAoCarrinho(Produto p) {
-        for (ItemPedido item : carrinho) {
-            if (item.getIdProduto() == p.getId()) {
-                item.setQuantidade(item.getQuantidade() + 1);
-                atualizarBadgeCarrinho();
-                JOptionPane.showMessageDialog(this,
-                    p.getNome() + " — quantidade atualizada no carrinho.");
-                return;
-            }
-        }
-        carrinho.add(new ItemPedido(p.getId(), p.getNome(), 1, p.getPreco()));
-        atualizarBadgeCarrinho();
-        JOptionPane.showMessageDialog(this, p.getNome() + " adicionado ao carrinho!");
+    public void adicionarAoCarrinho(Produto p) {
+        try {
+            var atual=produtoDAO.buscarParaCarrinho(p.getId());
+            carrinho.adicionar(atual.produto(),1,atual.quantidade());atualizarBadgeCarrinho();
+            JOptionPane.showMessageDialog(this,atual.produto().getNome()+" adicionado ao carrinho.");
+        }catch(Exception ex){JOptionPane.showMessageDialog(this,util.Erros.mensagem(ex));}
     }
-
-    public void atualizarBadgeCarrinho() {
-        int total = carrinho.stream().mapToInt(ItemPedido::getQuantidade).sum();
-        lblCarrinho.setText("Carrinho (" + total + ")");
+    public model.Carrinho getModeloCarrinho(){return carrinho;}
+    public void atualizarBadgeCarrinho(){
+        int total=carrinho.itens().stream().mapToInt(ItemPedido::getQuantidade).sum();lblCarrinho.setText("Carrinho ("+total+")");
+        for(Window w:Window.getWindows())if(w instanceof TelaCarrinho && w.isDisplayable())((TelaCarrinho)w).carregarTabela();
     }
-
-    /** Exposição do carrinho para telas filhas (ex: TelaFavoritos) */
-    public List<ItemPedido> getCarrinho() {
-        return carrinho;
-    }
-
+    /** Cópias: telas não podem alterar o carrinho por fora das regras. */
+    public List<ItemPedido> getCarrinho(){return carrinho.itens();}
     private void limparFiltros() {
         txtBusca.setText("");
         cbCategoria.setSelectedIndex(0);

@@ -46,7 +46,7 @@ try {
         if ($LASTEXITCODE -ne 0) { throw 'Falha ao criar base de teste.' }
     } finally { $env:PGPASSWORD = $senhaAnterior }
     New-Item -ItemType Directory -Force -Path 'build/test/classes' | Out-Null
-    & javac --release 17 -encoding UTF-8 -cp 'build/classes;lib/postgresql-42.7.13.jar' -d 'build/test/classes' 'test/IntegracaoBanco.java' 'test/CadastrosEAcesso.java' 'test/EvolucaoDaBase.java' 'test/InicializacaoTelas.java'
+    & javac --release 17 -encoding UTF-8 -cp 'build/classes;lib/postgresql-42.7.13.jar' -d 'build/test/classes' 'test/IntegracaoBanco.java' 'test/CadastrosEAcesso.java' 'test/EvolucaoDaBase.java' 'test/InicializacaoTelas.java' 'test/CompraEPagamento.java' 'test/FluxoCheckout.java'
     if ($LASTEXITCODE -ne 0) { throw 'Falha ao compilar testes.' }
     & java '-Dfile.encoding=UTF-8' "-Dobotbarato.config=$arquivoConfig" -cp 'build/test/classes;build/classes;lib/postgresql-42.7.13.jar' EvolucaoDaBase | Tee-Object -FilePath (Join-Path $pastaTeste 'evolucao.txt')
     if ($LASTEXITCODE -ne 0) { throw 'Teste de evolucao V1/V2 falhou.' }
@@ -54,8 +54,14 @@ try {
     if ($LASTEXITCODE -ne 0) { throw 'Teste de integracao falhou.' }
     & java '-Dfile.encoding=UTF-8' "-Dobotbarato.config=$arquivoConfig" -cp 'build/test/classes;build/classes;lib/postgresql-42.7.13.jar' CadastrosEAcesso | Tee-Object -FilePath (Join-Path $pastaTeste 'parte2.txt')
     if ($LASTEXITCODE -ne 0) { throw 'Teste de cadastros e acesso falhou.' }
+    & java '-Dfile.encoding=UTF-8' "-Dobotbarato.config=$arquivoConfig" -cp 'build/test/classes;build/classes;lib/postgresql-42.7.13.jar' CompraEPagamento | Tee-Object -FilePath (Join-Path $pastaTeste 'compra.txt')
+    if ($LASTEXITCODE -ne 0) { throw 'Teste de compra e pagamento falhou.' }
+    [IO.File]::WriteAllText((Join-Path $raizProjeto 'docs/validacao-compra.txt'),[IO.File]::ReadAllText((Join-Path $pastaTeste 'compra.txt')),[Text.UTF8Encoding]::new($false))
     & java '-Dfile.encoding=UTF-8' "-Dobotbarato.config=$arquivoConfig" -cp 'build/test/classes;build/classes;lib/postgresql-42.7.13.jar' InicializacaoTelas | Tee-Object -FilePath (Join-Path $pastaTeste 'telas.txt')
     if ($LASTEXITCODE -ne 0) { throw 'Teste de inicializacao das telas falhou.' }
+    & java '-Dfile.encoding=UTF-8' "-Dobotbarato.config=$arquivoConfig" -cp 'build/test/classes;build/classes;lib/postgresql-42.7.13.jar' FluxoCheckout | Tee-Object -FilePath (Join-Path $pastaTeste 'fluxo-checkout.txt')
+    if ($LASTEXITCODE -ne 0) { throw 'Fluxo da interface de checkout falhou.' }
+    [IO.File]::AppendAllText((Join-Path $raizProjeto 'docs/validacao-compra.txt'),[IO.File]::ReadAllText((Join-Path $pastaTeste 'fluxo-checkout.txt')),[Text.UTF8Encoding]::new($false))
     $evidencia=[IO.File]::ReadAllText((Join-Path $pastaTeste 'evolucao.txt'))+[IO.File]::ReadAllText((Join-Path $pastaTeste 'parte2.txt'))+[IO.File]::ReadAllText((Join-Path $pastaTeste 'telas.txt'))
     [IO.File]::WriteAllText((Join-Path $raizProjeto 'docs/validacao-parte2.txt'),$evidencia,[Text.UTF8Encoding]::new($false))
     New-Item -ItemType Directory -Force -Path 'docs' | Out-Null
