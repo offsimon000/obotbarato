@@ -60,10 +60,6 @@ public class TelaInicial extends JFrame {
         JLabel lblNome = new JLabel("OBotBarato");
         lblNome.setFont(new Font("Segoe UI", Font.BOLD, 20));
         lblNome.setForeground(Tema.TEXTO_PRIMARIO);
-        JLabel lblDot = new JLabel("*");
-        lblDot.setFont(new Font("Segoe UI", Font.BOLD, 22));
-        lblDot.setForeground(Tema.ROXO_PRIMARIO);
-        headerEsq.add(lblDot);
         headerEsq.add(lblNome);
         header.add(headerEsq, BorderLayout.WEST);
 

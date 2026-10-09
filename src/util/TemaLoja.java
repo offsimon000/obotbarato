@@ -91,11 +91,11 @@ public class TemaLoja {
         btn.setForeground(TEXTO_PRIMARIO);
         btn.setFont(FONTE_BOTAO);
         btn.setFocusPainted(false);
-        btn.setBorder(BorderFactory.createLineBorder(BORDA, 1));
+        btn.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(BORDA, 1),BorderFactory.createEmptyBorder(8,14,8,14)));
         btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
         btn.addMouseListener(new MouseAdapter() {
-            public void mouseEntered(MouseEvent e) { btn.setBorder(BorderFactory.createLineBorder(BORDA_HOVER, 1)); }
-            public void mouseExited(MouseEvent e)  { btn.setBorder(BorderFactory.createLineBorder(BORDA, 1)); }
+            public void mouseEntered(MouseEvent e) { btn.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(BORDA_HOVER, 1),BorderFactory.createEmptyBorder(8,14,8,14))); }
+            public void mouseExited(MouseEvent e)  { btn.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(BORDA, 1),BorderFactory.createEmptyBorder(8,14,8,14))); }
         });
         return btn;
     }

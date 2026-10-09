@@ -102,7 +102,7 @@ public final class GestaoPedidoDAO {
     static String historico(Connection c,int id)throws SQLException{
         StringBuilder texto=new StringBuilder("\nAcompanhamento da entrega simulada:\n");
         try(PreparedStatement p=c.prepareStatement("SELECT data_evento,status_anterior,status_novo,motivo,responsavel FROM historico_pedidos WHERE id_pedido=? ORDER BY id")){
-            p.setInt(1,id);try(ResultSet r=p.executeQuery()){while(r.next())texto.append(r.getTimestamp(1)).append(" | ").append(r.getString(2)==null?"Registro inicial":StatusPedido.nome(r.getString(2))).append(" → ").append(StatusPedido.nome(r.getString(3))).append("\n  ").append(r.getString(5)).append(": ").append(r.getString(4)).append("\n");}
+            p.setInt(1,id);try(ResultSet r=p.executeQuery()){while(r.next())texto.append(Datas.formatar(r.getTimestamp(1))).append(" | ").append(r.getString(2)==null?"Registro inicial":StatusPedido.nome(r.getString(2))).append(" → ").append(StatusPedido.nome(r.getString(3))).append("\n  ").append(r.getString(5)).append(": ").append(r.getString(4)).append("\n");}
         }return texto.toString();
     }
 }

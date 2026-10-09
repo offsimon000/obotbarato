@@ -142,27 +142,13 @@ public class TelaClientes extends JFrame {
             } catch (Exception ex) { erro(util.Erros.mensagem(ex)); return; }
         }
 
-        JPanel form = new JPanel(new GridBagLayout());
-        form.setBackground(Tema.BG_ESCURO);
-        form.setPreferredSize(new Dimension(420, 360));
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.insets = new Insets(6, 10, 2, 10); gbc.gridwidth = 2;
+        JPanel form = criarFormulario(nome,cpf,email,telefone,endereco);
 
-        String[] rotulos = {"NOME", "CPF", "EMAIL", "TELEFONE", "ENDERECO"};
-        JTextField[] flds = {nome, cpf, email, telefone, endereco};
-        for (int i = 0; i < rotulos.length; i++) {
-            JLabel lbl = new JLabel(rotulos[i]);
-            lbl.setFont(new Font("Segoe UI", Font.BOLD, 10));
-            lbl.setForeground(Tema.TEXTO_SECUNDARIO);
-            gbc.gridy = i * 2; form.add(lbl, gbc);
-            gbc.gridy = i * 2 + 1; form.add(flds[i], gbc);
-        }
-
+        while(true){
         int result = JOptionPane.showConfirmDialog(this, form,
             id == null ? "Novo Cliente" : "Editar Cliente", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 
-        if (result == JOptionPane.OK_OPTION) {
+        if (result != JOptionPane.OK_OPTION)return;
             try {
                 Cliente c = new Cliente();
                 if (id != null) c.setId(id);
@@ -172,8 +158,27 @@ public class TelaClientes extends JFrame {
                 boolean salvo = id == null ? dao.salvar(c) : dao.atualizar(c);
                 if (!salvo) throw new java.sql.SQLException("Cliente não encontrado para atualização.");
                 carregarTabela("");
+                return;
             } catch (Exception ex) { erro(util.Erros.mensagem(ex)); }
         }
+    }
+
+    protected JPanel criarFormulario(JTextField... campos){
+        JPanel form=new JPanel(new GridBagLayout());form.setBackground(Tema.BG_ESCURO);
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx=0;gbc.weightx=1;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.insets = new Insets(6, 10, 4, 10);
+
+        String[] rotulos = {"Nome completo *", "CPF (opcional)", "E-mail *", "Telefone (opcional)", "Endereço (opcional)"};
+        for (int i = 0; i < rotulos.length; i++) {
+            JLabel lbl = new JLabel(rotulos[i]);
+            lbl.setFont(new Font("Segoe UI", Font.BOLD, 10));
+            lbl.setForeground(Tema.TEXTO_SECUNDARIO);
+            gbc.gridy = i * 2; form.add(lbl, gbc);
+            gbc.gridy = i * 2 + 1; form.add(campos[i], gbc);
+        }
+        form.setPreferredSize(new Dimension(460,form.getPreferredSize().height));return form;
     }
 
     private void excluir() {

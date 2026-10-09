@@ -72,9 +72,11 @@ public class TelaRelatorios extends JFrame {
         filtros.setBackground(Tema.BG_ESCURO);
 
         JLabel lblDe = rotulo("DE:"); JTextField txtInicio = Tema.campo(12);
-        txtInicio.setText(LocalDate.now().withDayOfMonth(1).toString());
+        util.MascaraCampo.aplicarData(txtInicio);txtInicio.setName("relatorio-inicio");
+        txtInicio.setText(util.Datas.formatar(LocalDate.now().withDayOfMonth(1)));
         JLabel lblAte = rotulo("ATE:"); JTextField txtFim = Tema.campo(12);
-        txtFim.setText(LocalDate.now().toString());
+        util.MascaraCampo.aplicarData(txtFim);txtFim.setName("relatorio-fim");
+        txtFim.setText(util.Datas.formatar(LocalDate.now()));
         JButton btnGerar = Tema.botaoPrimario("Gerar Relatorio");
 
         filtros.add(lblDe); filtros.add(txtInicio);
@@ -97,10 +99,10 @@ public class TelaRelatorios extends JFrame {
         btnGerar.addActionListener(e -> {
             modelo.setRowCount(0);
             try {
-                List<String[]> dados = pedidoDAO.relatorioVendasPorPeriodo(txtInicio.getText(), txtFim.getText());
-                double total = 0;
-                for (String[] row : dados) { modelo.addRow(row); total += Double.parseDouble(row[2].replace(",", ".")); }
-                lblTotalGeral.setText(String.format("Total Geral: R$ %.2f", total));
+                List<String[]> dados = pedidoDAO.relatorioVendasPorPeriodo(util.Datas.ler(txtInicio.getText()).toString(), util.Datas.ler(txtFim.getText()).toString());
+                java.math.BigDecimal total = new java.math.BigDecimal("0.00");
+                for (String[] row : dados) { modelo.addRow(new Object[]{util.Datas.formatar(LocalDate.parse(row[0])),row[1],row[2]}); total=total.add(new java.math.BigDecimal(row[2].replace(",", "."))); }
+                lblTotalGeral.setText("Total Geral: "+util.PagamentoSimulado.moeda(total));
                 if (dados.isEmpty()) JOptionPane.showMessageDialog(this, "Nenhum pedido no periodo.");
             } catch (Exception ex) { JOptionPane.showMessageDialog(this, "Erro: " + util.Erros.mensagem(ex)); }
         });
@@ -112,12 +114,13 @@ public class TelaRelatorios extends JFrame {
         painel.setBackground(Tema.BG_ESCURO);
         painel.setBorder(BorderFactory.createEmptyBorder(14, 14, 14, 14));
 
-        JPanel topo = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
+        JPanel topo = new JPanel(new BorderLayout(10, 0));
         topo.setBackground(Tema.BG_ESCURO);
         JLabel info = new JLabel("Top 10 produtos: pagamento confirmado, sem cancelados; receita bruta dos itens");
         info.setFont(Tema.FONTE_LABEL); info.setForeground(Tema.TEXTO_SECUNDARIO);
         JButton btnGerar = Tema.botaoPrimario("Gerar Ranking");
-        topo.add(info); topo.add(btnGerar);
+        info.setText("<html>Top 10 produtos com pagamento confirmado, sem cancelados.<br>Receita bruta dos itens.</html>");
+        topo.add(info,BorderLayout.CENTER); topo.add(btnGerar,BorderLayout.EAST);
         painel.add(topo, BorderLayout.NORTH);
 
         String[] colunas = {"Produto", "Qtd. Vendida", "Receita Total"};

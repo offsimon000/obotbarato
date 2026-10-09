@@ -1,7 +1,6 @@
 package view.loja;
 
 import dao.ClienteLojaDAO;
-import dao.EstoqueDAO;
 import dao.ProdutoDAO;
 import model.Cliente;
 import model.ItemPedido;
@@ -23,8 +22,15 @@ public class TelaLoja extends JFrame {
     private List<Produto> produtosExibidos = new ArrayList<>();
     private final model.Carrinho carrinho = new model.Carrinho();
     private Set<Integer> favoritosSet;     // carregado UMA vez, não por produto
-    private JLabel lblCarrinho;
+    private JButton lblCarrinho;
     private JPanel painelGaleria;
+    private final JLabel avisoLoja=new JLabel(" ");
+    private final JLabel quantidadeProdutos=new JLabel("Carregando catálogo...");
+    private TelaCarrinho janelaCarrinho;
+    private TelaFavoritos janelaFavoritos;
+    private TelaMeusPedidos janelaPedidos;
+    private boolean adicionando;
+    private long consultaCatalogo;
 
     private JComboBox<String> cbCategoria;
     private JTextField txtBusca;
@@ -32,7 +38,6 @@ public class TelaLoja extends JFrame {
     private JLabel lblPrecoMax;
 
     private final ProdutoDAO     produtoDAO = new ProdutoDAO();
-    private final EstoqueDAO     estoqueDAO = new EstoqueDAO();
     private final ClienteLojaDAO clienteDAO = new ClienteLojaDAO();
 
     public TelaLoja(Cliente cliente) {
@@ -54,6 +59,7 @@ public class TelaLoja extends JFrame {
     private void initComponents() {
         setTitle("OBotBarato - Loja");
         setSize(1060, 680);
+        setMinimumSize(new Dimension(960,620));
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
@@ -63,6 +69,7 @@ public class TelaLoja extends JFrame {
         principal.add(criarSidebar(),     BorderLayout.WEST);
         principal.add(criarAreaGaleria(), BorderLayout.CENTER);
         setContentPane(principal);
+        addWindowListener(new java.awt.event.WindowAdapter(){public void windowActivated(java.awt.event.WindowEvent e){if(util.Sessao.getIdCliente()==clienteLogado.getId()){recarregarFavoritos();carregarProdutos();}}});
     }
 
     // ── Topbar ───────────────────────────────────────────────────────────
@@ -75,48 +82,34 @@ public class TelaLoja extends JFrame {
 
         JPanel esq = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
         esq.setOpaque(false);
-        JLabel estrela = new JLabel("*");
-        estrela.setFont(new Font("Segoe UI", Font.BOLD, 22));
-        estrela.setForeground(TemaLoja.ROSA_PRIMARIO);
         JLabel marca = new JLabel("OBotBarato");
         marca.setFont(new Font("Segoe UI", Font.BOLD, 20));
         marca.setForeground(TemaLoja.TEXTO_PRIMARIO);
-        esq.add(estrela); esq.add(marca);
+        esq.add(marca);
 
         JPanel dir = new JPanel(new FlowLayout(FlowLayout.RIGHT, 12, 0));
         dir.setOpaque(false);
 
-        JLabel lblOla = new JLabel("Ola, " + clienteLogado.getNome().split(" ")[0]);
+        JLabel lblOla = new JLabel("Olá, " + clienteLogado.getNome().split(" ")[0]);
         lblOla.setFont(TemaLoja.FONTE_LABEL);
         lblOla.setForeground(TemaLoja.TEXTO_SECUNDARIO);
 
         JButton btnFav     = TemaLoja.botaoFantasia("Favoritos");
         JButton btnPedidos = TemaLoja.botaoFantasia("Meus Pedidos");
 
-        lblCarrinho = new JLabel("Carrinho (0)");
-        lblCarrinho.setFont(TemaLoja.FONTE_BOTAO);
-        lblCarrinho.setForeground(Color.WHITE);
-        lblCarrinho.setOpaque(true);
-        lblCarrinho.setBackground(TemaLoja.ROSA_PRIMARIO);
-        lblCarrinho.setBorder(BorderFactory.createEmptyBorder(8, 16, 8, 16));
-        lblCarrinho.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        lblCarrinho.addMouseListener(new MouseAdapter() {
-            public void mouseClicked(MouseEvent e) {
-                new TelaCarrinho(TelaLoja.this, clienteLogado, getCarrinho()).setVisible(true);
-            }
-        });
+        lblCarrinho = TemaLoja.botaoPrimario("Carrinho (0)");
+        lblCarrinho.addActionListener(e->abrirCarrinho());
 
         JButton btnSair = TemaLoja.botaoFantasia("Sair");
         btnSair.setForeground(TemaLoja.VERMELHO_ERRO);
         btnSair.addActionListener(e -> { carrinho.encerrar(); favoritosSet.clear(); util.Sessao.sair(); });
 
         btnFav.addActionListener(e -> {
-            new TelaFavoritos(this, clienteLogado).setVisible(true);
-            // Recarrega favoritos ao voltar
-            recarregarFavoritos();
+            if(janelaFavoritos==null || !janelaFavoritos.isDisplayable())janelaFavoritos=new TelaFavoritos(this,clienteLogado);
+            mostrarJanela(janelaFavoritos);
         });
         btnPedidos.addActionListener(e ->
-            new TelaMeusPedidos(this, clienteLogado).setVisible(true));
+            abrirPedidos());
 
         dir.add(lblOla); dir.add(btnFav); dir.add(btnPedidos);
         dir.add(lblCarrinho); dir.add(btnSair);
@@ -147,6 +140,7 @@ public class TelaLoja extends JFrame {
         txtBusca = TemaLoja.campo(14);
         txtBusca.setMaximumSize(new Dimension(Integer.MAX_VALUE, 36));
         txtBusca.setAlignmentX(Component.LEFT_ALIGNMENT);
+        txtBusca.addActionListener(e->carregarProdutos());
         sb.add(txtBusca);
 
         // Categoria
@@ -167,12 +161,12 @@ public class TelaLoja extends JFrame {
         sliderPreco.setForeground(TemaLoja.ROSA_PRIMARIO);
         sliderPreco.setMaximumSize(new Dimension(Integer.MAX_VALUE, 36));
         sliderPreco.setAlignmentX(Component.LEFT_ALIGNMENT);
-        lblPrecoMax = new JLabel("Ate R$ 500,00");
+        lblPrecoMax = new JLabel("Qualquer preço");
         lblPrecoMax.setFont(TemaLoja.FONTE_LABEL);
         lblPrecoMax.setForeground(TemaLoja.VERDE_PRECO);
         lblPrecoMax.setAlignmentX(Component.LEFT_ALIGNMENT);
         sliderPreco.addChangeListener(e ->
-            lblPrecoMax.setText(String.format("Ate R$ %d,00", sliderPreco.getValue())));
+            lblPrecoMax.setText(sliderPreco.getValue()==500?"Qualquer preço":String.format("Até R$ %d,00", sliderPreco.getValue())));
         sb.add(sliderPreco); sb.add(lblPrecoMax);
 
         sb.add(Box.createVerticalStrut(18));
@@ -194,36 +188,40 @@ public class TelaLoja extends JFrame {
     }
 
     // ── Galeria ──────────────────────────────────────────────────────────
-    private JScrollPane criarAreaGaleria() {
+    private JPanel criarAreaGaleria() {
         painelGaleria = new JPanel(new GridLayout(0, 3, 14, 14));
         painelGaleria.setBackground(TemaLoja.BG_PRINCIPAL);
         painelGaleria.setBorder(BorderFactory.createEmptyBorder(16, 16, 16, 16));
-        JScrollPane scroll = TemaLoja.scroll(painelGaleria);
+        JPanel conteudo=new JPanel(new BorderLayout());conteudo.setBackground(TemaLoja.BG_PRINCIPAL);conteudo.add(painelGaleria,BorderLayout.NORTH);
+        JScrollPane scroll = TemaLoja.scroll(conteudo);
         scroll.setBorder(null);
-        return scroll;
+        scroll.addComponentListener(new java.awt.event.ComponentAdapter(){public void componentResized(java.awt.event.ComponentEvent e){if(painelGaleria.getLayout() instanceof GridLayout){int colunas=Math.max(2,Math.min(4,(scroll.getViewport().getWidth()-20)/245));((GridLayout)painelGaleria.getLayout()).setColumns(colunas);painelGaleria.revalidate();}}});
+        JPanel area=new JPanel(new BorderLayout(0,8));area.setBackground(TemaLoja.BG_PRINCIPAL);
+        JPanel topo=new JPanel(new BorderLayout(0,4));topo.setOpaque(false);topo.setBorder(BorderFactory.createEmptyBorder(16,20,0,20));
+        JLabel titulo=new JLabel("Encontre seu próximo produto");titulo.setFont(TemaLoja.FONTE_TITULO);topo.add(titulo,BorderLayout.NORTH);
+        quantidadeProdutos.setFont(TemaLoja.FONTE_LABEL);quantidadeProdutos.setForeground(TemaLoja.TEXTO_SECUNDARIO);topo.add(quantidadeProdutos);area.add(topo,BorderLayout.NORTH);area.add(scroll);
+        avisoLoja.setFont(TemaLoja.FONTE_LABEL);avisoLoja.setForeground(TemaLoja.AZUL_INFO);avisoLoja.setBorder(BorderFactory.createEmptyBorder(8,20,12,20));area.add(avisoLoja,BorderLayout.SOUTH);return area;
     }
 
     // ── Carregamento de produtos ─────────────────────────────────────────
     private void carregarProdutos() {
-        produtosExibidos.clear();
-        painelGaleria.removeAll();
-
         String busca    = txtBusca.getText().trim();
         String catSel   = (String) cbCategoria.getSelectedItem();
         double precoMax = sliderPreco.getValue();
-
+        long versao=++consultaCatalogo;quantidadeProdutos.setText("Atualizando catálogo...");
+        new SwingWorker<List<ProdutoDAO.Disponivel>,Void>(){
+            protected List<ProdutoDAO.Disponivel> doInBackground()throws Exception{return produtoDAO.listarCatalogo(busca);}
+            protected void done(){if(versao!=consultaCatalogo || util.Sessao.getIdCliente()!=clienteLogado.getId())return;
         try {
-            List<Produto> todos = busca.isEmpty()
-                ? produtoDAO.listarTodos()
-                : produtoDAO.buscarPorNome(busca);
-
-            for (Produto p : todos) {
+            produtosExibidos.clear();painelGaleria.removeAll();painelGaleria.setLayout(new GridLayout(0,3,14,14));
+            for (var disponivel : get()) {
+                Produto p=disponivel.produto();
                 if (!"Todas".equals(catSel) && !catSel.equals(p.getNomeCategoria()))
                     continue;
                 if (p.getPreco() > precoMax && precoMax < 500)
                     continue;
 
-                int estoque = estoqueDAO.getQuantidade(p.getId());
+                int estoque = disponivel.quantidade();
                 produtosExibidos.add(p);
                 painelGaleria.add(criarCartaoProduto(p, estoque));
             }
@@ -235,13 +233,16 @@ public class TelaLoja extends JFrame {
                 painelGaleria.setLayout(new BorderLayout());
                 painelGaleria.add(vazio, BorderLayout.CENTER);
             } else {
-                painelGaleria.setLayout(new GridLayout(0, 3, 14, 14));
+                int largura=painelGaleria.getParent().getWidth();
+                painelGaleria.setLayout(new GridLayout(0,Math.max(2,Math.min(4,(largura-32)/245)),14,14));
             }
+            quantidadeProdutos.setText(produtosExibidos.size()+" produtos encontrados • Revise quantidades e entrega no carrinho");
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Erro ao carregar produtos: " + util.Erros.mensagem(ex));
+            quantidadeProdutos.setText("Não foi possível atualizar o catálogo.");avisoLoja.setText(util.Erros.mensagem(ex));
         }
         painelGaleria.revalidate();
         painelGaleria.repaint();
+        }}.execute();
     }
 
     // ── Cartao de produto ────────────────────────────────────────────────
@@ -260,6 +261,7 @@ public class TelaLoja extends JFrame {
             }
         };
         card.setOpaque(false);
+        card.setPreferredSize(new Dimension(240,300));
         card.setBorder(BorderFactory.createCompoundBorder(
             BorderFactory.createLineBorder(TemaLoja.BORDA, 1),
             BorderFactory.createEmptyBorder(12, 12, 12, 12)));
@@ -287,10 +289,10 @@ public class TelaLoja extends JFrame {
         card.add(info, BorderLayout.CENTER);
 
         // Botões
-        JPanel btns = new JPanel(new BorderLayout(6, 0));
+        JPanel btns = new JPanel(new GridLayout(2,1,0,6));
         btns.setOpaque(false);
 
-        JButton btnFavBtn = new JButton(isFav ? "* Fav" : "+ Fav");
+        JButton btnFavBtn = TemaLoja.botaoFantasia(isFav ? "Salvo nos favoritos" : "Salvar favorito");
         btnFavBtn.setBackground(isFav ? new Color(255, 243, 205) : TemaLoja.BG_INPUT);
         btnFavBtn.setForeground(isFav ? TemaLoja.AMARELO_FAV : TemaLoja.TEXTO_SECUNDARIO);
         btnFavBtn.setFont(new Font("Segoe UI", Font.BOLD, 11));
@@ -304,13 +306,13 @@ public class TelaLoja extends JFrame {
             if (favoritosSet.contains(p.getId())) {
                 clienteDAO.removerFavorito(clienteLogado.getId(), p.getId());
                 favoritosSet.remove(p.getId());
-                btnFavBtn.setText("+ Fav");
+                btnFavBtn.setText("Salvar favorito");
                 btnFavBtn.setForeground(TemaLoja.TEXTO_SECUNDARIO);
                 btnFavBtn.setBackground(TemaLoja.BG_INPUT);
             } else {
                 clienteDAO.adicionarFavorito(clienteLogado.getId(), p.getId());
                 favoritosSet.add(p.getId());
-                btnFavBtn.setText("* Fav");
+                btnFavBtn.setText("Salvo nos favoritos");
                 btnFavBtn.setForeground(TemaLoja.AMARELO_FAV);
                 btnFavBtn.setBackground(new Color(255, 243, 205));
             }
@@ -319,7 +321,7 @@ public class TelaLoja extends JFrame {
             }
         });
 
-        JButton btnAdd = TemaLoja.botaoPrimario("+ Carrinho");
+        JButton btnAdd = TemaLoja.botaoPrimario(disponivel?"Adicionar ao carrinho":"Sem estoque");
         btnAdd.setFont(new Font("Segoe UI", Font.BOLD, 11));
         btnAdd.setEnabled(disponivel);
         if (!disponivel) {
@@ -350,12 +352,18 @@ public class TelaLoja extends JFrame {
 
     // ── Ações ────────────────────────────────────────────────────────────
     public void adicionarAoCarrinho(Produto p) {
-        try {
-            var atual=produtoDAO.buscarParaCarrinho(p.getId());
-            carrinho.adicionar(atual.produto(),1,atual.quantidade());atualizarBadgeCarrinho();
-            JOptionPane.showMessageDialog(this,atual.produto().getNome()+" adicionado ao carrinho.");
-        }catch(Exception ex){JOptionPane.showMessageDialog(this,util.Erros.mensagem(ex));}
+        if(adicionando)return;
+        if(carrinho.bloqueado()){avisoLoja.setText("Finalize ou feche a etapa de pagamento antes de alterar o carrinho.");return;}
+        adicionando=true;avisoLoja.setText("Conferindo disponibilidade...");
+        new SwingWorker<ProdutoDAO.Disponivel,Void>(){
+            protected ProdutoDAO.Disponivel doInBackground()throws Exception{return produtoDAO.buscarParaCarrinho(p.getId());}
+            protected void done(){adicionando=false;if(util.Sessao.getIdCliente()!=clienteLogado.getId())return;try{var atual=get();carrinho.adicionar(atual.produto(),1,atual.quantidade());atualizarBadgeCarrinho();avisoLoja.setText(atual.produto().getNome()+" adicionado. Abra o carrinho para revisar ou alterar a quantidade.");}catch(Exception ex){avisoLoja.setText(util.Erros.mensagem(ex));}}
+        }.execute();
     }
+    protected void mostrarJanela(JFrame janela){janela.setVisible(true);janela.toFront();}
+    public void abrirCarrinho(){if(janelaCarrinho==null || !janelaCarrinho.isDisplayable())janelaCarrinho=new TelaCarrinho(this,clienteLogado,getCarrinho());mostrarJanela(janelaCarrinho);}
+    public void abrirPedidos(){if(janelaPedidos==null || !janelaPedidos.isDisplayable())janelaPedidos=new TelaMeusPedidos(this,clienteLogado);mostrarJanela(janelaPedidos);}
+    public void atualizarCatalogo(){carregarProdutos();}
     public model.Carrinho getModeloCarrinho(){return carrinho;}
     public void atualizarBadgeCarrinho(){
         int total=carrinho.itens().stream().mapToInt(ItemPedido::getQuantidade).sum();lblCarrinho.setText("Carrinho ("+total+")");
@@ -372,12 +380,8 @@ public class TelaLoja extends JFrame {
 
     private List<String> carregarCategorias() {
         List<String> lista = new ArrayList<>();
-        try (Connection con = ConexaoBanco.getConexao();
-             PreparedStatement ps = con.prepareStatement(
-                 "SELECT nome FROM categorias WHERE ativo ORDER BY nome");
-             ResultSet rs = ps.executeQuery()) {
-            while (rs.next()) lista.add(rs.getString("nome"));
-        } catch (Exception e) { /* ignora */ }
+        try {for(var categoria:new dao.CategoriaDAO().listar(false))lista.add(categoria.nome());}
+        catch(Exception e){avisoLoja.setText(util.Erros.mensagem(e));}
         return lista;
     }
 }

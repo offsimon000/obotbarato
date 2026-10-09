@@ -37,13 +37,13 @@ public final class FluxoGestaoPedidos {
         SwingUtilities.invokeAndWait(()->{exigir(tabela().getValueAt(0,4).equals("Aberto"),"Compra paga não está aberta.");tabela().setRowSelectionInterval(0,0);botao("Avançar entrega").doClick();botao("Avançar entrega").doClick();});
         aguardar(()->botao("Avançar entrega").isEnabled() && tabela().getValueAt(0,4).equals("Em preparo"));
         SwingUtilities.invokeAndWait(()->{imagem("gestao-pedidos.png");tabela().setRowSelectionInterval(0,0);botao("Cancelar pedido").doClick();botao("Cancelar pedido").doClick();});
-        aguardar(()->botao("Cancelar pedido").isEnabled() && tabela().getValueAt(0,4).equals("Cancelado"));
+        aguardar(()->botao("Filtrar / Atualizar").isEnabled() && tabela().getValueAt(0,4).equals("Cancelado"));
         exigir(new EstoqueDAO().getQuantidade(p.getId())==5,"Cancelamento duplicou/perdeu saldo.");
         SwingUtilities.invokeAndWait(()->tela.dispose());Sessao.iniciarCliente(cliente);pedido=compra(cliente,p);
         SwingUtilities.invokeAndWait(()->{tela=new TelaTeste(cliente);preparar();});
         aguardar(()->tabela().getRowCount()==2);
-        SwingUtilities.invokeAndWait(()->{exigir(!campo("filtro-cliente").isEnabled(),"Cliente pode consultar titulares alheios.");exigir(encontrar(tela,JButton.class,"Avançar entrega")==null && encontrar(tela,JButton.class,"Nova venda no balcão")==null,"Cliente recebeu comando da equipe.");int row=linhaPedido();tabela().setRowSelectionInterval(row,row);imagem("meus-pedidos.png");botao("Cancelar pedido").doClick();});
-        aguardar(()->botao("Cancelar pedido").isEnabled() && tabela().getValueAt(linhaPedido(),4).equals("Cancelado"));
+        SwingUtilities.invokeAndWait(()->{exigir(campo("filtro-cliente")==null || !campo("filtro-cliente").isEnabled(),"Cliente pode consultar titulares alheios.");exigir(encontrar(tela,JButton.class,"Avançar entrega")==null && encontrar(tela,JButton.class,"Nova venda no balcão")==null,"Cliente recebeu comando da equipe.");int row=linhaPedido();tabela().setRowSelectionInterval(row,row);imagem("meus-pedidos.png");botao("Cancelar pedido").doClick();});
+        aguardar(()->botao("Filtrar / Atualizar").isEnabled() && tabela().getValueAt(linhaPedido(),4).equals("Cancelado"));
         exigir(new EstoqueDAO().getQuantidade(p.getId())==5,"Cliente não recebeu devolução.");
         SwingUtilities.invokeAndWait(()->{for(Window w:Window.getWindows())w.dispose();Sessao.encerrar();});
         System.out.println("APROVADO: fluxo Swing de filtro → avanço → cancelamento pela equipe, duplo clique e cancelamento pessoal; confirmação/motivo fornecidos pelo teste, sem janelas visíveis.");System.exit(0);

@@ -61,3 +61,7 @@ A V3 inclui subtotal/desconto, origem, UUID idempotente, dados de entrega e paga
 ## Gestão e cancelamento
 
 A V4 separa o fluxo logístico do pagamento: antigo finalizado de balcão vira entregue; de loja vira aberto com pagamento preservado. Registra o estado da implantação, sem inventar história anterior nem devolver saldo de cancelamentos legados. Histórico de status, vínculo dos novos movimentos ao pedido, tipo devolucao, índice único de devolução por pedido/produto e data de cancelamento do pagamento são acrescentados sem alterar as migrations anteriores. Cancelamento exige motivo e confirma devolução, movimento, pedido, pagamento e histórico numa única transação; repetição autorizada não duplica efeitos. Consultas pessoais sempre restringem o titular no banco.
+
+## Datas na interface
+
+Desde 09/10, filtros e relatórios apresentam `dd/mm/aaaa` com barras automáticas e validação estrita em `Datas`. Detalhes/históricos apresentam `dd/mm/aaaa HH:mm`. A conversão para LocalDate/ISO ocorre ao chamar os DAOs; armazenamento TIMESTAMP/DATE e parâmetros SQL continuam tipados. A máscara e o formato visual não alteram dados anteriores nem exigem migration. Guia: AJUSTES_INTERFACE_E_DATAS.md.

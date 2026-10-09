@@ -9,6 +9,7 @@ public final class MascaraCampo {
     public static void aplicarCpf(JTextField c){ aplicar(c,11,"cpf"); }
     public static void aplicarTelefone(JTextField c){ aplicar(c,11,"telefone"); }
     public static void aplicarCep(JTextField c){ aplicar(c,8,"cep"); }
+    public static void aplicarData(JTextField c){ aplicar(c,8,"data");c.setToolTipText("Digite dia, mês e ano; as barras são inseridas automaticamente."); }
     private static void aplicar(JTextField c,int max,String tipo) {
         ((AbstractDocument)c.getDocument()).setDocumentFilter(new DocumentFilter(){
             @Override public void insertString(FilterBypass b,int o,String s,AttributeSet a)throws BadLocationException{ replace(b,o,0,s,a); }
@@ -22,7 +23,7 @@ public final class MascaraCampo {
                 if(l>0 && inicio==fim && novo.isEmpty() && inicio>0) inicio--;
                 String resultado=dig.substring(0,inicio)+novo+dig.substring(fim);
                 if(resultado.length()>max) return;
-                String formato=tipo.equals("cpf")?"###.###.###-##":tipo.equals("cep")?"#####-###":resultado.length()>10?"(##) #####-####":"(##) ####-####";
+                String formato=tipo.equals("data")?"##/##/####":tipo.equals("cpf")?"###.###.###-##":tipo.equals("cep")?"#####-###":resultado.length()>10?"(##) #####-####":"(##) ####-####";
                 StringBuilder out=new StringBuilder(); int i=0;
                 for(char ch:formato.toCharArray()){
                     if(i>=resultado.length()) break;

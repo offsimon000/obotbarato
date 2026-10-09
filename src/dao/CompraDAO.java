@@ -90,7 +90,7 @@ public final class CompraDAO {
                 p.setInt(1,id);if(!equipe)p.setInt(2,Sessao.getIdCliente());
                 try(ResultSet r=p.executeQuery()){
                     if(!r.next())throw new IllegalArgumentException("Pedido não encontrado.");
-                    texto.append("Pedido #").append(id).append(" — ").append(r.getTimestamp("data_pedido")).append("\nCliente: ").append(r.getString("nome")).append("\nOrigem: ").append(r.getString("origem")).append("\nStatus do pedido: ").append(StatusPedido.nome(r.getString("status")));
+                    texto.append("Pedido #").append(id).append(" — ").append(Datas.formatar(r.getTimestamp("data_pedido"))).append("\nCliente: ").append(r.getString("nome")).append("\nOrigem: ").append(r.getString("origem")).append("\nStatus do pedido: ").append(StatusPedido.nome(r.getString("status")));
                     texto.append("\nPagamento SIMULADO: ").append(PagamentoSimulado.NOMES.get(r.getString("metodo"))).append(" / ").append(r.getString("pagamento"));
                     texto.append("\nSubtotal: ").append(PagamentoSimulado.moeda(r.getBigDecimal("subtotal"))).append("\nDesconto: ").append(PagamentoSimulado.moeda(r.getBigDecimal("desconto"))).append("\nTotal: ").append(PagamentoSimulado.moeda(r.getBigDecimal("total")));
                     texto.append("\nEntrega simulada: ").append(Objects.toString(r.getString("destinatario"),"Retirada no balcão")).append("\n").append(Objects.toString(r.getString("endereco_entrega"),"")).append("\n").append(Objects.toString(r.getString("telefone_entrega"),"")).append("\n\nItens:\n");

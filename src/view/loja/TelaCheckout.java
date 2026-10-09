@@ -82,7 +82,7 @@ public class TelaCheckout extends JFrame {
                 try{
                     resultado=get();
                     if(Sessao.getIdCliente()!=cliente.getId())return;
-                    loja.getModeloCarrinho().concluir(chave);loja.atualizarBadgeCarrinho();
+                    loja.getModeloCarrinho().concluir(chave);loja.atualizarBadgeCarrinho();loja.atualizarCatalogo();
                     if(isDisplayable())trocar(confirmacao());
                 }catch(Exception ex){if(Sessao.getIdCliente()==cliente.getId()){aviso(ex);atualizarValor(status);}}
                 finally{confirmar.setEnabled(resultado==null);anterior.setEnabled(resultado==null);voltar.setEnabled(true);habilitarRadios(etapa,true);}
@@ -94,13 +94,14 @@ public class TelaCheckout extends JFrame {
         JLabel titulo=new JLabel("Pedido #"+resultado.id()+" registrado!",SwingConstants.CENTER);titulo.setFont(new Font("Segoe UI",Font.BOLD,22));card.add(titulo);
         card.add(new JLabel("Pagamento SIMULADO: "+PagamentoSimulado.NOMES.get(resultado.metodo())+" / "+resultado.pagamento(),SwingConstants.CENTER));
         card.add(new JLabel("Total: "+PagamentoSimulado.moeda(resultado.total()),SwingConstants.CENTER));
+        card.add(new JLabel("Acompanhe preparo e entrega em Meus Pedidos.",SwingConstants.CENTER));
         if(resultado.pagamento().equals("pendente"))card.add(new JLabel("Aguardando confirmação do administrador; nenhuma cobrança real.",SwingConstants.CENTER));
         JButton detalhes=TemaLoja.botaoFantasia("Ver detalhes");detalhes.addActionListener(e->view.TelaPagamentos.mostrarDetalhes(this,resultado.id()));card.add(detalhes);
         JButton continuar=TemaLoja.botaoPrimario("Continuar comprando");continuar.addActionListener(e->{dispose();telaCarrinho.dispose();});card.add(continuar);
-        JButton pedidos=TemaLoja.botaoFantasia("Ver meus pedidos");pedidos.addActionListener(e->{dispose();telaCarrinho.dispose();new TelaMeusPedidos(loja,cliente).setVisible(true);});card.add(pedidos);p.add(card);return p;
+        JButton pedidos=TemaLoja.botaoFantasia("Ver meus pedidos");pedidos.addActionListener(e->{dispose();telaCarrinho.dispose();loja.abrirPedidos();});card.add(pedidos);p.add(card);return p;
     }
     private void trocar(JPanel painel){etapa.removeAll();etapa.add(painel);etapa.revalidate();etapa.repaint();}
     private static void habilitarRadios(Container c,boolean habilitado){for(Component filho:c.getComponents()){if(filho instanceof JRadioButton)filho.setEnabled(habilitado);if(filho instanceof Container)habilitarRadios((Container)filho,habilitado);}}
     private void aviso(Throwable ex){JOptionPane.showMessageDialog(this,Erros.mensagem(ex),"Compra",JOptionPane.WARNING_MESSAGE);}
-    @Override public void dispose(){if(loja!=null)loja.getModeloCarrinho().liberar(chave);super.dispose();}
+    @Override public void dispose(){if(loja!=null){loja.getModeloCarrinho().liberar(chave);if(Sessao.getIdCliente()==cliente.getId())loja.atualizarBadgeCarrinho();}super.dispose();}
 }

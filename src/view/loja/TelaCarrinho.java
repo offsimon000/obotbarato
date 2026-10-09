@@ -17,6 +17,8 @@ public class TelaCarrinho extends JFrame {
     private DefaultTableModel modelo;
     private JLabel lblTotal;
     private JTable tabela; // CORRECAO: tabela como campo (antes era local)
+    private JButton quantidade,btnRemover,btnLimpar,btnCheckout;
+    private final JLabel orientacao=new JLabel();
 
     public TelaCarrinho(TelaLoja telaLoja, Cliente cliente, List<ItemPedido> carrinho) {
         util.Acesso.telaCliente(cliente.getId());
@@ -30,6 +32,7 @@ public class TelaCarrinho extends JFrame {
     private void initComponents() {
         setTitle("OBotBarato - Carrinho");
         setSize(900, 500);
+        setMinimumSize(new Dimension(900,500));
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
@@ -84,6 +87,7 @@ public class TelaCarrinho extends JFrame {
             public boolean isCellEditable(int r, int c) { return false; }
         };
         tabela = new JTable(modelo); // salva como campo
+        util.Tema.aplicarTabelaDark(tabela);
         tabela.setBackground(TemaLoja.BG_CARD);
         tabela.setForeground(TemaLoja.TEXTO_PRIMARIO);
         tabela.setGridColor(TemaLoja.BORDA);
@@ -97,6 +101,7 @@ public class TelaCarrinho extends JFrame {
         tabela.setShowVerticalLines(false);
         tabela.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         tabela.getColumnModel().getColumn(0).setPreferredWidth(250);
+        tabela.getSelectionModel().addListSelectionListener(e->{if(!e.getValueIsAdjusting())atualizarBotoes();});
 
         JPanel p = new JPanel(new BorderLayout());
         p.setBackground(TemaLoja.BG_PRINCIPAL);
@@ -115,24 +120,25 @@ public class TelaCarrinho extends JFrame {
         lblTotal = new JLabel("Total: R$ 0,00");
         lblTotal.setFont(TemaLoja.FONTE_TOTAL);
         lblTotal.setForeground(TemaLoja.VERDE_PRECO);
-        rodape.add(lblTotal, BorderLayout.WEST);
+        JPanel resumo=new JPanel(new BorderLayout(12,0));resumo.setOpaque(false);resumo.add(lblTotal,BorderLayout.WEST);
+        orientacao.setFont(TemaLoja.FONTE_LABEL);orientacao.setForeground(TemaLoja.TEXTO_SECUNDARIO);resumo.add(orientacao,BorderLayout.CENTER);rodape.add(resumo,BorderLayout.NORTH);
 
         JPanel btns = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
         btns.setOpaque(false);
 
-        JButton btnRemover  = TemaLoja.botaoFantasia("Remover Item");
+        btnRemover  = TemaLoja.botaoFantasia("Remover Item");
         btnRemover.setForeground(TemaLoja.VERMELHO_ERRO);
         btnRemover.addActionListener(e -> removerItem());
 
-        JButton btnLimpar   = TemaLoja.botaoFantasia("Limpar Carrinho");
+        btnLimpar   = TemaLoja.botaoFantasia("Limpar Carrinho");
         btnLimpar.addActionListener(e -> limparCarrinho());
 
-        JButton btnCheckout = TemaLoja.botaoPrimario("Finalizar Compra");
+        btnCheckout = TemaLoja.botaoPrimario("Finalizar Compra");
         btnCheckout.addActionListener(e -> irParaCheckout());
 
-        JButton quantidade=TemaLoja.botaoFantasia("Quantidade");quantidade.addActionListener(e->alterarQuantidade());
+        quantidade=TemaLoja.botaoFantasia("Quantidade");quantidade.addActionListener(e->alterarQuantidade());
         btns.add(quantidade);btns.add(btnRemover);btns.add(btnLimpar);btns.add(btnCheckout);
-        rodape.add(btns, BorderLayout.EAST);
+        btns.setBorder(BorderFactory.createEmptyBorder(12,0,0,0));rodape.add(btns, BorderLayout.SOUTH);
         return rodape;
     }
 
@@ -150,6 +156,15 @@ public class TelaCarrinho extends JFrame {
             total = total.add(item.getSubtotalDecimal());
         }
         lblTotal.setText(String.format("Total: R$ %.2f", total));
+        atualizarBotoes();
+    }
+    private void atualizarBotoes(){
+        if(btnCheckout==null)return;
+        boolean livre=!carrinho.bloqueado(),vazio=carrinho.itens().isEmpty();
+        boolean selecionado=tabela.getSelectedRow()>=0;
+        btnCheckout.setEnabled(livre && !vazio);btnLimpar.setEnabled(livre && !vazio);
+        quantidade.setEnabled(livre && selecionado);btnRemover.setEnabled(livre && selecionado);
+        orientacao.setText(!livre?"Pagamento em andamento; feche essa etapa para editar.":vazio?"Seu carrinho está vazio. Adicione produtos na loja.":"Selecione um item para editar. Descontos aparecem no pagamento.");
     }
 
     private void removerItem() {
@@ -179,7 +194,7 @@ public class TelaCarrinho extends JFrame {
         }
         if(checkout!=null && checkout.isDisplayable()){checkout.toFront();return;}
         java.util.UUID chave=null;
-        try{chave=carrinho.iniciarCheckout();checkout=new TelaCheckout(this,clienteLogado,carrinho.itens(),telaLoja,chave);checkout.setVisible(true);}
+        try{chave=carrinho.iniciarCheckout();checkout=new TelaCheckout(this,clienteLogado,carrinho.itens(),telaLoja,chave);atualizarBotoes();checkout.setVisible(true);}
         catch(Exception ex){if(chave!=null)carrinho.liberar(chave);JOptionPane.showMessageDialog(this,util.Erros.mensagem(ex));}
     }
     private void alterarQuantidade(){

@@ -89,7 +89,7 @@ public class EstoqueDAO {
     public List<String[]> historico(int id)throws SQLException{
         Acesso.equipe();List<String[]> lista=new ArrayList<>();
         try(Connection c=ConexaoBanco.getConexao();PreparedStatement p=c.prepareStatement("SELECT m.*,COALESCE(u.nome,cl.nome,'Instalação') AS responsavel FROM movimentos_estoque m LEFT JOIN usuarios u ON u.id=m.id_usuario LEFT JOIN clientes cl ON cl.id=m.id_cliente WHERE m.id_produto=? ORDER BY m.id DESC")){
-            p.setInt(1,id);try(ResultSet r=p.executeQuery()){while(r.next())lista.add(new String[]{r.getTimestamp("data_movimento").toString(),r.getString("tipo"),r.getString("quantidade"),r.getString("saldo"),r.getString("motivo"),r.getString("responsavel")});}
+            p.setInt(1,id);try(ResultSet r=p.executeQuery()){while(r.next())lista.add(new String[]{Datas.formatar(r.getTimestamp("data_movimento")),r.getString("tipo"),r.getString("quantidade"),r.getString("saldo"),r.getString("motivo"),r.getString("responsavel")});}
         }return lista;
     }
     public List<String[]> listarEstoqueBaixo()throws SQLException{

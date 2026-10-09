@@ -46,7 +46,7 @@ try {
         if ($LASTEXITCODE -ne 0) { throw 'Falha ao criar base de teste.' }
     } finally { $env:PGPASSWORD = $senhaAnterior }
     New-Item -ItemType Directory -Force -Path 'build/test/classes' | Out-Null
-    & javac --release 17 -encoding UTF-8 -cp 'build/classes;lib/postgresql-42.7.13.jar' -d 'build/test/classes' 'test/IntegracaoBanco.java' 'test/CadastrosEAcesso.java' 'test/EvolucaoDaBase.java' 'test/InicializacaoTelas.java' 'test/CompraEPagamento.java' 'test/FluxoCheckout.java' 'test/GestaoECancelamento.java' 'test/FluxoGestaoPedidos.java'
+    & javac --release 17 -encoding UTF-8 -cp 'build/classes;lib/postgresql-42.7.13.jar' -d 'build/test/classes' 'test/IntegracaoBanco.java' 'test/CadastrosEAcesso.java' 'test/EvolucaoDaBase.java' 'test/InicializacaoTelas.java' 'test/CompraEPagamento.java' 'test/FluxoCheckout.java' 'test/GestaoECancelamento.java' 'test/FluxoGestaoPedidos.java' 'test/InterfaceBrasileira.java'
     if ($LASTEXITCODE -ne 0) { throw 'Falha ao compilar testes.' }
     & java '-Dfile.encoding=UTF-8' "-Dobotbarato.config=$arquivoConfig" -cp 'build/test/classes;build/classes;lib/postgresql-42.7.13.jar' EvolucaoDaBase | Tee-Object -FilePath (Join-Path $pastaTeste 'evolucao.txt')
     if ($LASTEXITCODE -ne 0) { throw 'Teste de evolucao V1/V2 falhou.' }
@@ -68,6 +68,9 @@ try {
     & java '-Dfile.encoding=UTF-8' "-Dobotbarato.config=$arquivoConfig" -cp 'build/test/classes;build/classes;lib/postgresql-42.7.13.jar' FluxoGestaoPedidos | Tee-Object -FilePath (Join-Path $pastaTeste 'fluxo-gestao.txt')
     if ($LASTEXITCODE -ne 0) { throw 'Fluxo da interface de gestao falhou.' }
     [IO.File]::AppendAllText((Join-Path $raizProjeto 'docs/validacao-pedidos.txt'),[IO.File]::ReadAllText((Join-Path $pastaTeste 'fluxo-gestao.txt')),[Text.UTF8Encoding]::new($false))
+    & java '-Dfile.encoding=UTF-8' "-Dobotbarato.config=$arquivoConfig" -cp 'build/test/classes;build/classes;lib/postgresql-42.7.13.jar' InterfaceBrasileira | Tee-Object -FilePath (Join-Path $pastaTeste 'interface.txt')
+    if ($LASTEXITCODE -ne 0) { throw 'Teste de datas e interface falhou.' }
+    [IO.File]::WriteAllText((Join-Path $raizProjeto 'docs/validacao-interface.txt'),[IO.File]::ReadAllText((Join-Path $pastaTeste 'interface.txt')),[Text.UTF8Encoding]::new($false))
     $evidencia=[IO.File]::ReadAllText((Join-Path $pastaTeste 'evolucao.txt'))+[IO.File]::ReadAllText((Join-Path $pastaTeste 'parte2.txt'))+[IO.File]::ReadAllText((Join-Path $pastaTeste 'telas.txt'))
     [IO.File]::WriteAllText((Join-Path $raizProjeto 'docs/validacao-parte2.txt'),$evidencia,[Text.UTF8Encoding]::new($false))
     New-Item -ItemType Directory -Force -Path 'docs' | Out-Null

@@ -4,6 +4,8 @@ Pasta oficial de desenvolvimento do projeto acadêmico. Aplicação Java Swing c
 
 **Estado atual:** etapas 1 a 6 implementadas: fundação, cadastros, permissões, catálogo, compra/pagamento simulado e gestão/cancelamento de pedidos. Guias: `docs/COMO_TESTAR_PARTES_1_E_2.md`, `docs/PARTE_2_CADASTROS_E_ACESSO.md`, `docs/COMPRA_E_PAGAMENTO_SIMULADO.md` e `docs/GESTAO_E_CANCELAMENTO_PEDIDOS.md`. O próximo bloco reúne os módulos complementares da etapa 7. O plano completo está em `../analise/PLANO_FINALIZACAO_OBOTBARATO.md`; escopo e critérios estão em `docs/ESCOPO_E_CRITERIOS.md`. Os arquivos extraídos são referências preservadas.
 
+Ajustes de interface de 09/10: datas brasileiras com barras automáticas, campos/botões corrigidos e navegação do cliente revisada. Como conferir: `docs/AJUSTES_INTERFACE_E_DATAS.md`; testes em `docs/validacao-interface.txt`.
+
 ## Pré-requisitos
 
 - JDK 17 ou posterior, com `java`, `javac` e `jar` no PATH.

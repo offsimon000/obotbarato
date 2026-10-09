@@ -372,13 +372,10 @@ public class TelaLoginUnificado extends JFrame {
     private JPanel criarLogo() {
         JPanel p = new JPanel(new FlowLayout(FlowLayout.CENTER, 6, 0));
         p.setOpaque(false);
-        JLabel star = new JLabel("*");
-        star.setFont(new Font("Segoe UI", Font.BOLD, 32));
-        star.setForeground(Tema.ROXO_PRIMARIO);
         JLabel nome = new JLabel("OBotBarato");
         nome.setFont(new Font("Segoe UI", Font.BOLD, 28));
         nome.setForeground(Tema.TEXTO_PRIMARIO);
-        p.add(star); p.add(nome);
+        p.add(nome);
         return p;
     }
 

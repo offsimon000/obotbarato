@@ -43,7 +43,7 @@ Faturamento por período usa **total final de pedidos não cancelados com pagame
 
 1. Abra `Iniciar OBotBarato.cmd`. Entre como cliente (`cliente@demo.local` / `cliente123`) e compre um produto por PIX. Anote número e estoque anterior.
 2. Em **Meus pedidos**, confira pedido **Aberto**, pagamento **confirmado**, valores e endereço em **Detalhes e histórico**. A criação deve aparecer no acompanhamento.
-3. Saia e entre como vendedor (`vendedor` / `vendedor123`) → **Pedidos**. Filtre por nome/e-mail, data `aaaa-mm-dd`, estado e origem Loja. Filtros vazios mostram todas as opções autorizadas.
+3. Saia e entre como vendedor (`vendedor` / `vendedor123`) → **Pedidos**. Filtre por nome/e-mail, data `dd/mm/aaaa` (barras automáticas), estado e origem Loja. Filtros vazios mostram todas as opções autorizadas.
 4. Selecione o pedido e clique **Avançar entrega**. Confirme: fica **Em preparo**. Confira data e vendedor no histórico. Repita para **Enviado** e **Entregue**, uma etapa por vez. Cliente consulta o mesmo acompanhamento ao atualizar sua lista.
 5. Em outra compra por boleto, tente iniciar preparo: deve recusar. Admin (`admin` / `admin123`) confirma em **Pagamentos**, depois a equipe pode iniciar preparo. Confirmação não baixa estoque novamente nem marca entrega.
 6. Faça uma nova compra e, ainda aberta, cancele pelo cliente informando motivo. Pedido/pagamento ficam cancelados; saldo volta à quantidade anterior. Atualizar ou repetir a solicitação não devolve saldo novamente.

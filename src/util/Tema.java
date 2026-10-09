@@ -42,6 +42,12 @@ public class Tema {
         tabela.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 12));
         tabela.setShowHorizontalLines(true);
         tabela.setShowVerticalLines(false);
+        tabela.setDefaultRenderer(Object.class,new javax.swing.table.DefaultTableCellRenderer(){
+            public Component getTableCellRendererComponent(JTable t,Object valor,boolean selecionado,boolean foco,int linha,int coluna){
+                Component celula=super.getTableCellRendererComponent(t,valor,selecionado,foco,linha,coluna);
+                setBorder(BorderFactory.createEmptyBorder(0,8,0,8));return celula;
+            }
+        });
     }
 
     public static JButton botaoPrimario(String texto) {
@@ -66,7 +72,7 @@ public class Tema {
         btn.setForeground(TEXTO_PRIMARIO);
         btn.setFont(FONTE_BOTAO);
         btn.setFocusPainted(false);
-        btn.setBorder(BorderFactory.createLineBorder(BORDA, 1));
+        btn.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(BORDA, 1),BorderFactory.createEmptyBorder(8,14,8,14)));
         btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
         btn.addMouseListener(new MouseAdapter() {
             public void mouseEntered(MouseEvent e) { btn.setBackground(BORDA); }

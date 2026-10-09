@@ -48,4 +48,4 @@ Imagem PNG/JPEG opcional é validada por tamanho (até 5 MB) e dimensões (até 
 
 ## Limites desta entrega
 
-Parte 2 fecha a manutenção e o acesso. Compra/pagamento estão concluídos na etapa 5 (COMPRA_E_PAGAMENTO_SIMULADO.md); transições e cancelamento na etapa 6 (GESTAO_E_CANCELAMENTO_PEDIDOS.md). Perfil, cupons, avaliações e notificações continuam nos próximos blocos. Parte das consultas antigas ainda roda no EDT e existe SQL de filtro de categorias na loja; sua reorganização faz parte da etapa 8. A documentação acadêmica final ainda será regenerada com todos os módulos concluídos.
+Parte 2 fecha a manutenção e o acesso. Compra/pagamento estão concluídos na etapa 5 (COMPRA_E_PAGAMENTO_SIMULADO.md); transições e cancelamento na etapa 6 (GESTAO_E_CANCELAMENTO_PEDIDOS.md). Perfil, cupons, avaliações e notificações continuam nos próximos blocos. Parte das consultas antigas ainda roda no EDT; sua reorganização faz parte da etapa 8. Catálogo/saldos passaram a uma consulta em segundo plano nos ajustes de 09/10, descritos em AJUSTES_INTERFACE_E_DATAS.md. A documentação acadêmica final ainda será regenerada com todos os módulos concluídos.

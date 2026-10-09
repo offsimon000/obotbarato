@@ -1,0 +1,2 @@
+OK: datas brasileiras estritas, anos bissextos, máscara por digitação/colagem, edição no meio e limpeza.
+APROVADO: formulário com campos largos, relatórios/filtros mascarados, loja sem asterisco, catálogo carregado, janelas únicas e ações corretas para carrinho vazio/reservado/liberado.
