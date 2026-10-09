@@ -261,13 +261,13 @@ public class TelaLoja extends JFrame {
             }
         };
         card.setOpaque(false);
-        card.setPreferredSize(new Dimension(240,300));
+        card.setPreferredSize(new Dimension(240,380));
         card.setBorder(BorderFactory.createCompoundBorder(
             BorderFactory.createLineBorder(TemaLoja.BORDA, 1),
             BorderFactory.createEmptyBorder(12, 12, 12, 12)));
         card.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
-        JPanel img = util.Imagens.painel(p.getImagem(),p.getNomeCategoria(),100);
+        JPanel img = util.Imagens.painel(p.getImagem(),p.getNomeCategoria(),132);
         card.add(img, BorderLayout.NORTH);
 
         // Informações
@@ -289,7 +289,7 @@ public class TelaLoja extends JFrame {
         card.add(info, BorderLayout.CENTER);
 
         // Botões
-        JPanel btns = new JPanel(new GridLayout(2,1,0,6));
+        JPanel btns = new JPanel(new GridLayout(3,1,0,6));
         btns.setOpaque(false);
 
         JButton btnFavBtn = TemaLoja.botaoFantasia(isFav ? "Salvo nos favoritos" : "Salvar favorito");
@@ -330,8 +330,8 @@ public class TelaLoja extends JFrame {
         }
         btnAdd.addActionListener(e -> adicionarAoCarrinho(p));
 
-        btns.add(btnFavBtn, BorderLayout.WEST);
-        btns.add(btnAdd,    BorderLayout.CENTER);
+        JButton detalhes=TemaLoja.botaoFantasia("Ver detalhes");detalhes.setFont(new Font("Segoe UI",Font.BOLD,11));detalhes.addActionListener(e->mostrarDetalhesProduto(p));
+        btns.add(detalhes);btns.add(btnFavBtn);btns.add(btnAdd);
         card.add(btns, BorderLayout.SOUTH);
 
         // Hover
@@ -351,6 +351,25 @@ public class TelaLoja extends JFrame {
     }
 
     // ── Ações ────────────────────────────────────────────────────────────
+    private void mostrarDetalhesProduto(Produto produto){
+        new SwingWorker<ProdutoDAO.Disponivel,Void>(){
+            protected ProdutoDAO.Disponivel doInBackground()throws Exception{return produtoDAO.buscarParaCarrinho(produto.getId());}
+            protected void done(){if(util.Sessao.getIdCliente()!=clienteLogado.getId())return;try{
+                var atual=get();Produto p=atual.produto();
+                JPanel painel=new JPanel(new BorderLayout(12,12));painel.setBackground(TemaLoja.BG_PRINCIPAL);painel.setPreferredSize(new Dimension(500,420));
+                JLabel titulo=new JLabel("<html>"+p.getNome()+"</html>");titulo.setFont(TemaLoja.FONTE_SUBTITULO);painel.add(titulo,BorderLayout.NORTH);
+                painel.add(util.Imagens.painel(p.getImagem(),p.getNomeCategoria(),250),BorderLayout.CENTER);
+                JPanel info=new JPanel(new BorderLayout(0,8));info.setOpaque(false);
+                JTextArea descricao=new JTextArea(p.getDescricao()==null?"":p.getDescricao(),4,36);descricao.setEditable(false);descricao.setLineWrap(true);descricao.setWrapStyleWord(true);descricao.setFont(TemaLoja.FONTE_LABEL);descricao.setBackground(TemaLoja.BG_PRINCIPAL);info.add(TemaLoja.scroll(descricao));
+                JLabel valor=new JLabel(util.PagamentoSimulado.moeda(p.getPrecoDecimal())+" • Estoque: "+atual.quantidade());valor.setFont(TemaLoja.FONTE_PRECO);valor.setForeground(TemaLoja.VERDE_PRECO);info.add(valor,BorderLayout.SOUTH);painel.add(info,BorderLayout.SOUTH);
+                boolean podeAdicionar=atual.quantidade()>0 && !carrinho.bloqueado();
+                Object[] opcoes=podeAdicionar?new Object[]{"Adicionar ao carrinho","Fechar"}:new Object[]{"Fechar"};
+                int resposta=apresentarDetalhes(painel,opcoes);
+                if(podeAdicionar && resposta==0)adicionarAoCarrinho(p);
+            }catch(Exception ex){avisoLoja.setText(util.Erros.mensagem(ex));}}
+        }.execute();
+    }
+    protected int apresentarDetalhes(JPanel painel,Object[] opcoes){return JOptionPane.showOptionDialog(this,painel,"Detalhes do produto",JOptionPane.DEFAULT_OPTION,JOptionPane.PLAIN_MESSAGE,null,opcoes,opcoes[opcoes.length-1]);}
     public void adicionarAoCarrinho(Produto p) {
         if(adicionando)return;
         if(carrinho.bloqueado()){avisoLoja.setText("Finalize ou feche a etapa de pagamento antes de alterar o carrinho.");return;}

@@ -6,6 +6,8 @@ Pasta oficial de desenvolvimento do projeto acadêmico. Aplicação Java Swing c
 
 Ajustes de interface de 09/10: datas brasileiras com barras automáticas, campos/botões corrigidos e navegação do cliente revisada. Como conferir: `docs/AJUSTES_INTERFACE_E_DATAS.md`; testes em `docs/validacao-interface.txt`.
 
+Catálogo de apresentação: 30 cosméticos fictícios com imagens próprias, descrições, preços e estoque. Cadastro/prompts/imagens estão em catalogo; regras, lista e importação manual em docs/CATALOGO_APRESENTACAO.md. A instalação local já recebeu esse catálogo; a demonstração básica de uma base nova continua separada. A loja permite abrir Ver detalhes para consultar descrição e imagem maior.
+
 ## Pré-requisitos
 
 - JDK 17 ou posterior, com `java`, `javac` e `jar` no PATH.
