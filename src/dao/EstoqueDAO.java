@@ -18,14 +18,16 @@ public class EstoqueDAO {
     public void definirMinimo(int id,int minimo)throws SQLException{
         if(minimo<0)throw new IllegalArgumentException("Mínimo não pode ser negativo.");
         Transacao.executar(c->{Acesso.equipe(c,true);
+            bloquearProduto(c,id);
             try(PreparedStatement p=c.prepareStatement("UPDATE estoque SET estoque_minimo=? WHERE id_produto=?")){
                 p.setInt(1,minimo);p.setInt(2,id);if(p.executeUpdate()!=1)throw new SQLException("Estoque inexistente.");
-            }return null;
+            }NotificacaoDAO.estoque(c,id);return null;
         });
     }
     public void atualizar(int id,int quantidade)throws SQLException{
         if(quantidade<0)throw new IllegalArgumentException("Estoque não pode ser negativo.");
         Transacao.executar(c->{Acesso.equipe(c,true);int anterior;
+            bloquearProduto(c,id);
             try(PreparedStatement p=c.prepareStatement("SELECT quantidade FROM estoque WHERE id_produto=? FOR UPDATE")){
                 p.setInt(1,id);try(ResultSet r=p.executeQuery()){if(!r.next())throw new SQLException("Produto sem registro de estoque.");anterior=r.getInt(1);}
             }
@@ -39,7 +41,7 @@ public class EstoqueDAO {
     public void saida(int id,int qtd,String motivo)throws SQLException{manual(id,qtd,false,motivo);}
     private void manual(int id,int qtd,boolean entrada,String motivo)throws SQLException{
         validar(qtd);String m=Validacao.texto(motivo,"Motivo",3,255);
-        Transacao.executar(c->{Acesso.equipe(c,true);mover(c,id,qtd,entrada,entrada?"entrada":"saida",m);return null;});
+        Transacao.executar(c->{Acesso.equipe(c,true);bloquearProduto(c,id);mover(c,id,qtd,entrada,entrada?"entrada":"saida",m);return null;});
     }
     /** Usada pelo pedido já autorizado e dentro de sua transação. */
     public void saida(Connection c,int id,int qtd)throws SQLException{
@@ -49,6 +51,7 @@ public class EstoqueDAO {
         if(c.getAutoCommit())throw new IllegalArgumentException("Saída de venda exige transação.");
         // Revalida a identidade também no ponto público de movimentação compartilhada.
         if(Sessao.getIdUsuario()>0) Acesso.equipe(c,false);else Acesso.cliente(c,Sessao.getIdCliente());
+        bloquearProduto(c,id);
         mover(c,id,qtd,false,"venda","Baixa por venda",pedido);
     }
     /** A gestão já bloqueou e autorizou o pedido; devolução usa a mesma transação. */
@@ -85,7 +88,9 @@ public class EstoqueDAO {
             if(pedido!=null)p.setInt(8,pedido);else p.setNull(8,Types.INTEGER);
             if(p.executeUpdate()!=1)throw new SQLException("Movimento não registrado.");
         }
+        NotificacaoDAO.estoque(c,id);
     }
+    private static void bloquearProduto(Connection c,int id)throws SQLException{try(PreparedStatement p=c.prepareStatement("SELECT id FROM produtos WHERE id=? FOR UPDATE")){p.setInt(1,id);try(ResultSet r=p.executeQuery()){if(!r.next())throw new SQLException("Produto sem registro de estoque.");}}}
     public List<String[]> historico(int id)throws SQLException{
         Acesso.equipe();List<String[]> lista=new ArrayList<>();
         try(Connection c=ConexaoBanco.getConexao();PreparedStatement p=c.prepareStatement("SELECT m.*,COALESCE(u.nome,cl.nome,'Instalação') AS responsavel FROM movimentos_estoque m LEFT JOIN usuarios u ON u.id=m.id_usuario LEFT JOIN clientes cl ON cl.id=m.id_cliente WHERE m.id_produto=? ORDER BY m.id DESC")){

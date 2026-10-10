@@ -11,9 +11,9 @@ Banco atualizado. Dados de demonstração: true
 OK: conexão com banco obotbarato
 Servidor: PostgreSQL 18.6
 OK: tabelas e colunas da base desktop disponíveis.
-OK: pedido, item, total R$ 34,50, pagamentos, imagem, estoque, retirada, cancelamento/devolução/histórico, perfil/senha e cupom/descontos R$18,63 preservados em obotbarato
-OK: pedido, item, total R$ 34,50, pagamentos, imagem, estoque, retirada, cancelamento/devolução/histórico, perfil/senha e cupom/descontos R$18,63 preservados em obotbarato_restaurado_20261009_210935_e64968b8
-OK: somente os dados próprios da fixture foram removidos de obotbarato_restaurado_20261009_210935_e64968b8
+OK: pedidos/pagamentos, imagem/estoque, cancelamento/histórico, perfil/senha, cupom R$18,63, avaliação, notificações e leitura preservados em obotbarato
+OK: pedidos/pagamentos, imagem/estoque, cancelamento/histórico, perfil/senha, cupom R$18,63, avaliação, notificações e leitura preservados em obotbarato_restaurado_20261009_215042_43f39171
+OK: somente os dados próprios da fixture foram removidos de obotbarato_restaurado_20261009_215042_43f39171
 OK: somente os dados próprios da fixture foram removidos de obotbarato
 OK tela: TelaLoginUnificado
 OK tela: TelaInicial
@@ -28,13 +28,16 @@ OK tela: FormularioProduto
 OK tela: TelaUsuarios
 OK tela: TelaCategorias
 OK tela: TelaCupons
+OK tela: TelaNotificacoes
 OK tela: TelaLoja
 OK tela: TelaFavoritos
 OK tela: TelaCarrinho
 OK tela: TelaCheckout
 OK tela: TelaMeusPedidos
 OK tela: TelaPerfil
-APROVADO: 19 telas inicializadas no EDT sem exibir janelas.
+OK tela: TelaNotificacoes
+OK tela: TelaAvaliacao
+APROVADO: 22 telas inicializadas no EDT sem exibir janelas.
 OK: driver ausente identificado sem abrir o aplicativo.
 OK: estado dos servicos PostgreSQL originais preservado.
 APROVADO: instalacao, autenticacao, reinicio, backup/restauracao e inicializacao das telas.

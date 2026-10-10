@@ -49,6 +49,7 @@ public class TelaGestaoPedidos extends TelaManutencao {
             comando("Avançar entrega",this::avancar);
         }
         comando("Cancelar pedido",this::cancelar);
+        if(!equipe)comando("Avaliar produtos",()->new view.loja.TelaAvaliacao(this,selecionar().id()).setVisible(true));
         JPanel rodape=new JPanel(new BorderLayout());rodape.setBackground(Tema.BG_CARD);
         orientacao.setFont(Tema.FONTE_LABEL);orientacao.setBorder(BorderFactory.createEmptyBorder(10,16,0,16));rodape.add(orientacao,BorderLayout.NORTH);rodape.add(botoes,BorderLayout.SOUTH);getContentPane().add(rodape,BorderLayout.SOUTH);
         tabela.getSelectionModel().addListSelectionListener(e->{if(!e.getValueIsAdjusting())atualizarComandos();});
@@ -79,6 +80,7 @@ public class TelaGestaoPedidos extends TelaManutencao {
             if(b.getText().equals("Detalhes e histórico"))habilitado &= p!=null;
             if(b.getText().equals("Cancelar pedido"))habilitado &= p!=null && StatusPedido.podeCancelar(p.status(),equipe);
             if(b.getText().equals("Avançar entrega"))habilitado &= p!=null && StatusPedido.proximo(p.status())!=null && p.pagamento().equals("confirmado");
+            if(b.getText().equals("Avaliar produtos"))habilitado &= p!=null && p.status().equals("entregue") && p.pagamento().equals("confirmado");
             b.setEnabled(habilitado);
         }
         if(processando)orientacao.setText("Processando o pedido. Aguarde a confirmação.");

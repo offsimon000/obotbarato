@@ -42,10 +42,11 @@ public final class EvolucaoDaBase {
                 if(!r.next() || r.getInt(1)!=4)throw new AssertionError("Migração V4 perdeu significado/histórico dos pedidos.");
             }
             try(ResultSet r=s.executeQuery("SELECT COUNT(*) FROM movimentos_estoque WHERE tipo='devolucao'")){r.next();if(r.getInt(1)!=0)throw new AssertionError("Migração devolveu saldo legado indevidamente.");}
+            try(ResultSet r=s.executeQuery("SELECT (SELECT COUNT(*) FROM avaliacoes)+(SELECT COUNT(*) FROM notificacoes)")){r.next();if(r.getInt(1)!=0)throw new AssertionError("V6 inventou avaliação/notificação antiga.");}
             try(ResultSet r=s.executeQuery("SELECT total,desconto_cupom,desconto_pagamento,codigo_cupom FROM pedidos WHERE id="+loja)){r.next();if(!r.getBigDecimal(1).toPlainString().equals("22.21") || r.getBigDecimal(2).signum()!=0 || !r.getBigDecimal(3).toPlainString().equals("2.47") || r.getString(4)!=null)throw new AssertionError("V5 alterou desconto legado.");}
             s.execute("DELETE FROM pedidos WHERE id_cliente="+cliente);s.execute("DELETE FROM clientes WHERE id="+cliente);
             s.execute("DELETE FROM produtos WHERE id="+produto);s.execute("DELETE FROM categorias WHERE nome='Legada teste'");
         }
-        System.out.println("APROVADO: evolução V1 → V2/V3 → V4/V5 preserva dados, saldos, pedidos, itens, pagamento e desconto legado; novos campos separam cupom/pagamento sem recalcular vendas anteriores; reexecução idempotente.");
+        System.out.println("APROVADO: evolução V1 → V2/V3 → V4/V5/V6 preserva dados, saldos, pedidos, itens, pagamento e desconto legado; não inventa avaliações/notificações antigas; reexecução idempotente.");
     }
 }

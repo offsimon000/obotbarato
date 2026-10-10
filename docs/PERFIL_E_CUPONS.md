@@ -1,6 +1,6 @@
 # Perfil e cupons — parte inicial da etapa 7
 
-Desktop Swing/PostgreSQL, mantendo o tema branco/azul. Este bloco conclui perfil e cupons; avaliações, notificações e dashboard ainda estão pendentes.
+Desktop Swing/PostgreSQL, mantendo o tema branco/azul. Este bloco conclui perfil e cupons; avaliações/notificações também foram concluídas em AVALIACOES_E_NOTIFICACOES.md. Dashboard continua pendente.
 
 ## Perfil do cliente
 
@@ -59,6 +59,6 @@ Migrations anteriores permanecem intactas. V5 preserva pedidos/valores antigos, 
 
 ## Verificação
 
-`scripts/testar-integracao.ps1`: 66 cenários anteriores + 14 de perfil/cupons (80), evolução até V5, construção de 19 telas e fluxo Swing de perfil, senha, aplicar/remover/reaplicar cupom, PIX, entrega atualizada e duplo clique. Evidência: `validacao-perfil-cupons.txt`; capturas `validacao-ui/perfil-cliente.png`, `cupons-admin.png` e `checkout-cupom*.png`.
+`scripts/testar-integracao.ps1`: 14 cenários específicos de perfil/cupons dentro dos 93 atuais, evolução até V6, construção de 22 telas e fluxo Swing de perfil, senha, aplicar/remover/reaplicar cupom, PIX, entrega atualizada e duplo clique. Evidência: `validacao-perfil-cupons.txt`; capturas `validacao-ui/perfil-cliente.png`, `cupons-admin.png` e `checkout-cupom*.png`.
 
 `scripts/verificar-base.ps1`: registros próprios verificam perfil/senha e compra cancelada com subtotal R$ 23, cupom R$ 2,30, desconto PIX R$ 2,07 e total R$ 18,63 após reinício e restauração. Remove somente suas fixtures, inclusive o cupom temporário. O catálogo e as contas reais permanecem preservados.

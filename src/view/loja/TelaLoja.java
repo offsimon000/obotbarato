@@ -8,6 +8,7 @@ import model.Produto;
 import util.ConexaoBanco;
 import util.TemaLoja;
 import util.Sessao;
+import util.Datas;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
@@ -32,6 +33,7 @@ public class TelaLoja extends JFrame {
     private TelaMeusPedidos janelaPedidos;
     private TelaPerfil janelaPerfil;
     private JLabel saudacao;
+    private view.TelaNotificacoes janelaNotificacoes;
     private boolean adicionando;
     private long consultaCatalogo;
 
@@ -89,6 +91,7 @@ public class TelaLoja extends JFrame {
         marca.setFont(new Font("Segoe UI", Font.BOLD, 20));
         marca.setForeground(TemaLoja.TEXTO_PRIMARIO);
         esq.add(marca);
+        esq.setLayout(new BoxLayout(esq,BoxLayout.Y_AXIS));
 
         JPanel dir = new JPanel(new FlowLayout(FlowLayout.RIGHT, 12, 0));
         dir.setOpaque(false);
@@ -96,10 +99,12 @@ public class TelaLoja extends JFrame {
         JLabel lblOla = new JLabel("Olá, " + clienteLogado.getNome().split(" ")[0]);saudacao=lblOla;
         lblOla.setFont(TemaLoja.FONTE_LABEL);
         lblOla.setForeground(TemaLoja.TEXTO_SECUNDARIO);
+        esq.add(lblOla);
 
         JButton btnFav     = TemaLoja.botaoFantasia("Favoritos");
         JButton btnPedidos = TemaLoja.botaoFantasia("Meus Pedidos");
         JButton btnPerfil=TemaLoja.botaoFantasia("Meu perfil");btnPerfil.addActionListener(e->{if(janelaPerfil==null || !janelaPerfil.isDisplayable())janelaPerfil=new TelaPerfil(this,clienteLogado);mostrarJanela(janelaPerfil);});
+        JButton btnAvisos=TemaLoja.botaoFantasia("Notificações");btnAvisos.addActionListener(e->{if(janelaNotificacoes==null || !janelaNotificacoes.isDisplayable())janelaNotificacoes=new view.TelaNotificacoes(this);mostrarJanela(janelaNotificacoes);});
 
         lblCarrinho = TemaLoja.botaoPrimario("Carrinho (0)");
         lblCarrinho.addActionListener(e->abrirCarrinho());
@@ -115,7 +120,7 @@ public class TelaLoja extends JFrame {
         btnPedidos.addActionListener(e ->
             abrirPedidos());
 
-        dir.add(lblOla);dir.add(btnPerfil); dir.add(btnFav); dir.add(btnPedidos);
+        dir.add(btnPerfil);dir.add(btnAvisos); dir.add(btnFav); dir.add(btnPedidos);
         dir.add(lblCarrinho); dir.add(btnSair);
         topbar.add(esq, BorderLayout.WEST);
         topbar.add(dir, BorderLayout.EAST);
@@ -227,7 +232,7 @@ public class TelaLoja extends JFrame {
 
                 int estoque = disponivel.quantidade();
                 produtosExibidos.add(p);
-                painelGaleria.add(criarCartaoProduto(p, estoque));
+                painelGaleria.add(criarCartaoProduto(disponivel));
             }
 
             if (produtosExibidos.isEmpty()) {
@@ -250,7 +255,8 @@ public class TelaLoja extends JFrame {
     }
 
     // ── Cartao de produto ────────────────────────────────────────────────
-    private JPanel criarCartaoProduto(Produto p, int estoque) {
+    private JPanel criarCartaoProduto(ProdutoDAO.Disponivel dados) {
+        Produto p=dados.produto();int estoque=dados.quantidade();
         boolean disponivel = estoque > 0;
         // Consulta o Set em memória — zero query adicional por produto
         boolean isFav = favoritosSet.contains(p.getId());
@@ -265,7 +271,7 @@ public class TelaLoja extends JFrame {
             }
         };
         card.setOpaque(false);
-        card.setPreferredSize(new Dimension(240,380));
+        card.setPreferredSize(new Dimension(240,400));
         card.setBorder(BorderFactory.createCompoundBorder(
             BorderFactory.createLineBorder(TemaLoja.BORDA, 1),
             BorderFactory.createEmptyBorder(12, 12, 12, 12)));
@@ -290,6 +296,7 @@ public class TelaLoja extends JFrame {
         info.add(nome); info.add(Box.createVerticalStrut(4));
         info.add(preco); info.add(Box.createVerticalStrut(2));
         info.add(est);
+        JLabel media=new JLabel(dados.avaliacoes()==0?"Sem avaliações":"Nota "+dados.media().toPlainString().replace('.',',')+"/5 ("+dados.avaliacoes()+")");media.setFont(TemaLoja.FONTE_LABEL);media.setForeground(TemaLoja.TEXTO_SECUNDARIO);info.add(media);
         card.add(info, BorderLayout.CENTER);
 
         // Botões
@@ -355,16 +362,18 @@ public class TelaLoja extends JFrame {
     }
 
     // ── Ações ────────────────────────────────────────────────────────────
+    private record Detalhe(ProdutoDAO.Disponivel produto,java.util.List<dao.AvaliacaoDAO.Avaliacao> avaliacoes) {}
     private void mostrarDetalhesProduto(Produto produto){
-        new SwingWorker<ProdutoDAO.Disponivel,Void>(){
-            protected ProdutoDAO.Disponivel doInBackground()throws Exception{return produtoDAO.buscarParaCarrinho(produto.getId());}
+        new SwingWorker<Detalhe,Void>(){
+            protected Detalhe doInBackground()throws Exception{return new Detalhe(produtoDAO.buscarParaCarrinho(produto.getId()),new dao.AvaliacaoDAO().listarProduto(produto.getId()));}
             protected void done(){if(util.Sessao.getIdCliente()!=clienteLogado.getId())return;try{
-                var atual=get();Produto p=atual.produto();
+                var detalhe=get();var atual=detalhe.produto();Produto p=atual.produto();
                 JPanel painel=new JPanel(new BorderLayout(12,12));painel.setBackground(TemaLoja.BG_PRINCIPAL);painel.setPreferredSize(new Dimension(500,420));
                 JLabel titulo=new JLabel("<html>"+p.getNome()+"</html>");titulo.setFont(TemaLoja.FONTE_SUBTITULO);painel.add(titulo,BorderLayout.NORTH);
                 painel.add(util.Imagens.painel(p.getImagem(),p.getNomeCategoria(),250),BorderLayout.CENTER);
                 JPanel info=new JPanel(new BorderLayout(0,8));info.setOpaque(false);
-                JTextArea descricao=new JTextArea(p.getDescricao()==null?"":p.getDescricao(),4,36);descricao.setEditable(false);descricao.setLineWrap(true);descricao.setWrapStyleWord(true);descricao.setFont(TemaLoja.FONTE_LABEL);descricao.setBackground(TemaLoja.BG_PRINCIPAL);info.add(TemaLoja.scroll(descricao));
+                StringBuilder texto=new StringBuilder(p.getDescricao()==null?"":p.getDescricao());texto.append("\n\nAvaliações de compradores verificados:\n");if(detalhe.avaliacoes().isEmpty())texto.append("Ainda não há avaliações.");for(var a:detalhe.avaliacoes())texto.append(Datas.formatar(a.data())).append(" — nota ").append(a.nota()).append("/5\n").append(a.comentario()==null?"Sem comentário.":a.comentario()).append("\n\n");
+                JTextArea descricao=new JTextArea(texto.toString(),5,36);descricao.setEditable(false);descricao.setLineWrap(true);descricao.setWrapStyleWord(true);descricao.setFont(TemaLoja.FONTE_LABEL);descricao.setBackground(TemaLoja.BG_PRINCIPAL);info.add(TemaLoja.scroll(descricao));
                 JLabel valor=new JLabel(util.PagamentoSimulado.moeda(p.getPrecoDecimal())+" • Estoque: "+atual.quantidade());valor.setFont(TemaLoja.FONTE_PRECO);valor.setForeground(TemaLoja.VERDE_PRECO);info.add(valor,BorderLayout.SOUTH);painel.add(info,BorderLayout.SOUTH);
                 boolean podeAdicionar=atual.quantidade()>0 && !carrinho.bloqueado();
                 Object[] opcoes=podeAdicionar?new Object[]{"Adicionar ao carrinho","Fechar"}:new Object[]{"Fechar"};

@@ -1,0 +1,15 @@
+OK 1: Sem sessão e equipe não publicam avaliações; notificações exigem identidade ativa
+OK 2: Compra notifica sem duplicar no retry; avaliação bloqueada antes da entrega
+OK 3: Pedido de outro titular, produto não adquirido, nota e comentário inválidos recusados
+OK 4: Uma avaliação por cliente/produto; edição e concorrência preservam registro único
+OK 5: Média de compradores distintos aparece no catálogo sem divulgar nome/e-mail/CPF
+OK 6: Notificações privadas e leitura repetida idempotente; filtro de não lidas respeitado
+OK 7: Equipe recebe avisos próprios, com leitura independente para admin e vendedor
+OK 8: Pagamento e cancelamento notificam uma vez por evento; cancelado não pode avaliar
+OK 9: Estoque baixo gera um alerta por episódio, rearmado pela reposição/mínimo e sem duplicação concorrente
+OK 10: Venda e reposição simultâneas usam ordem consistente de bloqueios e conservam o saldo
+OK 11: Falha ao notificar desfaz pedido, itens, estoque, histórico, pagamento e avisos
+OK 12: Falha no alerta de estoque desfaz saldo, movimento e estado de deduplicação
+OK 13: Produto adquirido pode manter avaliação após desativação; comentário vazio opcional e item fora do catálogo
+APROVADO: 13 cenários de avaliações e notificações em PostgreSQL real.
+APROVADO: fluxo Swing de avaliar pedido entregue, confirmar sem duplicar, carregar média, consultar avisos próprios/marcar leitura e consultar alertas da equipe.

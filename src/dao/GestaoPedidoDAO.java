@@ -91,12 +91,14 @@ public final class GestaoPedidoDAO {
         try(PreparedStatement p=c.prepareStatement(equipe?"SELECT nome FROM usuarios WHERE id=?":"SELECT nome FROM clientes WHERE id=?")){
             p.setInt(1,equipe?Sessao.getIdUsuario():Sessao.getIdCliente());try(ResultSet r=p.executeQuery()){if(!r.next())throw new SQLException("Responsável inexistente.");responsavel=r.getString(1);}
         }
-        try(PreparedStatement p=c.prepareStatement("INSERT INTO historico_pedidos(id_pedido,status_anterior,status_novo,motivo,responsavel,id_usuario,id_cliente) VALUES(?,?,?,?,?,?,?)")){
+        long historico;
+        try(PreparedStatement p=c.prepareStatement("INSERT INTO historico_pedidos(id_pedido,status_anterior,status_novo,motivo,responsavel,id_usuario,id_cliente) VALUES(?,?,?,?,?,?,?) RETURNING id")){
             p.setInt(1,id);p.setString(2,anterior);p.setString(3,novo);p.setString(4,motivo);p.setString(5,responsavel);
             if(equipe)p.setInt(6,Sessao.getIdUsuario());else p.setNull(6,Types.INTEGER);
             if(equipe)p.setNull(7,Types.INTEGER);else p.setInt(7,Sessao.getIdCliente());
-            if(p.executeUpdate()!=1)throw new SQLException("Histórico não registrado.");
+            try(ResultSet r=p.executeQuery()){if(!r.next())throw new SQLException("Histórico não registrado.");historico=r.getLong(1);}
         }
+        NotificacaoDAO.pedido(c,id,historico,anterior,novo,motivo);
     }
     // Consulta interna: detalhes já validou titular/equipe usando a mesma conexão.
     static String historico(Connection c,int id)throws SQLException{

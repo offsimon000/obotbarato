@@ -60,4 +60,4 @@ Faturamento por período usa **total final de pedidos não cancelados com pagame
 
 `scripts/verificar-base.ps1` verifica reinício e restauração, incluindo histórico da retirada, pedido cancelado e devolução única. Usa registros próprios identificados e remove somente essas fixtures. O serviço PostgreSQL original continua preservado.
 
-Cupons, perfil, avaliações, notificações, dashboard, revisão completa dos relatórios, documentação acadêmica e pacote final permanecem nas etapas seguintes.
+Perfil, cupons, avaliações e notificações estão concluídos na etapa 7. Dashboard, revisão completa dos relatórios, documentação acadêmica e pacote final continuam pendentes.

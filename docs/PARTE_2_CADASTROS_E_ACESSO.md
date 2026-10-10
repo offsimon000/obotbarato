@@ -18,6 +18,8 @@ Implementação da etapa 4 do plano. Desktop Java 17/Swing/PostgreSQL, mantendo 
 | Consultar relatórios e pedidos gerais | Sim | Sim | Não |
 | Gerenciar cupons | Sim | Não | Não |
 | Editar perfil e trocar senha | Na sessão do titular | Na sessão do titular | Somente próprio e com senha atual |
+| Publicar/editar avaliação | Não | Não | Produto adquirido em pedido próprio entregue/pago |
+| Consultar/marcar notificações | Equipe, leitura individual | Equipe, leitura individual | Somente próprias |
 | Histórico pessoal e favoritos | Na sessão de cliente | Na sessão de cliente | Somente próprios |
 | Avançar entrega simulada | Sim, uma etapa por vez | Sim, uma etapa por vez | Não |
 | Cancelar pedido | Antes do envio | Antes do envio | Somente próprio e aberto |
@@ -50,4 +52,4 @@ Imagem PNG/JPEG opcional é validada por tamanho (até 5 MB) e dimensões (até 
 
 ## Limites desta entrega
 
-Parte 2 fecha a manutenção e o acesso. Compra/pagamento estão concluídos na etapa 5 (COMPRA_E_PAGAMENTO_SIMULADO.md); transições e cancelamento na etapa 6 (GESTAO_E_CANCELAMENTO_PEDIDOS.md). Perfil e cupons estão concluídos (PERFIL_E_CUPONS.md). Avaliações e notificações continuam nos próximos blocos. Parte das consultas antigas ainda roda no EDT; sua reorganização faz parte da etapa 8. Catálogo/saldos passaram a uma consulta em segundo plano nos ajustes de 09/10, descritos em AJUSTES_INTERFACE_E_DATAS.md. A documentação acadêmica final ainda será regenerada com todos os módulos concluídos.
+Parte 2 fecha a manutenção e o acesso. Compra/pagamento estão concluídos na etapa 5 (COMPRA_E_PAGAMENTO_SIMULADO.md); transições e cancelamento na etapa 6 (GESTAO_E_CANCELAMENTO_PEDIDOS.md). Perfil e cupons estão concluídos (PERFIL_E_CUPONS.md). Avaliações e notificações também estão concluídas (AVALIACOES_E_NOTIFICACOES.md); dashboard e revisão final seguem pendentes. Parte das consultas antigas ainda roda no EDT; sua reorganização faz parte da etapa 8. Catálogo/saldos passaram a uma consulta em segundo plano nos ajustes de 09/10, descritos em AJUSTES_INTERFACE_E_DATAS.md. A documentação acadêmica final ainda será regenerada com todos os módulos concluídos.

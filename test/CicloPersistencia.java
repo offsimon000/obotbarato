@@ -43,10 +43,13 @@ public final class CicloPersistencia {
             java.time.LocalDate hoje=java.time.LocalDate.parse(texto("SELECT CURRENT_DATE::text"));
             new CupomDAO().salvar(0,codigoCupom,new BigDecimal("10"),hoje,hoje.plusDays(1),true);
             Sessao.iniciarCliente(new ClienteLojaDAO().autenticar(cliente.getEmail(),"fixture12345"));
+            new AvaliacaoDAO().salvar(pedido.getId(),produto.getId(),4,"Avaliação da fixture de persistência");
             Cliente perfil=new ClienteLojaDAO().buscarPerfil(cliente.getId());perfil.setEndereco("Rua do perfil validado, 200");
             new ClienteLojaDAO().atualizarPerfil(perfil,"fixture12345","fixture67890");
             int cancelado=new CompraDAO().confirmar(cliente.getId(),List.of(new ItemPedido(produto.getId(),marca,2,11.50)),"pix",marca,"11999990000","Rua da validação, 100",UUID.randomUUID(),codigoCupom,new BigDecimal("10")).id();
             new GestaoPedidoDAO().cancelar(cancelado,"Cancelamento próprio para verificar restauração");
+            long aviso=Long.parseLong(texto("SELECT id FROM notificacoes WHERE id_pedido="+pedido.getId()+" AND destino='cliente' ORDER BY id LIMIT 1"));
+            new NotificacaoDAO().marcarLida(aviso);
             Properties dados = new Properties();
             dados.setProperty("marca", marca); dados.setProperty("categoria", Integer.toString(categoria));
             dados.setProperty("produto", Integer.toString(produto.getId())); dados.setProperty("cliente", Integer.toString(cliente.getId()));
@@ -54,6 +57,7 @@ public final class CicloPersistencia {
             dados.setProperty("imagemHash",hashImagem(produto.getId()));
             dados.setProperty("cancelado",Integer.toString(cancelado));
             dados.setProperty("cupom",codigoCupom);
+            dados.setProperty("aviso",Long.toString(aviso));
             try (var writer = Files.newBufferedWriter(arquivo, StandardCharsets.UTF_8)) { dados.store(writer, "Fixture exclusiva de validacao"); }
             Sessao.encerrar();
             System.out.println("OK: venda fictícia criada para testar reinício e backup.");
@@ -91,9 +95,15 @@ public final class CicloPersistencia {
                 String email=textEmail(cliente);exigir(new ClienteLojaDAO().autenticar(email,"fixture67890")!=null && new ClienteLojaDAO().autenticar(email,"fixture12345")==null,"Senha atual não preservada.");
             }
         }
+        if(dados.getProperty("aviso")!=null){
+            long aviso=Long.parseLong(dados.getProperty("aviso"));
+            exigir(texto("SELECT COUNT(*) FROM avaliacoes WHERE id_cliente="+cliente+" AND id_produto="+produto+" AND id_pedido="+pedido+" AND nota=4").equals("1"),"Avaliação não preservada.");
+            exigir(texto("SELECT COUNT(*) FROM leituras_notificacoes WHERE id_notificacao="+aviso+" AND id_cliente="+cliente).equals("1"),"Leitura não preservada.");
+            exigir(texto("SELECT COUNT(*) FROM notificacoes WHERE id_pedido="+pedido+" AND destino='cliente' AND id_cliente="+cliente).equals("1"),"Aviso não preservado ou duplicado.");
+        }
         if(dados.getProperty("imagemHash")!=null)exigir(dados.getProperty("imagemHash").equals(hashImagem(produto)),"Imagem não preservada.");
         if (args[0].equals("verificar")) {
-            System.out.println("OK: pedido, item, total R$ 34,50, pagamentos, imagem, estoque, retirada, cancelamento/devolução/histórico, perfil/senha e cupom/descontos R$18,63 preservados em " + banco);
+            System.out.println("OK: pedidos/pagamentos, imagem/estoque, cancelamento/histórico, perfil/senha, cupom R$18,63, avaliação, notificações e leitura preservados em " + banco);
         } else if (args[0].equals("limpar")) {
             Transacao.executar(con -> {
                 try (Statement st = con.createStatement()) {

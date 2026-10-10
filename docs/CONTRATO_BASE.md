@@ -10,7 +10,7 @@ Configurações externas existentes são preservadas. As variáveis `DB_URL`, `D
 
 ## Esquema e regras atuais
 
-O banco possui treze tabelas de negócio e uma de controle de migrations:
+O banco possui dezesseis tabelas de negócio e uma de controle de migrations:
 
 | Tabela | Chave e regras principais |
 |---|---|
@@ -27,6 +27,9 @@ O banco possui treze tabelas de negócio e uma de controle de migrations:
 | `pagamentos` | Pedido PK/FK; método e status de simulação, datas e confirmação administrativa. |
 | `historico_pedidos` | Pedido por FK; estado anterior/novo, data, motivo, IDs e nome do responsável no momento da operação. |
 | `cupons` | Código único normalizado, percentual, validade inclusiva, ativação e responsáveis. |
+| `avaliacoes` | Cliente/produto únicos, compra entregue/paga, nota 1 a 5, comentário e datas. |
+| `notificacoes` | Evento/destinatário únicos, mensagem, vínculos de pedido/produto e data. |
+| `leituras_notificacoes` | Leitura única por aviso e cliente/usuário interno. |
 | `schema_migrations` | Nome da migration como PK, SHA-256 do arquivo e data de aplicação. |
 
 Existem índices de categoria do produto, cliente/data do pedido e pedido/produto dos itens. As restrições de FK impedem referências inexistentes; as restrições únicas e de valores também são aplicadas no banco.
@@ -70,3 +73,7 @@ Desde 09/10, filtros e relatórios apresentam `dd/mm/aaaa` com barras automátic
 ## Perfil e cupons
 
 V5 acrescenta cupons e snapshots de código/percentual/desconto do cupom/desconto de pagamento no pedido. Cupom reduz o subtotal primeiro; PIX/débito incidem no restante. Desconto total deve ser a soma das parcelas. Descontos anteriores são preservados como desconto de pagamento. Perfil é privado e exige senha atual; atualização dos dados/senha e revogação de códigos pendentes são atômicas. Entregas já gravadas não mudam quando o perfil é editado. Guia: PERFIL_E_CUPONS.md.
+
+## Avaliações e avisos
+
+V6 preserva dados anteriores e cria avaliações/notificações/leituras, sem inventar eventos antigos. Avaliação exige produto adquirido em pedido próprio entregue/pago, uma por cliente/produto e edição permitida. Avisos acompanham a transação de pedido/pagamento/estoque; leitura é individual e episódios de estoque crítico impedem repetição enquanto o saldo não se recupera. Caixa é interna, com atualização manual. Regras e limites: AVALIACOES_E_NOTIFICACOES.md.

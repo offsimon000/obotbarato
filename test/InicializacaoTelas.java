@@ -34,6 +34,7 @@ public final class InicializacaoTelas {
                 conferir(new TelaRelatorios(painel)); conferir(new TelaPagamentos(painel)); imagem(conferir(new FormularioProduto(painel, null)),"formulario-produto.png");
                 imagem(conferir(new TelaUsuarios(painel)),"usuarios.png"); imagem(conferir(new TelaCategorias(painel)),"categorias.png");
                 conferir(new TelaCupons(painel));
+                conferir(new TelaNotificacoes(painel));
                 imagem(painel,"painel-admin.png");
                 Sessao.iniciarCliente(cliente);
                 TelaLoja loja = conferir(new TelaLoja(cliente));
@@ -43,6 +44,7 @@ public final class InicializacaoTelas {
                 conferir(new TelaCheckout(carrinho, cliente, loja.getCarrinho(), loja));
                 conferir(new TelaMeusPedidos(loja, cliente));
                 conferir(new TelaPerfil(loja,cliente));
+                conferir(new TelaNotificacoes(loja));conferir(new TelaAvaliacao(loja,0));
                 System.out.println("APROVADO: " + quantidade + " telas inicializadas no EDT sem exibir janelas.");
             } catch (Exception e) { throw new RuntimeException(e); }
             finally { for (Window w : Window.getWindows()) w.dispose(); Sessao.encerrar(); }
