@@ -7,6 +7,7 @@ import model.ItemPedido;
 import model.Produto;
 import util.ConexaoBanco;
 import util.TemaLoja;
+import util.Sessao;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
@@ -29,6 +30,8 @@ public class TelaLoja extends JFrame {
     private TelaCarrinho janelaCarrinho;
     private TelaFavoritos janelaFavoritos;
     private TelaMeusPedidos janelaPedidos;
+    private TelaPerfil janelaPerfil;
+    private JLabel saudacao;
     private boolean adicionando;
     private long consultaCatalogo;
 
@@ -90,12 +93,13 @@ public class TelaLoja extends JFrame {
         JPanel dir = new JPanel(new FlowLayout(FlowLayout.RIGHT, 12, 0));
         dir.setOpaque(false);
 
-        JLabel lblOla = new JLabel("Olá, " + clienteLogado.getNome().split(" ")[0]);
+        JLabel lblOla = new JLabel("Olá, " + clienteLogado.getNome().split(" ")[0]);saudacao=lblOla;
         lblOla.setFont(TemaLoja.FONTE_LABEL);
         lblOla.setForeground(TemaLoja.TEXTO_SECUNDARIO);
 
         JButton btnFav     = TemaLoja.botaoFantasia("Favoritos");
         JButton btnPedidos = TemaLoja.botaoFantasia("Meus Pedidos");
+        JButton btnPerfil=TemaLoja.botaoFantasia("Meu perfil");btnPerfil.addActionListener(e->{if(janelaPerfil==null || !janelaPerfil.isDisplayable())janelaPerfil=new TelaPerfil(this,clienteLogado);mostrarJanela(janelaPerfil);});
 
         lblCarrinho = TemaLoja.botaoPrimario("Carrinho (0)");
         lblCarrinho.addActionListener(e->abrirCarrinho());
@@ -111,7 +115,7 @@ public class TelaLoja extends JFrame {
         btnPedidos.addActionListener(e ->
             abrirPedidos());
 
-        dir.add(lblOla); dir.add(btnFav); dir.add(btnPedidos);
+        dir.add(lblOla);dir.add(btnPerfil); dir.add(btnFav); dir.add(btnPedidos);
         dir.add(lblCarrinho); dir.add(btnSair);
         topbar.add(esq, BorderLayout.WEST);
         topbar.add(dir, BorderLayout.EAST);
@@ -383,6 +387,10 @@ public class TelaLoja extends JFrame {
     public void abrirCarrinho(){if(janelaCarrinho==null || !janelaCarrinho.isDisplayable())janelaCarrinho=new TelaCarrinho(this,clienteLogado,getCarrinho());mostrarJanela(janelaCarrinho);}
     public void abrirPedidos(){if(janelaPedidos==null || !janelaPedidos.isDisplayable())janelaPedidos=new TelaMeusPedidos(this,clienteLogado);mostrarJanela(janelaPedidos);}
     public void atualizarCatalogo(){carregarProdutos();}
+    public void atualizarPerfil(Cliente novo){
+        if(Sessao.getIdCliente()!=clienteLogado.getId() || novo.getId()!=clienteLogado.getId())return;
+        clienteLogado.setNome(novo.getNome());clienteLogado.setCpf(novo.getCpf());clienteLogado.setEmail(novo.getEmail());clienteLogado.setTelefone(novo.getTelefone());clienteLogado.setEndereco(novo.getEndereco());Sessao.iniciarCliente(clienteLogado);saudacao.setText("Olá, "+novo.getNome().split(" ")[0]);
+    }
     public model.Carrinho getModeloCarrinho(){return carrinho;}
     public void atualizarBadgeCarrinho(){
         int total=carrinho.itens().stream().mapToInt(ItemPedido::getQuantidade).sum();lblCarrinho.setText("Carrinho ("+total+")");

@@ -1,0 +1,16 @@
+OK 1: Perfil privado e operações sem sessão ou de outro titular recusadas
+OK 2: Dados/e-mail normalizados só mudam com senha atual correta; senha vazia preserva acesso
+OK 3: E-mail duplicado/CPF inválido recusados sem trocar a senha parcialmente
+OK 4: Troca de senha mantém PBKDF2 e invalida código temporário anterior
+OK 5: Editar endereço cadastral não muda snapshot de entrega de compra anterior
+OK 6: Somente admin gerencia cupons; código único, percentual e datas validados
+OK 7: Consulta normalizada aceita o dia inicial/final e rejeita futuro, expirado ou inativo
+OK 8: Cupom antes do pagamento: R$100/10%/PIX = R$81; centavos arredondados por etapa
+OK 9: Pedido guarda código/percentual/descontos; edição posterior e retry não recalculam compra
+OK 10: Cupom mudado/expirado na confirmação exige revisão sem pedido ou baixa parcial
+OK 11: Duas confirmações simultâneas com cupom geram um único pedido
+OK 12: Cancelamento preserva os descontos históricos e devolve estoque pelo fluxo existente
+OK 13: Falha após gravar desconto/baixar estoque desfaz pedido, itens, movimento e pagamento
+OK 14: Cupom 100% mantém total zero e percentual sem código é recusado
+APROVADO: 14 cenários de perfil e cupons em PostgreSQL real.
+APROVADO: fluxo Swing de salvar perfil/trocar senha, aplicar/remover/reaplicar cupom, PIX R$81, confirmação única e entrega com dados atualizados; painel de cupons carregado.

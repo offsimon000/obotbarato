@@ -41,3 +41,7 @@ Com a V4, toda compra nova da loja começa `aberto`, com pagamento próprio pend
 `scripts/testar-integracao.ps1` testa a evolução de uma base V1, as 20 regressões iniciais, os 15 cenários de acesso/cadastros, 14 cenários de compra/pagamento e o fluxo Swing do checkout. O fluxo aciona os próprios componentes Java no EDT, sem automação nativa, e testa resumo → PIX → confirmação, duplo clique e fechamento/continuação. Evidência: `docs/validacao-compra.txt`; capturas em `docs/validacao-ui/checkout-*.png`.
 
 `scripts/verificar-base.ps1` verifica também subtotal/desconto, pagamento e imagem de uma venda fictícia antes/depois do reinício e da restauração, removendo seus próprios registros ao terminar. A documentação acadêmica final será atualizada com a estrutura completa após concluir os módulos restantes.
+
+## Cupons na etapa 7
+
+Cupom opcional é aplicado primeiro, e PIX/débito incidem no restante. V5 grava código/percentual e as duas parcelas de desconto, preservando valores de compras antigas. Interface e confirmação usam DescontosCompra; cupom válido/percentual são revalidados antes de gravar. Veja PERFIL_E_CUPONS.md para administração, regras, exemplos e testes.

@@ -39,8 +39,13 @@ public final class CicloPersistencia {
             new PedidoDAO().salvar(pedido);
             CodigoAcessoDAO acesso=new CodigoAcessoDAO();String codigo=acesso.emitir(cliente.getId());
             exigir(acesso.redefinir(cliente.getEmail(),codigo,"fixture12345"),"Ativação própria da fixture falhou.");
+            String codigoCupom="VALIDA_"+UUID.randomUUID().toString().substring(0,8).toUpperCase();
+            java.time.LocalDate hoje=java.time.LocalDate.parse(texto("SELECT CURRENT_DATE::text"));
+            new CupomDAO().salvar(0,codigoCupom,new BigDecimal("10"),hoje,hoje.plusDays(1),true);
             Sessao.iniciarCliente(new ClienteLojaDAO().autenticar(cliente.getEmail(),"fixture12345"));
-            int cancelado=new CompraDAO().confirmar(cliente.getId(),List.of(new ItemPedido(produto.getId(),marca,2,11.50)),"pix",marca,"11999990000","Rua da validação, 100",UUID.randomUUID()).id();
+            Cliente perfil=new ClienteLojaDAO().buscarPerfil(cliente.getId());perfil.setEndereco("Rua do perfil validado, 200");
+            new ClienteLojaDAO().atualizarPerfil(perfil,"fixture12345","fixture67890");
+            int cancelado=new CompraDAO().confirmar(cliente.getId(),List.of(new ItemPedido(produto.getId(),marca,2,11.50)),"pix",marca,"11999990000","Rua da validação, 100",UUID.randomUUID(),codigoCupom,new BigDecimal("10")).id();
             new GestaoPedidoDAO().cancelar(cancelado,"Cancelamento próprio para verificar restauração");
             Properties dados = new Properties();
             dados.setProperty("marca", marca); dados.setProperty("categoria", Integer.toString(categoria));
@@ -48,6 +53,7 @@ public final class CicloPersistencia {
             dados.setProperty("pedido", Integer.toString(pedido.getId())); dados.setProperty("admin", Integer.toString(admin.getId()));
             dados.setProperty("imagemHash",hashImagem(produto.getId()));
             dados.setProperty("cancelado",Integer.toString(cancelado));
+            dados.setProperty("cupom",codigoCupom);
             try (var writer = Files.newBufferedWriter(arquivo, StandardCharsets.UTF_8)) { dados.store(writer, "Fixture exclusiva de validacao"); }
             Sessao.encerrar();
             System.out.println("OK: venda fictícia criada para testar reinício e backup.");
@@ -79,14 +85,20 @@ public final class CicloPersistencia {
             exigir(texto("SELECT p.status || '/' || pg.status FROM pedidos p JOIN pagamentos pg ON pg.id_pedido=p.id WHERE p.id="+cancelado+" AND p.id_cliente="+cliente).equals("cancelado/cancelado"),"Cancelamento não preservado.");
             exigir(texto("SELECT COUNT(*) FROM historico_pedidos WHERE id_pedido="+cancelado).equals("2"),"Histórico do cancelamento perdido.");
             exigir(texto("SELECT COUNT(*) FROM movimentos_estoque WHERE id_pedido="+cancelado+" AND id_produto="+produto+" AND tipo='devolucao' AND quantidade=2 AND saldo=4").equals("1"),"Devolução/auditoria não preservada.");
+            if(dados.getProperty("cupom")!=null){
+                exigir(texto("SELECT total::text||'/'||desconto_cupom::text||'/'||desconto_pagamento::text FROM pedidos WHERE id="+cancelado).equals("18.63/2.30/2.07"),"Cupom/descontos não preservados.");
+                exigir(texto("SELECT endereco FROM clientes WHERE id="+cliente).equals("Rua do perfil validado, 200"),"Perfil não preservado.");
+                String email=textEmail(cliente);exigir(new ClienteLojaDAO().autenticar(email,"fixture67890")!=null && new ClienteLojaDAO().autenticar(email,"fixture12345")==null,"Senha atual não preservada.");
+            }
         }
         if(dados.getProperty("imagemHash")!=null)exigir(dados.getProperty("imagemHash").equals(hashImagem(produto)),"Imagem não preservada.");
         if (args[0].equals("verificar")) {
-            System.out.println("OK: pedido, item, total R$ 34,50, subtotal/desconto, pagamento, imagem, estoque, retirada entregue, cancelamento, devolução e histórico preservados em " + banco);
+            System.out.println("OK: pedido, item, total R$ 34,50, pagamentos, imagem, estoque, retirada, cancelamento/devolução/histórico, perfil/senha e cupom/descontos R$18,63 preservados em " + banco);
         } else if (args[0].equals("limpar")) {
             Transacao.executar(con -> {
                 try (Statement st = con.createStatement()) {
                     if(dados.getProperty("cancelado")!=null)st.executeUpdate("DELETE FROM pedidos WHERE id="+Integer.parseInt(dados.getProperty("cancelado"))+" AND id_cliente="+cliente);
+                    if(dados.getProperty("cupom")!=null){try(PreparedStatement p=con.prepareStatement("DELETE FROM cupons WHERE codigo=?")){p.setString(1,dados.getProperty("cupom"));p.executeUpdate();}}
                     st.executeUpdate("DELETE FROM pedidos WHERE id=" + pedido + " AND id_cliente=" + cliente);
                     st.executeUpdate("DELETE FROM produtos WHERE id=" + produto);
                     st.executeUpdate("DELETE FROM clientes WHERE id=" + cliente);
@@ -97,6 +109,7 @@ public final class CicloPersistencia {
             System.out.println("OK: somente os dados próprios da fixture foram removidos de " + banco);
         } else throw new IllegalArgumentException("Ação inválida.");
     }
+    private static String textEmail(int id)throws SQLException{return texto("SELECT email FROM clientes WHERE id="+id);}
     private static String texto(String sql) throws SQLException {
         try (Connection con = ConexaoBanco.getConexao(); Statement st = con.createStatement(); ResultSet rs = st.executeQuery(sql)) {
             exigir(rs.next(), "Registro da fixture ausente."); return rs.getString(1);

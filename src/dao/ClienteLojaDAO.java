@@ -73,6 +73,26 @@ public class ClienteLojaDAO {
     }
 
     // ── Favoritos ────────────────────────────────────────────────────────
+    public Cliente buscarPerfil(int id)throws SQLException{
+        try(Connection c=ConexaoBanco.getConexao()){util.Acesso.cliente(c,id);
+            try(PreparedStatement p=c.prepareStatement("SELECT * FROM clientes WHERE id=? AND ativo")){p.setInt(1,id);try(ResultSet r=p.executeQuery()){if(!r.next())throw new SQLException("Cliente não encontrado.");return mapear(r);}}
+        }
+    }
+    public Cliente atualizarPerfil(Cliente dados,String senhaAtual,String novaSenha)throws SQLException{
+        util.Validacao.cliente(dados);
+        boolean trocar=novaSenha!=null && !novaSenha.isEmpty();String novoHash=trocar?SenhaCripto.hashear(novaSenha):null;
+        return util.Transacao.executar(c->{
+            util.Acesso.cliente(c,dados.getId());
+            try(PreparedStatement p=c.prepareStatement("SELECT senha FROM clientes WHERE id=? AND ativo FOR UPDATE")){
+                p.setInt(1,dados.getId());try(ResultSet r=p.executeQuery()){if(!r.next() || !SenhaCripto.verificar(senhaAtual,r.getString(1)))throw new IllegalArgumentException("Senha atual incorreta ou conta indisponível.");}
+            }
+            try(PreparedStatement p=c.prepareStatement("UPDATE clientes SET nome=?,cpf=?,email=?,telefone=?,endereco=?,senha=COALESCE(?,senha) WHERE id=? AND ativo")){
+                p.setString(1,dados.getNome());p.setString(2,dados.getCpf());p.setString(3,dados.getEmail());p.setString(4,dados.getTelefone());p.setString(5,dados.getEndereco());p.setString(6,novoHash);p.setInt(7,dados.getId());if(p.executeUpdate()!=1)throw new SQLException("Perfil não alterado.");
+            }
+            try(PreparedStatement p=c.prepareStatement("DELETE FROM acessos_cliente WHERE id_cliente=?")){p.setInt(1,dados.getId());p.executeUpdate();}
+            try(PreparedStatement p=c.prepareStatement("SELECT * FROM clientes WHERE id=?")){p.setInt(1,dados.getId());try(ResultSet r=p.executeQuery()){r.next();return mapear(r);}}
+        });
+    }
 
     /** Uma única query — use isso na galeria, não ehFavorito() em loop */
     public Set<Integer> listarFavoritosSet(int idCliente) throws SQLException {
@@ -138,6 +158,7 @@ public class ClienteLojaDAO {
         c.setEmail(rs.getString("email"));
         c.setTelefone(rs.getString("telefone"));
         c.setEndereco(rs.getString("endereco"));
+        c.setAtivo(rs.getBoolean("ativo"));c.setAcessoLoja(rs.getString("senha")!=null);
         return c;
     }
 }

@@ -107,6 +107,7 @@ public class TelaInicial extends JFrame {
         if (Sessao.isAdminAtivo()) {
             grid.add(criarCard("Usuários", "Equipe e permissões", Tema.ROXO_PRIMARIO, () -> { setVisible(false); new TelaUsuarios(this).setVisible(true); }));
             grid.add(criarCard("Categorias", "Organizar catálogo", Tema.ROXO_PRIMARIO, () -> { setVisible(false); new TelaCategorias(this).setVisible(true); }));
+            grid.add(criarCard("Cupons", "Descontos e validade", Tema.ROXO_PRIMARIO, () -> { setVisible(false); new TelaCupons(this).setVisible(true); }));
         }
         painelPrincipal.add(grid, BorderLayout.CENTER);
 

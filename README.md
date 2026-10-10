@@ -8,6 +8,8 @@ Ajustes de interface de 09/10: datas brasileiras com barras automáticas, campos
 
 Catálogo de apresentação: 30 cosméticos fictícios com imagens próprias, descrições, preços e estoque. Cadastro/prompts/imagens estão em catalogo; regras, lista e importação manual em docs/CATALOGO_APRESENTACAO.md. A instalação local já recebeu esse catálogo; a demonstração básica de uma base nova continua separada. A loja permite abrir Ver detalhes para consultar descrição e imagem maior.
 
+Perfil e cupons também concluídos: Meu perfil na loja; Cupons no painel admin; APRESENTA10 para demonstração. Desconto do cupom antes do pagamento, com parcelas salvas no pedido. Regras/testes: `docs/PERFIL_E_CUPONS.md` e `docs/validacao-perfil-cupons.txt`. Avaliações, notificações e dashboard seguem pendentes.
+
 ## Pré-requisitos
 
 - JDK 17 ou posterior, com `java`, `javac` e `jar` no PATH.
@@ -90,9 +92,9 @@ O seed usa PBKDF2-HMAC-SHA256 com salt aleatório e 600.000 iterações. Hashes 
 
 O script cria um cluster exclusivo em `.local/teste-<identificador>`, escolhe uma porta livre, usa uma senha aleatória e escuta somente em `127.0.0.1`. Não inicia o serviço nem altera a base PostgreSQL antiga ou a de desenvolvimento. Ao terminar, para o cluster criado, preservando seus logs. As variáveis `DB_*` precisam estar ausentes para evitar redirecionar os testes.
 
-O script verifica 66 cenários: 20 regressões iniciais, 15 de cadastros/acesso, 14 de compra/pagamento e 17 de gestão/cancelamento. Inclui evolução V1/V3 → V4, rollback e concorrência, permissões, filtros e faturamento. Constrói 17 telas e aciona fluxos Swing de checkout e gestão. Evidências: `docs/ultimo-teste-integracao.txt`, `docs/validacao-parte2.txt`, `docs/validacao-compra.txt` e `docs/validacao-pedidos.txt`. O teste de gestão fornece respostas aos diálogos de confirmação/motivo sem exibir janelas.
+O script verifica 80 cenários: 20 regressões iniciais, 15 de cadastros/acesso, 14 de compra/pagamento 17 de gestão/cancelamento e 14 de perfil/cupons. Inclui evolução V1/V3 → V4, rollback e concorrência, permissões, filtros e faturamento. Constrói 19 telas e aciona fluxos Swing de checkout e gestão. Evidências: `docs/ultimo-teste-integracao.txt`, `docs/validacao-parte2.txt`, `docs/validacao-compra.txt` e `docs/validacao-pedidos.txt`. O teste de gestão fornece respostas aos diálogos de confirmação/motivo sem exibir janelas.
 
-Para verificar também o ambiente persistente, reinício, restauração e construção das 17 telas atuais:
+Para verificar também o ambiente persistente, reinício, restauração e construção das 19 telas atuais:
 
 ```powershell
 ./scripts/verificar-base.ps1
@@ -117,4 +119,4 @@ Guarde uma cópia do `.dump` fora da máquina para recuperação em caso de perd
 
 ## Limites desta versão de desenvolvimento
 
-As etapas 1 a 6 tratam persistência, cadastros, compra, pagamento e entrega simulados, acompanhamento e cancelamento antes do envio. Cupons, perfil, avaliações, notificações, dashboard, revisão completa dos relatórios e documentação acadêmica final ainda dependem das próximas etapas. Não há devolução pós-envio ou estorno financeiro real. O JAR gerado serve para desenvolvimento; a instalação completa e o pacote da apresentação ainda serão validados.
+As etapas 1 a 6 tratam persistência, cadastros, compra, pagamento e entrega simulados, acompanhamento e cancelamento antes do envio. Avaliações, notificações, dashboard, revisão completa dos relatórios e documentação acadêmica final ainda dependem das próximas etapas. Não há devolução pós-envio ou estorno financeiro real. O JAR gerado serve para desenvolvimento; a instalação completa e o pacote da apresentação ainda serão validados.

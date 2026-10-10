@@ -10,7 +10,7 @@ Configurações externas existentes são preservadas. As variáveis `DB_URL`, `D
 
 ## Esquema e regras atuais
 
-O banco possui doze tabelas de negócio e uma de controle de migrations:
+O banco possui treze tabelas de negócio e uma de controle de migrations:
 
 | Tabela | Chave e regras principais |
 |---|---|
@@ -26,6 +26,7 @@ O banco possui doze tabelas de negócio e uma de controle de migrations:
 | `movimentos_estoque` | ID; produto/data/tipo/delta/saldo/motivo e responsável. |
 | `pagamentos` | Pedido PK/FK; método e status de simulação, datas e confirmação administrativa. |
 | `historico_pedidos` | Pedido por FK; estado anterior/novo, data, motivo, IDs e nome do responsável no momento da operação. |
+| `cupons` | Código único normalizado, percentual, validade inclusiva, ativação e responsáveis. |
 | `schema_migrations` | Nome da migration como PK, SHA-256 do arquivo e data de aplicação. |
 
 Existem índices de categoria do produto, cliente/data do pedido e pedido/produto dos itens. As restrições de FK impedem referências inexistentes; as restrições únicas e de valores também são aplicadas no banco.
@@ -46,7 +47,7 @@ As operações públicas dos DAOs não substituem falha de banco por lista vazia
 
 `InicializarBanco` aplica migrations na ordem dos nomes, com exclusão mútua transacional e registro de checksum. Reexecutar não reaplica versões. Alterar arquivo já aplicado é rejeitado. Uma migration falha não deixa esquema parcial ou registro de versão confirmado. A base legada sem histórico de migrations permanece como referência; este instalador trabalha em base nova.
 
-`--demo` é separado da criação do esquema. Instala três contas e cinco produtos fictícios. As senhas são geradas com PBKDF2-HMAC-SHA256 e salt aleatório. Reexecutar não redefine as contas, duplica produtos ou repõe estoque já consumido.
+`--demo` é separado da criação do esquema. Instala três contas, cinco produtos fictícios e APRESENTA10 (10%, 30 dias). As senhas são geradas com PBKDF2-HMAC-SHA256 e salt aleatório. Reexecutar não redefine as contas, duplica produtos ou repõe estoque já consumido.
 
 `backup.ps1` salva o banco local em formato custom do PostgreSQL. `restaurar-backup.ps1` sempre cria um banco novo, preservando o principal, e gera uma configuração separada. A validação confere registros, itens, total, estoque e auditoria após reinício e após restauração.
 
@@ -65,3 +66,7 @@ A V4 separa o fluxo logístico do pagamento: antigo finalizado de balcão vira e
 ## Datas na interface
 
 Desde 09/10, filtros e relatórios apresentam `dd/mm/aaaa` com barras automáticas e validação estrita em `Datas`. Detalhes/históricos apresentam `dd/mm/aaaa HH:mm`. A conversão para LocalDate/ISO ocorre ao chamar os DAOs; armazenamento TIMESTAMP/DATE e parâmetros SQL continuam tipados. A máscara e o formato visual não alteram dados anteriores nem exigem migration. Guia: AJUSTES_INTERFACE_E_DATAS.md.
+
+## Perfil e cupons
+
+V5 acrescenta cupons e snapshots de código/percentual/desconto do cupom/desconto de pagamento no pedido. Cupom reduz o subtotal primeiro; PIX/débito incidem no restante. Desconto total deve ser a soma das parcelas. Descontos anteriores são preservados como desconto de pagamento. Perfil é privado e exige senha atual; atualização dos dados/senha e revogação de códigos pendentes são atômicas. Entregas já gravadas não mudam quando o perfil é editado. Guia: PERFIL_E_CUPONS.md.

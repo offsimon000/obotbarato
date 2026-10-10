@@ -8,9 +8,12 @@ import java.util.*;
 
 /** Confirma compra e pagamento fictício sem confiar em preço ou estado do catálogo na tela. */
 public final class CompraDAO {
-    public record Resultado(int id,BigDecimal subtotal,BigDecimal desconto,BigDecimal total,String metodo,String pagamento) {}
+    public record Resultado(int id,BigDecimal subtotal,BigDecimal desconto,BigDecimal total,String metodo,String pagamento,String cupom,BigDecimal descontoCupom,BigDecimal descontoPagamento) {}
 
     public Resultado confirmar(int idCliente,List<ItemPedido> itens,String metodo,String nome,String telefone,String endereco,UUID chave)throws SQLException {
+        return confirmar(idCliente,itens,metodo,nome,telefone,endereco,chave,null,null);
+    }
+    public Resultado confirmar(int idCliente,List<ItemPedido> itens,String metodo,String nome,String telefone,String endereco,UUID chave,String codigoCupom,BigDecimal percentualEsperado)throws SQLException {
         if(chave==null)throw new IllegalArgumentException("Tentativa de compra inválida.");
         if(metodo==null || !Set.of("credito","debito","pix","boleto").contains(metodo))throw new IllegalArgumentException("Selecione o pagamento simulado.");
         String destinatario=Validacao.texto(nome,"Destinatário",3,120);
@@ -42,10 +45,17 @@ public final class CompraDAO {
                     }
                 }subtotal=subtotal.add(item.getSubtotalDecimal());
             }
-            BigDecimal desconto=PagamentoSimulado.desconto(subtotal,metodo),total=subtotal.subtract(desconto);
+            CupomDAO.Cupom cupom=null;
+            if(codigoCupom!=null && !codigoCupom.isBlank()){
+                cupom=CupomDAO.validar(con,codigoCupom,true);
+                if(percentualEsperado==null || cupom.percentual().compareTo(percentualEsperado)!=0)throw new IllegalArgumentException("O cupom mudou. Aplique novamente e revise o total antes de confirmar.");
+            }else if(percentualEsperado!=null && percentualEsperado.signum()!=0)throw new IllegalArgumentException("Cupom não informado.");
+            var valores=DescontosCompra.calcular(subtotal,metodo,cupom==null?null:cupom.percentual());
+            BigDecimal desconto=valores.desconto(),total=valores.total();
             String pagamento=PagamentoSimulado.status(metodo);int id;
-            try(PreparedStatement p=con.prepareStatement("INSERT INTO pedidos(id_cliente,status,total,subtotal,desconto,origem,chave_compra,destinatario,telefone_entrega,endereco_entrega) VALUES(?,?,?,?,?,'loja',?,?,?,?) RETURNING id")){
+            try(PreparedStatement p=con.prepareStatement("INSERT INTO pedidos(id_cliente,status,total,subtotal,desconto,origem,chave_compra,destinatario,telefone_entrega,endereco_entrega,id_cupom,codigo_cupom,percentual_cupom,desconto_cupom,desconto_pagamento) VALUES(?,?,?,?,?,'loja',?,?,?,?,?,?,?,?,?) RETURNING id")){
                 p.setInt(1,idCliente);p.setString(2,"aberto");p.setBigDecimal(3,total);p.setBigDecimal(4,subtotal);p.setBigDecimal(5,desconto);p.setObject(6,chave);p.setString(7,destinatario);p.setString(8,tel);p.setString(9,end);
+                if(cupom==null)p.setNull(10,Types.INTEGER);else p.setInt(10,cupom.id());p.setString(11,cupom==null?null:cupom.codigo());p.setBigDecimal(12,cupom==null?BigDecimal.ZERO:cupom.percentual());p.setBigDecimal(13,valores.cupom());p.setBigDecimal(14,valores.pagamento());
                 try(ResultSet r=p.executeQuery()){if(!r.next())throw new SQLException("Pedido não gravado.");id=r.getInt(1);}
             }
             for(ItemPedido item:copia.values()){
@@ -57,7 +67,7 @@ public final class CompraDAO {
                 p.setInt(1,id);p.setString(2,metodo);p.setString(3,pagamento);p.setString(4,pagamento);p.executeUpdate();
             }
             GestaoPedidoDAO.registrar(con,id,null,"aberto","Compra na loja; pagamento simulado "+pagamento);
-            return new Resultado(id,subtotal,desconto,total,metodo,pagamento);
+            return new Resultado(id,subtotal,desconto,total,metodo,pagamento,cupom==null?null:cupom.codigo(),valores.cupom(),valores.pagamento());
         });
     }
     public void confirmarPagamento(int id)throws SQLException {
@@ -93,6 +103,8 @@ public final class CompraDAO {
                     texto.append("Pedido #").append(id).append(" — ").append(Datas.formatar(r.getTimestamp("data_pedido"))).append("\nCliente: ").append(r.getString("nome")).append("\nOrigem: ").append(r.getString("origem")).append("\nStatus do pedido: ").append(StatusPedido.nome(r.getString("status")));
                     texto.append("\nPagamento SIMULADO: ").append(PagamentoSimulado.NOMES.get(r.getString("metodo"))).append(" / ").append(r.getString("pagamento"));
                     texto.append("\nSubtotal: ").append(PagamentoSimulado.moeda(r.getBigDecimal("subtotal"))).append("\nDesconto: ").append(PagamentoSimulado.moeda(r.getBigDecimal("desconto"))).append("\nTotal: ").append(PagamentoSimulado.moeda(r.getBigDecimal("total")));
+                    if(r.getString("codigo_cupom")!=null)texto.append("\nCupom: ").append(r.getString("codigo_cupom")).append(" (").append(r.getBigDecimal("percentual_cupom")).append("%)");
+                    texto.append("\nDesconto do cupom: ").append(PagamentoSimulado.moeda(r.getBigDecimal("desconto_cupom"))).append("\nDesconto do pagamento: ").append(PagamentoSimulado.moeda(r.getBigDecimal("desconto_pagamento")));
                     texto.append("\nEntrega simulada: ").append(Objects.toString(r.getString("destinatario"),"Retirada no balcão")).append("\n").append(Objects.toString(r.getString("endereco_entrega"),"")).append("\n").append(Objects.toString(r.getString("telefone_entrega"),"")).append("\n\nItens:\n");
                 }
             }
@@ -101,5 +113,5 @@ public final class CompraDAO {
             }texto.append(GestaoPedidoDAO.historico(c,id));return texto.toString();
         }
     }
-    private static Resultado resultado(ResultSet r)throws SQLException{return new Resultado(r.getInt("id"),r.getBigDecimal("subtotal"),r.getBigDecimal("desconto"),r.getBigDecimal("total"),r.getString("metodo"),r.getString("pagamento"));}
+    private static Resultado resultado(ResultSet r)throws SQLException{return new Resultado(r.getInt("id"),r.getBigDecimal("subtotal"),r.getBigDecimal("desconto"),r.getBigDecimal("total"),r.getString("metodo"),r.getString("pagamento"),r.getString("codigo_cupom"),r.getBigDecimal("desconto_cupom"),r.getBigDecimal("desconto_pagamento"));}
 }

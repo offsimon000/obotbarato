@@ -113,6 +113,9 @@ public final class InicializarBanco {
                     }
                 }
             }
+            try(Statement s=con.createStatement()){
+                s.executeUpdate("INSERT INTO cupons(codigo,percentual,inicio,fim,criado_por,atualizado_por) SELECT 'APRESENTA10',10,CURRENT_DATE,CURRENT_DATE+30,id,id FROM usuarios WHERE ativo AND perfil='admin' ORDER BY id LIMIT 1 ON CONFLICT(codigo) DO NOTHING");
+            }
             return null;
         });
     }

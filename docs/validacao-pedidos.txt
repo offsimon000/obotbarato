@@ -1,4 +1,4 @@
-APROVADO: evolução V1 → V2/V3 → V4 preserva produto, preço, saldo, mínimo, pedido, itens e pagamento; mapeia balcão entregue/loja aberta sem inventar entrega ou devolução anterior; histórico de implantação e reexecução idempotente.
+APROVADO: evolução V1 → V2/V3 → V4/V5 preserva dados, saldos, pedidos, itens, pagamento e desconto legado; novos campos separam cupom/pagamento sem recalcular vendas anteriores; reexecução idempotente.
 OK 1: Compra paga nasce aberta, com histórico e movimento vinculados ao pedido
 OK 2: Equipe segue aberto → preparo → enviado → entregue, sem saltos, retornos ou avanço repetido
 OK 3: Enviados e entregues não podem ser cancelados por este fluxo
