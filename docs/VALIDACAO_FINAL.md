@@ -12,6 +12,7 @@ Versão desktop destinada à revisão dos autores e apresentação em 28/10/2026
 | Carga fictícia | Nove cenários de autorização, atomicidade, valores, datas e reaplicação aprovados |
 | Interface | Construção de 23 instâncias e fluxos Swing; balcão validado em três tamanhos e com falha/rollback/nova tentativa |
 | VS Code | JSON e dependências das tarefas válidos; tarefas anteriores ao F5 executadas; entrada oficial aberta em VM depurada por JDI com os mesmos caminhos/configuração |
+| Atalho fora do editor | Atalhos na Área de Trabalho e pasta do projeto; abertura real pelo .lnk, processo javaw e janela OBotBarato visível, sem erro de inicialização |
 | Banco e backup | Cópia extraída prepara base nova; catálogo e carga diária instalados; reinício e restauração em banco novo preservam dados das fixtures |
 | Pacote | Extraído fora da pasta de desenvolvimento; hashes conferidos; compilação, autenticação, telas e busca aprovadas; cluster temporário encerrado |
 | Documentação | 22 requisitos funcionais e três não funcionais ligados ao código, tabelas e testes; esquema consultado com 16 tabelas de negócio e uma técnica |

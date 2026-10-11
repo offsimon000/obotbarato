@@ -27,7 +27,7 @@ Escopo da versão desktop de 11/10/2026. Cada requisito representa um comportame
 | RF21 | Indicadores e gráficos gerenciais | TelaDashboard | RelatorioDAO, componentes gráficos de TelaRelatorios | pedidos, itens_pedido, pagamentos, produtos, estoque | RelatoriosFinanceiros; FluxoRelatoriosNavegacao |
 | RF22 | Relatórios por período e exportação CSV | TelaRelatorios | RelatorioDAO, ExportarCsv, Datas | Mesmo conjunto de RF21; categorias e clientes | RelatoriosFinanceiros; FluxoRelatoriosNavegacao |
 | RNF01 | Integridade transacional e concorrência | Operações compostas | Transacao; DAOs; bloqueios no PostgreSQL | FKs, CHECKs, índices, chave UUID | IntegracaoBanco; CompraEPagamento; GestaoECancelamento; AvaliacoesENotificacoes |
-| RNF02 | Execução portátil no projeto e persistência | F5; scripts | .vscode; compilar/executar/preparar-ambiente | schema_migrations; V001–V006 | testar-integracao; verificar-base; teste do pacote |
+| RNF02 | Execução portátil no projeto e persistência | Atalho local; F5; scripts | .vscode; compilar/executar/preparar-ambiente; abrir-desktop/criar-atalho | schema_migrations; V001–V006 | testar-integracao; verificar-base; teste do pacote e abertura pelo atalho |
 | RNF03 | Interface desktop coerente e formatos brasileiros | Todas as telas; Voltar nas secundárias | Tema, Navegacao, MascaraCampo, Datas, Dinheiro | Datas tipadas e valores NUMERIC | InicializacaoTelas; InterfaceBrasileira; FluxoVendaBalcao; FluxoRelatoriosNavegacao |
 
 ## Conferência inversa

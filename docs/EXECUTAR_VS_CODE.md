@@ -1,5 +1,7 @@
 # Executar no VS Code
 
+Para abrir o sistema em um computador com poucos recursos, prefira o atalho **Executar OBotBarato** na Área de Trabalho ou na pasta do projeto. Ele usa `scripts/abrir-desktop.ps1` e abre a aplicação sem o editor. `scripts/criar-atalho.ps1` recria os atalhos após mover ou copiar o projeto. As instruções abaixo são a alternativa de desenvolvimento pelo VS Code.
+
 1. Abra no VS Code o arquivo **OBotBarato.code-workspace** desta pasta. Abra a pasta OBotBarato, que contém `src`, `sql` e `.vscode`, se preferir.
 2. Instale **Extension Pack for Java**, da Microsoft, quando o editor oferecer as extensões recomendadas. Nesta máquina ele já está instalado.
 3. Tenha JDK 17 ou posterior e PostgreSQL instalados. A compilação usa `--release 17`; os scripts procuram instalações padrão ou `JAVA_HOME` e `OBOTBARATO_PG_BIN`.

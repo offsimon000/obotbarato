@@ -6,7 +6,7 @@ A busca de produtos ignora acentos, caixa e espaços extras; aceita fragmentos e
 
 ## Execução e dados
 
-Abra OBotBarato.code-workspace no VS Code e use F5. A configuração .vscode compila, prepara o banco e inicia TelaLoginUnificado. A base persistente existente e seus dados são preservados. Não há lançadores CMD ou arquivos NetBeans/Ant na entrega. Pré-requisitos e tarefas: EXECUTAR_VS_CODE.md e README.
+Para uso sem o editor, abra **Executar OBotBarato** na Área de Trabalho ou na pasta do projeto. `scripts/criar-atalho.ps1` recria os atalhos locais; `scripts/abrir-desktop.ps1` prepara o ambiente e inicia javaw sem console permanente. Como alternativa de desenvolvimento, abra OBotBarato.code-workspace no VS Code e use F5. As duas formas iniciam TelaLoginUnificado e preservam a base e seus dados. Não há lançadores CMD ou arquivos NetBeans/Ant na entrega. Pré-requisitos e tarefas: EXECUTAR_VS_CODE.md e README.
 
 O catálogo de demonstração possui 30 produtos. A carga diária acrescenta 20 clientes e 60 pedidos fictícios, com 18 avaliações e 40 favoritos; não duplica nem repõe estoque ao ser repetida. Guia: SIMULACAO_USO_DIARIO.md. Valores do dashboard variam conforme novas operações.
 

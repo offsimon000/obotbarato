@@ -331,15 +331,17 @@ Scripts e evidências permanecem em test, scripts e docs/validacao-*.txt. A veri
 <!-- página -->
 # 8 Execução e apresentação
 
-Instale JDK 17 ou posterior, PostgreSQL e VS Code com Extension Pack for Java. Abra OBotBarato.code-workspace e pressione F5 com OBotBarato - Desktop selecionado. A tarefa anterior compila os fontes, inicia ou prepara o banco e aplica migrations; depois o depurador abre a tela de login. Ctrl+Shift+B compila e Shift+F5 encerra a sessão depurada.
+Instale JDK 17 ou posterior e PostgreSQL. Abra Executar OBotBarato na Área de Trabalho para usar sem o editor. scripts/criar-atalho.ps1 cria os atalhos e deve ser repetido após mover a pasta. O atalho prepara o ambiente, compila quando necessário e inicia javaw sem console permanente. Atalhos locais não são versionados.
 
-Em uma cópia nova, use Terminal, Executar Tarefa, OBotBarato: carregar demonstração para instalar o catálogo e a carga diária. Na instalação de desenvolvimento, já existem esses dados. A carga é manual com backup e reaplicação protegida. Para alterações de código, feche todas as janelas antigas e execute novamente; sair para o login conserva o mesmo processo Java.
+Para desenvolver, use VS Code com Extension Pack for Java: abra OBotBarato.code-workspace e pressione F5, selecionando OBotBarato - Desktop. Ctrl+Shift+B compila e Shift+F5 encerra a depuração. As duas formas executam a mesma aplicação e usam os mesmos dados.
 
-Contas fictícias iniciais: admin/admin123, vendedor/vendedor123 e cliente@demo.local/cliente123. Clientes da carga usam cliente01@uso.obotbarato.test até cliente20@uso.obotbarato.test, senha demo12345. Se as senhas forem alteradas durante o uso, a preparação conserva as novas. São contas de demonstração e não credenciais de um serviço real.
+Em uma cópia nova, a tarefa OBotBarato: carregar demonstração instala o catálogo e a carga diária, manualmente e com backup. Nesta máquina já foram instalados. Para carregar alterações de código, feche o aplicativo e reabra; sair para o login mantém o mesmo processo Java.
 
-A pasta .local/desenvolvimento conserva dados. Backup é feito pela tarefa correspondente ou scripts/backup.ps1. scripts/restaurar-backup.ps1 restaura em banco novo, deixando o principal intacto. Configurações reais, backups e diretórios de dados não pertencem ao envio Git. A instalação externa requer base nova UTF-8 e configuração indicada no README; não há conversão automática de uma base antiga para este esquema.
+Contas fictícias: admin/admin123, vendedor/vendedor123 e cliente@demo.local/cliente123. A carga usa cliente01@uso.obotbarato.test até cliente20@uso.obotbarato.test, senha demo12345. A preparação conserva senhas alteradas. São contas de demonstração.
 
-O roteiro docs/REVISAO_E_APRESENTACAO.md orienta o ensaio: catálogo e busca, carrinho/checkout com cupom, pedido, avanço pela equipe, avaliação, indicadores e venda no balcão. Os slides e documentos consolidados estão em docs/final; diagramas possuem fonte PlantUML editável. O pacote em entrega reúne fontes e distribuição compilada e requer os pré-requisitos instalados. O envio ao GitHub é posterior à revisão dos autores.
+A pasta .local/desenvolvimento conserva dados. scripts/backup.ps1 produz backup; scripts/restaurar-backup.ps1 restaura em banco novo, preservando o principal. Configurações reais, backups e dados locais não são enviados ao Git. Banco externo exige base nova UTF-8 e configuração do README; não há conversão automática de dados legados.
+
+O roteiro docs/REVISAO_E_APRESENTACAO.md orienta o ensaio de compra, gestão, avaliação, indicadores e balcão. Documentos e slides estão em docs/final; diagramas têm fonte PlantUML. O pacote em entrega inclui fontes, distribuição e scripts e exige os pré-requisitos instalados. O envio ao GitHub ocorre depois da revisão dos autores.
 
 <!-- página -->
 # 9 Conclusão

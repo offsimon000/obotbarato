@@ -4,7 +4,7 @@ Entrega desktop para 28/10/2026. Revise a identificação dos autores, o texto a
 
 ## Abrir e revisar
 
-1. Abra OBotBarato.code-workspace no VS Code e use F5. Feche todas as janelas da versão anterior antes de atualizar.
+1. Dê dois cliques em **Executar OBotBarato** na Área de Trabalho. Para editar/depurar, a alternativa é abrir OBotBarato.code-workspace no VS Code e usar F5. Feche todas as janelas da versão anterior antes de atualizar.
 2. Leia docs/final/Documentacao_OBotBarato.pdf; o Word correspondente permite editar. Confira instituição, autores, orientação e eventuais exigências de formatação do professor.
 3. Confira MATRIZ_RASTREABILIDADE.md e DICIONARIO_BANCO.md para localizar a implementação de cada requisito. Diagramas PNG e fontes PlantUML estão em diagramas.
 4. Ensaie com os slides de docs/final e o roteiro abaixo. Há PPTX editável e PDF para apresentar sem PowerPoint. Faça backup antes de mudar dados para a demonstração.

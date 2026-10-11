@@ -2,6 +2,18 @@
 
 Sistema acadêmico **desktop Java Swing com PostgreSQL** para perfumaria e cosméticos. Projeto de Sistemas de Informação da UNIPAR, Paranavaí, de Giovana Paula Felix dos Santos e Samuel da Silva Guimarães, sob orientação do Prof. Me. Jaime William Dias. Apresentação prevista para **28/10/2026**.
 
+## Abrir sem o VS Code
+
+Nesta máquina, dê dois cliques em **Executar OBotBarato**, na Área de Trabalho. Há também um atalho com esse nome na pasta do projeto. Ele prepara/reutiliza o banco, compila somente quando necessário e abre a janela do sistema sem carregar as extensões Java/Spring do editor. O PowerShell termina após iniciar o aplicativo; os dados existentes são conservados.
+
+Em outra máquina ou depois de mover a pasta, crie os atalhos novamente, na raiz do projeto:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/criar-atalho.ps1
+```
+
+Atalhos `.lnk` contêm caminhos locais e são ignorados pelo Git. O pacote inclui os scripts para gerá-los, sem lançadores `.cmd`. JDK e PostgreSQL continuam necessários. Problemas de abertura são mostrados em uma janela e registrados em `.local/abertura-desktop.log`.
+
 ## Executar pelo VS Code
 
 1. Instale **JDK 17 ou posterior**, **PostgreSQL** e **VS Code** com **Extension Pack for Java**.
