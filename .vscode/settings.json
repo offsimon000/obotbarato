@@ -4,6 +4,7 @@
   "java.project.outputPath": "build/vscode-classes",
   "java.project.referencedLibraries": ["lib/postgresql-42.7.13.jar"],
   "java.configuration.updateBuildConfiguration": "automatic",
+  "java.transport": "stdio",
   "java.debug.settings.console": "integratedTerminal",
   "java.debug.settings.hotCodeReplace": "never",
   "files.exclude": {"build": true, "dist": true, ".local": true},

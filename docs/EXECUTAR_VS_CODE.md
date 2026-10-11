@@ -21,6 +21,7 @@ O banco próprio fica em `.local/desenvolvimento`. Configuração e senha reais 
 
 ## Problemas comuns
 
+- **`sts.java.addClasspathListener already exists`:** a extensão Java 1.56 pode iniciar dois clientes ao tentar recuperar a conexão. O projeto usa `java.transport: stdio`, conforme o [contorno indicado pelo mantenedor](https://github.com/redhat-developer/vscode-java/issues/4501). Abra a pasta OBotBarato, pressione Ctrl+Shift+P, execute **Developer: Reload Window**, aguarde o Java carregar e tente F5 novamente. Recarregar é necessário para encerrar os clientes antigos. Se continuar, atualize **Language Support for Java by Red Hat** para uma versão que contenha a correção de startup, usando o painel de extensões.
 - **JDK não encontrado:** instale JDK 17+, configure `JAVA_HOME` para sua pasta e reabra o editor. Em **Java: Configure Java Runtime**, escolha esse JDK para projetos sem ferramenta de build.
 - **PostgreSQL não encontrado:** instale PostgreSQL ou informe `OBOTBARATO_PG_BIN` com a pasta `bin`. O projeto foi validado com PostgreSQL 18 e codificação UTF-8.
 - **PowerShell bloqueado:** as tarefas usam `-ExecutionPolicy Bypass` somente no processo chamado; não alteram a política global do Windows.

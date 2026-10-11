@@ -1,3 +1,4 @@
 {
-  "folders": [{"path": "."}]
+  "folders": [{"path": "."}],
+  "settings": {"java.transport": "stdio"}
 }
