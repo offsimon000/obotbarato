@@ -1,10 +1,10 @@
 # Como testar as partes 1 e 2
 
-Parte 1 = organização, execução, banco e integridade (etapas 1 a 3 do plano). Parte 2 = cadastros, permissões, acesso e catálogo (etapa 4). Compra/pagamento e gestão/cancelamento também foram implementados; roteiros em COMPRA_E_PAGAMENTO_SIMULADO.md e GESTAO_E_CANCELAMENTO_PEDIDOS.md. Os módulos complementares continuam nos próximos blocos.
+Parte 1 = organização, execução, banco e integridade (etapas 1 a 3 do plano). Parte 2 = cadastros, permissões, acesso e catálogo (etapa 4). Compra/pagamento e gestão/cancelamento também foram implementados; roteiros em COMPRA_E_PAGAMENTO_SIMULADO.md e GESTAO_E_CANCELAMENTO_PEDIDOS.md. Perfil, cupons, avaliações, notificações, dashboard e relatórios também estão implementados; consulte os guias correspondentes.
 
 ## Abrir o aplicativo
 
-1. Abra a pasta `OBotBarato` e dê dois cliques em **Iniciar OBotBarato.cmd**. O lançador compila se necessário, inicia o banco local e aplica as migrations pendentes.
+1. Abra `OBotBarato.code-workspace` no VS Code e pressione **F5**. O lançador compila se necessário, inicia o banco local e aplica as migrations pendentes.
 2. Aguarde a tela de login. É necessário Java JDK 17 e PostgreSQL instalados; ambos já foram identificados nesta máquina.
 3. Use as contas fictícias abaixo. Não altere suas senhas/logins durante o roteiro; crie contas adicionais para testar manutenção.
 
@@ -60,7 +60,7 @@ Os testes automáticos também tentam chamar diretamente as operações sem auto
 
 ## Testes automáticos
 
-Você também pode dar dois cliques em **Testar Partes 1 e 2.cmd** para executar os dois roteiros. Feche o aplicativo antes do roteiro que reinicia o banco. Abra PowerShell na pasta `OBotBarato` e execute:
+No VS Code, execute as tarefas **OBotBarato: testar integração** e **OBotBarato: verificar persistência** para os dois roteiros. Feche o aplicativo antes do roteiro que reinicia o banco. Abra PowerShell na pasta `OBotBarato` e execute:
 
 ```powershell
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\testar-integracao.ps1

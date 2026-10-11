@@ -1,0 +1,33 @@
+@startuml
+!pragma layout smetana
+skinparam backgroundColor white
+skinparam defaultFontName Arial
+skinparam defaultFontSize 15
+skinparam shadowing false
+skinparam roundcorner 0
+skinparam ArrowColor #2459D9
+skinparam classBackgroundColor #F4F7FC
+skinparam classBorderColor #2459D9
+skinparam packageStyle rectangle
+actor Pessoa
+participant TelaLoginUnificado as Tela
+participant "UsuarioDAO ou ClienteLojaDAO" as DAO
+participant SenhaCripto
+participant Sessao
+database PostgreSQL as BD
+Pessoa -> Tela : informar identidade e senha
+Tela -> DAO : autenticar(...)
+DAO -> BD : consultar identidade ativa
+BD --> DAO : registro com hash
+DAO -> SenhaCripto : verificar senha
+SenhaCripto --> DAO : válida ou inválida
+alt senha válida
+ DAO -> BD : migrar hash legado se necessário
+ DAO --> Tela : Usuario ou Cliente
+ Tela -> Sessao : iniciar identidade
+ Tela --> Pessoa : painel ou loja
+else senha inválida ou cadastro inativo
+ DAO --> Tela : autenticação recusada
+ Tela --> Pessoa : mensagem sem abrir sessão
+end
+@enduml

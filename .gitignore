@@ -2,5 +2,9 @@
 /dist/
 /.local/
 /config/banco.properties
-/nbproject/private/
+/entrega/
+~$*.docx
+~$*.pptx
 *.log
+__pycache__/
+*.pyc

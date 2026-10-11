@@ -1,0 +1,69 @@
+@startuml
+!pragma layout smetana
+skinparam backgroundColor white
+skinparam defaultFontName Arial
+skinparam defaultFontSize 15
+skinparam shadowing false
+skinparam roundcorner 0
+skinparam ArrowColor #2459D9
+skinparam classBackgroundColor #F4F7FC
+skinparam classBorderColor #2459D9
+skinparam packageStyle rectangle
+hide methods
+entity "pedidos" as pedidos {
+ PK id : int4
+ FK id_cliente : int4
+ data_pedido : timestamp
+ status : varchar
+ total : numeric
+ FK registrado_por : int4
+ origem : varchar
+ chave_compra : uuid
+ FK id_cupom : int4
+}
+entity "itens_pedido" as itens_pedido {
+ PK id : int4
+ FK id_pedido : int4
+ FK id_produto : int4
+ quantidade : int4
+ preco_unitario : numeric
+}
+entity "pagamentos" as pagamentos {
+ PK FK id_pedido : int4
+ metodo : varchar
+ status : varchar
+ simulado : bool
+ criado_em : timestamp
+ confirmado_em : timestamp
+ FK confirmado_por : int4
+ cancelado_em : timestamp
+}
+entity "historico_pedidos" as historico_pedidos {
+ PK id : int8
+ FK id_pedido : int4
+ data_evento : timestamp
+ status_anterior : varchar
+ status_novo : varchar
+ motivo : varchar
+ responsavel : varchar
+ FK id_usuario : int4
+ FK id_cliente : int4
+}
+entity "cupons" as cupons {
+ PK id : int4
+ codigo : varchar
+ percentual : numeric
+ inicio : date
+ fim : date
+ ativo : bool
+ FK criado_por : int4
+ FK atualizado_por : int4
+ atualizado_em : timestamp
+}
+pedidos ||--o{ itens_pedido : id_pedido
+pedidos ||--o| pagamentos : id_pedido
+pedidos ||--o{ historico_pedidos : id_pedido
+cupons |o--o{ pedidos : id_cupom
+note "Campos estruturais do módulo.\nFK externas: clientes.id, produtos.id, usuarios.id\nCampos completos no DICIONARIO_BANCO.md.\nCardinalidade geral 1 para muitos; PK compartilhada limita a 1 para 0 ou 1." as legenda
+
+@enduml

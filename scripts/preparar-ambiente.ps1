@@ -47,4 +47,4 @@ try {
 Invoke-JavaProjeto 'util.InicializarBanco' $ambiente.Config @('--demo')
 Copy-Item -LiteralPath $ambiente.Config -Destination $configOficial -Force
 Invoke-JavaProjeto 'util.DiagnosticoBanco' $ambiente.Config
-Write-Host 'Ambiente local pronto. Use Iniciar OBotBarato.cmd ou scripts/executar.ps1.'
+Write-Host 'Ambiente local pronto. Use F5 no VS Code ou scripts/executar.ps1.'

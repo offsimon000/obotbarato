@@ -57,6 +57,6 @@ Reexecutar com os nomes/categorias originais reutiliza os IDs, não duplica prod
 
 ## Consultar e testar
 
-Abra `Iniciar OBotBarato.cmd` e entre como cliente. A loja deve mostrar 30 produtos ao limpar filtros. Use as categorias para navegar; **Ver detalhes** mostra imagem maior, descrição, preço e saldo. Favoritos e carrinho continuam revalidando disponibilidade. Admin mantém os produtos pela tela Produtos, incluindo os antigos inativos.
+Abra **F5 no VS Code** e entre como cliente. A loja deve mostrar 30 produtos ao limpar filtros. Use as categorias para navegar; **Ver detalhes** mostra imagem maior, descrição, preço e saldo. Favoritos e carrinho continuam revalidando disponibilidade. Admin mantém os produtos pela tela Produtos, incluindo os antigos inativos.
 
 `test/CatalogoApresentacao.java` usa apenas `obotbarato_test`: simula falha no arquivamento depois da criação, confere rollback, 30 imagens distintas, seis produtos por categoria, pedidos preservados e reexecução sem reposição de saldo. Também carrega a loja e aciona Ver detalhes, sem mostrar janelas ao usuário. O script de integração inclui essa verificação ao final. Evidência: `docs/validacao-catalogo.txt`; capturas da loja, detalhes e visão dos 30 itens: `docs/validacao-ui/catalogo-*.png`.

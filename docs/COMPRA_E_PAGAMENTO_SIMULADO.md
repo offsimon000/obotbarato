@@ -21,11 +21,11 @@ Desktop Swing, mantendo o tema existente. A etapa implementa compra, descontos, 
 
 Pedidos anteriores recebem subtotal igual ao total, desconto zero, origem balcão e pagamento em dinheiro correspondente ao status anterior. As vendas do painel continuam com desconto zero/pagamento fictício em dinheiro; sua gravação agora revalida preço e ativação do produto e é exclusiva da equipe.
 
-Com a V4, toda compra nova da loja começa `aberto`, com pagamento próprio pendente/confirmado. A confirmação de boleto muda somente o pagamento e registra evento no histórico. Preparo/envio/entrega são operações separadas da equipe. Faturamento soma total final de pedidos não cancelados com pagamento confirmado; a revisão completa de rankings/exportação permanece na etapa 8.
+Com a V4, toda compra nova da loja começa `aberto`, com pagamento próprio pendente/confirmado. A confirmação de boleto muda somente o pagamento e registra evento no histórico. Preparo/envio/entrega são operações separadas da equipe. Faturamento soma total final de pedidos não cancelados com pagamento confirmado; ranking e exportação usam as regras de DASHBOARD_RELATORIOS_E_NAVEGACAO.md.
 
 ## Como testar manualmente
 
-1. Abra `Iniciar OBotBarato.cmd`; entre como cliente de demonstração (`cliente@demo.local` / `cliente123`).
+1. Abra **F5 no VS Code**; entre como cliente de demonstração (`cliente@demo.local` / `cliente123`).
 2. Adicione um produto pela loja e outro pelos favoritos. No carrinho, altere a quantidade, remova um item e confira o total. Quantidade zero ou maior que o estoque deve ser recusada.
 3. Finalize a compra. Revise destinatário, telefone e endereço; avance ao pagamento.
 4. Selecione PIX e confira 10% de desconto, ou débito e 5%. Para um subtotal de R$ 99,99, PIX desconta R$ 10,00 e totaliza R$ 89,99; débito desconta R$ 5,00 e totaliza R$ 94,99.

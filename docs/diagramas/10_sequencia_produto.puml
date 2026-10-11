@@ -1,0 +1,30 @@
+@startuml
+!pragma layout smetana
+skinparam backgroundColor white
+skinparam defaultFontName Arial
+skinparam defaultFontSize 15
+skinparam shadowing false
+skinparam roundcorner 0
+skinparam ArrowColor #2459D9
+skinparam classBackgroundColor #F4F7FC
+skinparam classBorderColor #2459D9
+skinparam packageStyle rectangle
+actor Administrador
+participant FormularioProduto as Tela
+participant ProdutoDAO
+participant EstoqueDAO
+database PostgreSQL as BD
+Administrador -> Tela : dados categoria imagem saldo e mínimo
+Tela -> ProdutoDAO : salvar(Produto)
+ProdutoDAO -> BD : BEGIN validar admin e categoria ativa
+ProdutoDAO -> BD : inserir produto
+ProdutoDAO -> EstoqueDAO : registrar abertura na mesma conexão
+EstoqueDAO -> BD : estoque movimento e eventual alerta
+alt tudo válido
+ ProdutoDAO -> BD : COMMIT
+ ProdutoDAO --> Tela : sucesso com ID
+else validação ou SQL falha
+ ProdutoDAO -> BD : ROLLBACK
+ ProdutoDAO --> Tela : erro sem produto parcial
+end
+@enduml

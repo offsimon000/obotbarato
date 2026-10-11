@@ -4,6 +4,7 @@ import model.Produto;
 import util.ConexaoBanco;
 import util.Sessao;
 import util.Transacao;
+import util.BuscaTexto;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,8 +17,9 @@ public class ProdutoDAO {
     /** Catálogo e saldo em uma consulta, sem consulta extra para cada cartão. */
     public List<Disponivel> listarCatalogo(String busca)throws SQLException{
         List<Disponivel> lista=new ArrayList<>();
-        try(Connection c=ConexaoBanco.getConexao();PreparedStatement p=c.prepareStatement("SELECT p.*,cat.nome AS nome_categoria,e.quantidade,COALESCE(av.media,0) media,COALESCE(av.avaliacoes,0) avaliacoes FROM produtos p JOIN categorias cat ON cat.id=p.id_categoria JOIN estoque e ON e.id_produto=p.id"+MEDIA+"WHERE p.ativo AND cat.ativo AND strpos(lower(p.nome),lower(?))>0 ORDER BY p.nome")){
-            p.setString(1,busca==null?"":busca.trim());try(ResultSet r=p.executeQuery()){while(r.next())lista.add(new Disponivel(mapear(r),r.getInt("quantidade"),r.getBigDecimal("media"),r.getLong("avaliacoes")));}
+        BuscaTexto.Filtro filtro=BuscaTexto.porPalavras("p.nome",busca);
+        try(Connection c=ConexaoBanco.getConexao();PreparedStatement p=c.prepareStatement("SELECT p.*,cat.nome AS nome_categoria,e.quantidade,COALESCE(av.media,0) media,COALESCE(av.avaliacoes,0) avaliacoes FROM produtos p JOIN categorias cat ON cat.id=p.id_categoria JOIN estoque e ON e.id_produto=p.id"+MEDIA+"WHERE p.ativo AND cat.ativo AND "+filtro.sql()+" ORDER BY p.nome")){
+            filtro.aplicar(p);try(ResultSet r=p.executeQuery()){while(r.next())lista.add(new Disponivel(mapear(r),r.getInt("quantidade"),r.getBigDecimal("media"),r.getLong("avaliacoes")));}
         }return lista;
     }
     public Disponivel buscarParaCarrinho(int id) throws SQLException {
@@ -28,8 +30,9 @@ public class ProdutoDAO {
     }
     public List<Produto> listarManutencao(String busca) throws SQLException {
         util.Acesso.equipe(); List<Produto> lista=new ArrayList<>();
-        try(Connection c=ConexaoBanco.getConexao(); PreparedStatement ps=c.prepareStatement("SELECT p.*,c.nome AS nome_categoria FROM produtos p LEFT JOIN categorias c ON c.id=p.id_categoria WHERE p.nome ILIKE ? ORDER BY p.nome")){
-            ps.setString(1,"%"+busca.trim()+"%");try(ResultSet r=ps.executeQuery()){while(r.next())lista.add(mapear(r));}
+        BuscaTexto.Filtro filtro=BuscaTexto.porPalavras("p.nome",busca);
+        try(Connection c=ConexaoBanco.getConexao(); PreparedStatement ps=c.prepareStatement("SELECT p.*,c.nome AS nome_categoria FROM produtos p LEFT JOIN categorias c ON c.id=p.id_categoria WHERE "+filtro.sql()+" ORDER BY p.nome")){
+            filtro.aplicar(ps);try(ResultSet r=ps.executeQuery()){while(r.next())lista.add(mapear(r));}
         }return lista;
     }
     public Produto buscarPorId(int id) throws SQLException {
@@ -59,15 +62,15 @@ public class ProdutoDAO {
 
     public List<Produto> buscarPorNome(String nome) throws SQLException {
         List<Produto> lista = new ArrayList<>();
-        // PostgreSQL: ILIKE para busca case-insensitive (MySQL usava LIKE que já ignora case)
+        BuscaTexto.Filtro filtro=BuscaTexto.porPalavras("p.nome",nome);
         String sql = "SELECT p.*, c.nome AS nome_categoria "
                    + "FROM produtos p "
                    + "LEFT JOIN categorias c ON p.id_categoria = c.id "
-                   + "WHERE p.ativo = true AND c.ativo = true AND p.nome ILIKE ? "
+                   + "WHERE p.ativo = true AND c.ativo = true AND "+filtro.sql()+" "
                    + "ORDER BY p.nome";
         try (Connection con = ConexaoBanco.getConexao();
              PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setString(1, "%" + nome.trim() + "%");
+            filtro.aplicar(ps);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) lista.add(mapear(rs));
         } catch (SQLException e) { throw e; }

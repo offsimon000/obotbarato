@@ -32,7 +32,7 @@ Os novos clientes usam `cliente01@uso.obotbarato.test` até `cliente20@uso.obotb
 
 ## Como conferir
 
-1. Reabra `Iniciar OBotBarato.cmd`, entre com `admin` / `admin123` e abra Dashboard. Confira movimento em outubro, gráficos, boletos pendentes e estoque crítico.
+1. Reabra **F5 no VS Code**, entre com `admin` / `admin123` e abra Dashboard. Confira movimento em outubro, gráficos, boletos pendentes e estoque crítico.
 2. Para ver toda a simulação, digite **13/09/2026** até **10/10/2026** e clique Atualizar. As vendas anteriores que estiverem nesse período também entram no relatório.
 3. Em Pedidos, filtre os cinco estados e as duas origens. Consulte detalhes para ver itens, descontos, histórico e responsáveis. Em Pagamentos, consulte boleto pendente; se confirmar algum, o faturamento muda.
 4. Em Estoque ou Relatórios → Estoque baixo, confira os três perfumes populares no mínimo. As baixas vêm das vendas; cancelamentos tiveram devolução única. Repor esses itens muda o indicador e o estado do alerta.

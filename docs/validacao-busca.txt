@@ -1,0 +1,9 @@
+OK 1: Acentos, caixa, espaços, ordem, hífen e Unicode decomposto equivalentes
+OK 2: Partes do nome e acentos portugueses, incluindo ç e marcas combinadas
+OK 3: Catálogo, busca por nome e manutenção de produtos usam a mesma regra
+OK 4: Loja preserva filtros de ativos; manutenção mantém acesso aos inativos
+OK 5: Percentual/sublinhado literais e valores preparados não ampliam a consulta
+OK 6: Busca vazia lista o catálogo, e todos os termos informados são necessários
+OK 7: Permissão da manutenção permanece protegida
+OK 8: Filtro Swing mostra produto sem acentos e preserva os dados
+APROVADO: 8 cenários de busca de produtos em PostgreSQL real e Swing.

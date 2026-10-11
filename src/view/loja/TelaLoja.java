@@ -147,6 +147,8 @@ public class TelaLoja extends JFrame {
         // Busca
         sb.add(TemaLoja.rotulo("BUSCAR")); sb.add(Box.createVerticalStrut(4));
         txtBusca = TemaLoja.campo(14);
+        txtBusca.setName("loja-busca");
+        txtBusca.setToolTipText("Digite partes do nome, com ou sem acentos; a ordem das palavras não importa.");
         txtBusca.setMaximumSize(new Dimension(Integer.MAX_VALUE, 36));
         txtBusca.setAlignmentX(Component.LEFT_ALIGNMENT);
         txtBusca.addActionListener(e->carregarProdutos());
@@ -245,7 +247,7 @@ public class TelaLoja extends JFrame {
                 int largura=painelGaleria.getParent().getWidth();
                 painelGaleria.setLayout(new GridLayout(0,Math.max(2,Math.min(4,(largura-32)/245)),14,14));
             }
-            quantidadeProdutos.setText(produtosExibidos.size()+" produtos encontrados • Revise quantidades e entrega no carrinho");
+            quantidadeProdutos.setText((produtosExibidos.size()==1?"1 produto encontrado":produtosExibidos.size()+" produtos encontrados")+" • Revise quantidades e entrega no carrinho");
         } catch (Exception ex) {
             quantidadeProdutos.setText("Não foi possível atualizar o catálogo.");avisoLoja.setText(util.Erros.mensagem(ex));
         }

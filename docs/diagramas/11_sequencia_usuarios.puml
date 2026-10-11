@@ -1,0 +1,33 @@
+@startuml
+!pragma layout smetana
+skinparam backgroundColor white
+skinparam defaultFontName Arial
+skinparam defaultFontSize 15
+skinparam shadowing false
+skinparam roundcorner 0
+skinparam ArrowColor #2459D9
+skinparam classBackgroundColor #F4F7FC
+skinparam classBorderColor #2459D9
+skinparam packageStyle rectangle
+actor Administrador
+participant TelaUsuarios as Tela
+participant UsuarioDAO as DAO
+participant SenhaCripto
+database PostgreSQL as BD
+Administrador -> Tela : cadastrar editar ou desativar
+Tela -> DAO : salvar(Usuario) ou atualizar(Usuario)
+DAO -> BD : BEGIN e advisory lock
+DAO -> BD : validar admin login único e último admin ativo
+opt senha nova
+ DAO -> SenhaCripto : hashear(senha)
+ SenhaCripto --> DAO : PBKDF2 com salt
+end
+DAO -> BD : persistir usuário
+alt estado válido
+ DAO -> BD : COMMIT
+ DAO --> Tela : sucesso
+else erro ou último admin removido
+ DAO -> BD : ROLLBACK
+ DAO --> Tela : recusado
+end
+@enduml

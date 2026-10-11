@@ -41,7 +41,7 @@ Faturamento por período usa **total final de pedidos não cancelados com pagame
 
 ## Como testar pela interface
 
-1. Abra `Iniciar OBotBarato.cmd`. Entre como cliente (`cliente@demo.local` / `cliente123`) e compre um produto por PIX. Anote número e estoque anterior.
+1. Abra **F5 no VS Code**. Entre como cliente (`cliente@demo.local` / `cliente123`) e compre um produto por PIX. Anote número e estoque anterior.
 2. Em **Meus pedidos**, confira pedido **Aberto**, pagamento **confirmado**, valores e endereço em **Detalhes e histórico**. A criação deve aparecer no acompanhamento.
 3. Saia e entre como vendedor (`vendedor` / `vendedor123`) → **Pedidos**. Filtre por nome/e-mail, data `dd/mm/aaaa` (barras automáticas), estado e origem Loja. Filtros vazios mostram todas as opções autorizadas.
 4. Selecione o pedido e clique **Avançar entrega**. Confirme: fica **Em preparo**. Confira data e vendedor no histórico. Repita para **Enviado** e **Entregue**, uma etapa por vez. Cliente consulta o mesmo acompanhamento ao atualizar sua lista.
@@ -54,12 +54,12 @@ Faturamento por período usa **total final de pedidos não cancelados com pagame
 
 ## Verificação automática
 
-`Testar Partes 1 e 2.cmd` também inclui esta etapa. Feche o aplicativo antes de executar, pois a segunda parte reinicia o banco local.
+**tarefas de integração e persistência no VS Code** também inclui esta etapa. Feche o aplicativo antes de executar, pois a segunda parte reinicia o banco local.
 
 `scripts/testar-integracao.ps1` executa 20 regressões iniciais, 15 cenários de cadastros/acesso, 14 de compra/pagamento e **17 de gestão/cancelamento**, em cluster isolado. Inclui evolução V1/V3 → V4, disputa entre cancelamentos/avanços/envio/pagamento, falha após duas devoluções, privacidade, filtros e faturamento. Constrói 17 telas e aciona botões/Workers reais de checkout e gestão; o teste da gestão fornece as respostas de confirmação/motivo sem exibir diálogos. Evidência: `validacao-pedidos.txt`; capturas: `validacao-ui/gestao-pedidos.png` e `meus-pedidos.png`.
 
 `scripts/verificar-base.ps1` verifica reinício e restauração, incluindo histórico da retirada, pedido cancelado e devolução única. Usa registros próprios identificados e remove somente essas fixtures. O serviço PostgreSQL original continua preservado.
 
-Perfil, cupons, avaliações e notificações estão concluídos na etapa 7. Dashboard, relatórios e CSV também implementados. Revisão integrada final, documentação acadêmica e pacote final continuam pendentes.
+Perfil, cupons, avaliações e notificações estão concluídos na etapa 7. Dashboard, relatórios e CSV também implementados. A documentação consolidada e o roteiro da entrega estão em final e REVISAO_E_APRESENTACAO.md.
 
 Correção em 11/10/2026: formulário do balcão com seleção de produto/quantidade visível e tabela sem sobreposição, cliente sem CPF sem null, moeda brasileira e quantidade digitada aplicada. Fluxo Swing de seleção/conclusão/falha/rollback e redimensionamento: CORRECAO_TELA_BALCAO.md e validacao-venda-balcao.txt. A conferência visual na base local não criou novas vendas.

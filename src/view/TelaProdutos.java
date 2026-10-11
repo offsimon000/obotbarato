@@ -57,6 +57,7 @@ public class TelaProdutos extends JFrame {
         JPanel barraBusca = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 10));
         barraBusca.setBackground(Tema.BG_ESCURO);
         txtBusca = Tema.campo(24);
+        txtBusca.setToolTipText("Busque por partes do nome, com ou sem acentos e em qualquer ordem.");
         txtBusca.putClientProperty("JTextField.placeholderText", "Buscar produto...");
         JButton btnBuscar = Tema.botaoSecundario("Buscar");
         btnBuscar.addActionListener(e -> carregarTabela(txtBusca.getText()));

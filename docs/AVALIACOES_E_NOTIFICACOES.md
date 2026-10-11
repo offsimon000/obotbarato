@@ -1,6 +1,6 @@
 # Avaliações e notificações — etapa 7
 
-Bloco voltado à apresentação: avaliações de compras verificadas e caixa de avisos dentro do desktop, com o tema existente. Dashboard e revisão final dos relatórios ainda são o próximo bloco.
+Bloco voltado à apresentação: avaliações de compras verificadas e caixa de avisos dentro do desktop, com o tema existente. Dashboard e relatórios estão descritos em DASHBOARD_RELATORIOS_E_NAVEGACAO.md.
 
 ## Avaliações
 
@@ -39,7 +39,7 @@ V1 a V5 permanecem intactas. Pedidos, pagamentos, imagens, descontos e saldos an
 
 ## Roteiro para testar/apresentar
 
-1. Feche/reabra `Iniciar OBotBarato.cmd`. Cliente: `cliente@demo.local` / `cliente123`; admin: `admin` / `admin123`; vendedor: `vendedor` / `vendedor123`.
+1. Feche/reabra **F5 no VS Code**. Cliente: `cliente@demo.local` / `cliente123`; admin: `admin` / `admin123`; vendedor: `vendedor` / `vendedor123`.
 2. Compre um produto ativo pela loja. Abra Notificações: deve aparecer a criação e seu pagamento simulado. Marque o aviso como lido; filtre todas para reencontrá-lo.
 3. Como equipe, abra Pedidos e avance até entregue, uma etapa por vez. Cliente atualiza Notificações para acompanhar os eventos.
 4. Cliente → Meus pedidos → pedido entregue → Avaliar produtos. Dê nota 4 e comentário curto. Salve, volte à loja e clique Filtrar para atualizar: o cartão deve mostrar nota 4,0/5. Ver detalhes exibe o comentário.

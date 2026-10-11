@@ -14,7 +14,7 @@ Correções solicitadas após teste manual, mantendo o desktop e o tema branco/a
 
 ## Conferência manual
 
-1. Feche a versão que estava aberta e execute **Iniciar OBotBarato.cmd** para carregar a versão atual.
+1. Feche a versão que estava aberta e execute **F5 no VS Code** para carregar a versão atual.
 2. Admin → Clientes → Novo Cliente: confira campos largos; tente e-mail inválido e corrija preservando o texto.
 3. Relatórios → Vendas por dia: selecione tudo no início, digite `01102026`; no fim, `09102026`. Confira barras automáticas e datas válidas. Tente `31022026`: geração deve recusar.
 4. Em Pedidos, digite as datas sem barras e filtre. Detalhes/histórico devem mostrar dia/mês/ano.
@@ -29,6 +29,6 @@ Correções solicitadas após teste manual, mantendo o desktop e o tema branco/a
 
 Resultado em `validacao-interface.txt`. Capturas atuais em `validacao-ui/formulario-cliente.png`, `relatorios.png`, `loja.png`, `carrinho.png` e `meus-pedidos.png`.
 
-Sem alteração de migrations, esquema ou dados pessoais. Os testes usam base isolada e janelas não visíveis; não reiniciam o banco que estiver sendo usado pelo aplicativo do usuário. O roteiro completo de backup/reinício continua disponível em `Testar Partes 1 e 2.cmd`, que deve ser executado com o aplicativo fechado.
+Sem alteração de migrations, esquema ou dados pessoais. Os testes usam base isolada e janelas não visíveis; não reiniciam o banco que estiver sendo usado pelo aplicativo do usuário. O roteiro completo de backup/reinício continua disponível em **tarefas de integração e persistência no VS Code**, que deve ser executado com o aplicativo fechado.
 
 Atualização em 11/10/2026 — Criar conta: nome, e-mail, senha e confirmação identificados como obrigatórios; CPF, telefone e endereço identificados como opcionais no cadastro. Senha informa 8 a 128 caracteres. Observação esclarece que telefone/endereço são necessários para entrega. Regras de validação e banco preservadas; 70 fontes compiladas e formulário completo renderizado/inspecionado em validacao-ui/cadastro-campos.png, sem criar contas.

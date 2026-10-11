@@ -1,0 +1,17 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "java",
+      "name": "OBotBarato - Desktop",
+      "request": "launch",
+      "mainClass": "view.TelaLoginUnificado",
+      "cwd": "${workspaceFolder}",
+      "classPaths": ["${workspaceFolder}/build/classes", "${workspaceFolder}/lib/postgresql-42.7.13.jar"],
+      "sourcePaths": ["${workspaceFolder}/src"],
+      "vmArgs": ["-Dfile.encoding=UTF-8", "-Dobotbarato.config=${workspaceFolder}/config/banco.properties"],
+      "console": "integratedTerminal",
+      "preLaunchTask": "OBotBarato: preparar F5"
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+@startuml
+!pragma layout smetana
+skinparam backgroundColor white
+skinparam defaultFontName Arial
+skinparam defaultFontSize 15
+skinparam shadowing false
+skinparam roundcorner 0
+skinparam ArrowColor #2459D9
+skinparam classBackgroundColor #F4F7FC
+skinparam classBorderColor #2459D9
+skinparam packageStyle rectangle
+actor Cliente
+participant TelaCheckout as Tela
+participant Carrinho
+participant CompraDAO
+participant "CupomDAO e EstoqueDAO" as Regras
+database PostgreSQL as BD
+Cliente -> Tela : revisar entrega cupom e pagamento
+Tela -> Carrinho : iniciarCheckout()
+Carrinho --> Tela : cópia dos itens e UUID
+Tela -> CompraDAO : confirmar(... chave cupom percentual)
+CompraDAO -> BD : BEGIN e verificar UUID
+alt tentativa já gravada
+ BD --> CompraDAO : pedido original
+else compra nova
+ CompraDAO -> Regras : revalidar titular preço cupom e saldo
+ Regras -> BD : baixa condicionada e movimentos
+ CompraDAO -> BD : pedido itens pagamento histórico avisos
+ alt validações e gravações concluídas
+  CompraDAO -> BD : COMMIT
+ else falha
+  CompraDAO -> BD : ROLLBACK
+ end
+end
+CompraDAO --> Tela : Resultado ou erro
+alt sucesso
+ Tela -> Carrinho : concluir(chave)
+ Tela --> Cliente : confirmação única
+else falha
+ Tela -> Carrinho : liberar(chave) mantendo itens
+ Tela --> Cliente : revisar ou tentar novamente
+end
+@enduml

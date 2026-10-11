@@ -8,7 +8,7 @@ CPF ausente não aparece como `null`. Produto, preço unitário, subtotal, total
 
 ## Conferir
 
-1. Feche **todas as janelas** da versão antiga e abra `Iniciar OBotBarato.cmd`. Sair para o login ou fechar somente Nova venda não reinicia o processo Java e pode manter a tela antiga.
+1. Feche **todas as janelas** da versão antiga e abra **F5 no VS Code**. Sair para o login ou fechar somente Nova venda não reinicia o processo Java e pode manter a tela antiga.
 2. Painel → Pedidos → Nova venda no balcão. Escolha cliente e produto, digite quantidade e clique + Adicionar.
 3. Confira que os campos ficam acima do cabeçalho da tabela, sem sobreposição, inclusive com a janela menor. Cliente sem CPF mostra o nome sem `null`; valores usam vírgula decimal.
 4. Para registrar uma venda de teste, confira o total e clique Concluir retirada. Isso cria uma venda simulada e reduz o estoque. Para apenas conferir aparência, volte sem concluir.

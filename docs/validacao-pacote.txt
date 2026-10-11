@@ -1,0 +1,32 @@
+VALIDAÇÃO DA DISTRIBUIÇÃO EM 11/10/2026
+
+Pacote extraído em pasta própria dentro de AppData/Local/Temp, fora da pasta de desenvolvimento.
+OK: hashes SHA-256 de todos os arquivos extraídos.
+OK: sem config/banco.properties real, .local, banco, senhas técnicas ou arquivos CMD.
+OK: compilação das 71 fontes Java a partir da cópia.
+OK: preparação de cluster próprio e banco novo PostgreSQL 18.6 em UTF-8.
+OK: instalação e reexecução das migrations e demonstração básica.
+OK: catálogo de 30 produtos, imagens/preços/descrições e carga de 20 clientes/60 pedidos.
+OK: autenticação das contas fictícias.
+OK: fixture própria de venda, pagamento, imagem/saldo, cancelamento/devolução e histórico.
+OK: perfil/senha, cupom, avaliação, notificações e leitura preservados após reinício.
+OK: backup restaurado em banco novo; dados da fixture preservados e fixtures próprias removidas.
+OK: 23 instâncias de telas construídas no EDT na cópia.
+OK: ausência de driver JDBC identificada corretamente no teste negativo.
+OK: serviço PostgreSQL original conserva seu estado.
+OK: busca sem acentos/case/ordem na loja da cópia, sem modificar dados.
+OK: metadados do ambiente principal preservados.
+OK: cluster temporário da cópia encerrado ao final, dados de teste conservados.
+APROVADO: preparação, compilação, demonstração, persistência/restauração, telas e busca fora da pasta de desenvolvimento.
+
+VERIFICAÇÃO DA CONFIGURAÇÃO DO VS CODE
+OK: JSON de settings, extensions, tasks, launch e workspace válido.
+OK: dependências reais da tarefa preparar F5 executadas em sequência.
+OK: entrada view.TelaLoginUnificado com build/classes e driver JDBC.
+OK: VM conectada ao depurador Java JDI e janela da entrada oficial visível; VM criada pelo teste encerrada.
+Escopo: parâmetros equivalentes à configuração de depuração; não automatiza o teclado do editor.
+
+Scripts públicos: compilar.ps1, executar.ps1, instalar-catalogo.ps1, simular-uso-diario.ps1, verificar-base.ps1, parar-banco.ps1 e empacotar.ps1.
+Fontes públicos de verificação: test/CicloPersistencia.java, test/InicializacaoTelas.java, test/BuscaProdutos.java e test/ExecucaoDepurador.java.
+Logs brutos da preparação estão em build/finalizacao, ignorados pelo Git por conterem caminhos de ambiente.
+Pré-requisitos da entrega: Windows, JDK 17+ e PostgreSQL instalado; não são instalados a partir do ZIP.

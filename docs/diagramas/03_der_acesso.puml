@@ -1,0 +1,42 @@
+@startuml
+!pragma layout smetana
+skinparam backgroundColor white
+skinparam defaultFontName Arial
+skinparam defaultFontSize 15
+skinparam shadowing false
+skinparam roundcorner 0
+skinparam ArrowColor #2459D9
+skinparam classBackgroundColor #F4F7FC
+skinparam classBorderColor #2459D9
+skinparam packageStyle rectangle
+hide methods
+entity "usuarios" as usuarios {
+ PK id : int4
+ nome : varchar
+ login : varchar
+ senha : varchar
+ perfil : varchar
+ ativo : bool
+}
+entity "clientes" as clientes {
+ PK id : int4
+ nome : varchar
+ cpf : varchar
+ email : varchar
+ senha : varchar
+ ativo : bool
+ FK criado_por : int4
+}
+entity "acessos_cliente" as acessos_cliente {
+ PK FK id_cliente : int4
+ codigo_hash : bpchar
+ expira_em : timestamp
+ tentativas : int4
+ FK emitido_por : int4
+}
+usuarios |o--o{ clientes : criado_por
+clientes ||--o| acessos_cliente : id_cliente
+usuarios ||--o{ acessos_cliente : emitido_por
+note "Campos estruturais do módulo.\nFK externas: nenhuma\nCampos completos no DICIONARIO_BANCO.md.\nCardinalidade geral 1 para muitos; PK compartilhada limita a 1 para 0 ou 1." as legenda
+
+@enduml

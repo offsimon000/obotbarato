@@ -1,65 +1,65 @@
 OK: falha após inserir os produtos desfaz catálogo, estoque e movimentos; antigos preservados.
-OBB-001 | 59 | Aurora Floral Eau de Parfum 100 ml | R$ 129,90
-OBB-002 | 60 | Essência Amadeirada Eau de Parfum 100 ml | R$ 149,90
-OBB-003 | 61 | Brisa Cítrica Eau de Toilette 100 ml | R$ 109,90
-OBB-004 | 62 | Jardim de Rosas Eau de Parfum 75 ml | R$ 119,90
-OBB-005 | 63 | Noite Âmbar Eau de Parfum 100 ml | R$ 169,90
-OBB-006 | 64 | Body Splash Flor de Algodão 200 ml | R$ 49,90
-OBB-007 | 65 | Batom Velvet Vermelho Clássico 3,5 g | R$ 39,90
-OBB-008 | 66 | Batom Nude Rosado 3,5 g | R$ 39,90
-OBB-009 | 67 | Gloss Cristal Transparente 6 ml | R$ 29,90
-OBB-010 | 68 | Máscara de Cílios Preto Intenso 8 ml | R$ 44,90
-OBB-011 | 69 | Paleta de Sombras Tons Neutros 12 cores | R$ 89,90
-OBB-012 | 70 | Blush Compacto Pêssego 5 g | R$ 34,90
-OBB-013 | 71 | Creme Facial Conforto 50 g | R$ 59,90
-OBB-014 | 72 | Gel de Limpeza Suave 150 ml | R$ 39,90
-OBB-015 | 73 | Água Micelar Essencial 200 ml | R$ 34,90
-OBB-016 | 74 | Sérum Facial Toque de Seda 30 ml | R$ 69,90
-OBB-017 | 75 | Esfoliante Facial Gentil 75 g | R$ 44,90
-OBB-018 | 76 | Balm Labial Baunilha 10 g | R$ 19,90
-OBB-019 | 77 | Shampoo Brilho Diário 300 ml | R$ 29,90
-OBB-020 | 78 | Condicionador Toque Macio 300 ml | R$ 32,90
-OBB-021 | 79 | Máscara Capilar Nutritiva 250 g | R$ 49,90
-OBB-022 | 80 | Leave-in Leve 150 ml | R$ 39,90
-OBB-023 | 81 | Óleo para Pontas Argan 60 ml | R$ 44,90
-OBB-024 | 82 | Creme para Pentear Cachos 300 ml | R$ 34,90
-OBB-025 | 83 | Loção Corporal Baunilha 200 ml | R$ 39,90
-OBB-026 | 84 | Sabonete Líquido Floral 300 ml | R$ 24,90
-OBB-027 | 85 | Creme para Mãos Algodão 75 g | R$ 19,90
-OBB-028 | 86 | Esfoliante Corporal Coco 200 g | R$ 39,90
-OBB-029 | 87 | Kit Sabonetes Lavanda 3 unidades | R$ 29,90
-OBB-030 | 88 | Sais de Banho Lavanda 250 g | R$ 34,90
-CONCLUÍDO: 30 produtos novos; 22 anteriores desativados; saldos de produtos já importados preservados.
-OBB-001 | 59 | Aurora Floral Eau de Parfum 100 ml | R$ 129,90
-OBB-002 | 60 | Essência Amadeirada Eau de Parfum 100 ml | R$ 149,90
-OBB-003 | 61 | Brisa Cítrica Eau de Toilette 100 ml | R$ 109,90
-OBB-004 | 62 | Jardim de Rosas Eau de Parfum 75 ml | R$ 119,90
-OBB-005 | 63 | Noite Âmbar Eau de Parfum 100 ml | R$ 169,90
-OBB-006 | 64 | Body Splash Flor de Algodão 200 ml | R$ 49,90
-OBB-007 | 65 | Batom Velvet Vermelho Clássico 3,5 g | R$ 39,90
-OBB-008 | 66 | Batom Nude Rosado 3,5 g | R$ 39,90
-OBB-009 | 67 | Gloss Cristal Transparente 6 ml | R$ 29,90
-OBB-010 | 68 | Máscara de Cílios Preto Intenso 8 ml | R$ 44,90
-OBB-011 | 69 | Paleta de Sombras Tons Neutros 12 cores | R$ 89,90
-OBB-012 | 70 | Blush Compacto Pêssego 5 g | R$ 34,90
-OBB-013 | 71 | Creme Facial Conforto 50 g | R$ 59,90
-OBB-014 | 72 | Gel de Limpeza Suave 150 ml | R$ 39,90
-OBB-015 | 73 | Água Micelar Essencial 200 ml | R$ 34,90
-OBB-016 | 74 | Sérum Facial Toque de Seda 30 ml | R$ 69,90
-OBB-017 | 75 | Esfoliante Facial Gentil 75 g | R$ 44,90
-OBB-018 | 76 | Balm Labial Baunilha 10 g | R$ 19,90
-OBB-019 | 77 | Shampoo Brilho Diário 300 ml | R$ 29,90
-OBB-020 | 78 | Condicionador Toque Macio 300 ml | R$ 32,90
-OBB-021 | 79 | Máscara Capilar Nutritiva 250 g | R$ 49,90
-OBB-022 | 80 | Leave-in Leve 150 ml | R$ 39,90
-OBB-023 | 81 | Óleo para Pontas Argan 60 ml | R$ 44,90
-OBB-024 | 82 | Creme para Pentear Cachos 300 ml | R$ 34,90
-OBB-025 | 83 | Loção Corporal Baunilha 200 ml | R$ 39,90
-OBB-026 | 84 | Sabonete Líquido Floral 300 ml | R$ 24,90
-OBB-027 | 85 | Creme para Mãos Algodão 75 g | R$ 19,90
-OBB-028 | 86 | Esfoliante Corporal Coco 200 g | R$ 39,90
-OBB-029 | 87 | Kit Sabonetes Lavanda 3 unidades | R$ 29,90
-OBB-030 | 88 | Sais de Banho Lavanda 250 g | R$ 34,90
+OBB-001 | 66 | Aurora Floral Eau de Parfum 100 ml | R$ 129,90
+OBB-002 | 67 | Essência Amadeirada Eau de Parfum 100 ml | R$ 149,90
+OBB-003 | 68 | Brisa Cítrica Eau de Toilette 100 ml | R$ 109,90
+OBB-004 | 69 | Jardim de Rosas Eau de Parfum 75 ml | R$ 119,90
+OBB-005 | 70 | Noite Âmbar Eau de Parfum 100 ml | R$ 169,90
+OBB-006 | 71 | Body Splash Flor de Algodão 200 ml | R$ 49,90
+OBB-007 | 72 | Batom Velvet Vermelho Clássico 3,5 g | R$ 39,90
+OBB-008 | 73 | Batom Nude Rosado 3,5 g | R$ 39,90
+OBB-009 | 74 | Gloss Cristal Transparente 6 ml | R$ 29,90
+OBB-010 | 75 | Máscara de Cílios Preto Intenso 8 ml | R$ 44,90
+OBB-011 | 76 | Paleta de Sombras Tons Neutros 12 cores | R$ 89,90
+OBB-012 | 77 | Blush Compacto Pêssego 5 g | R$ 34,90
+OBB-013 | 78 | Creme Facial Conforto 50 g | R$ 59,90
+OBB-014 | 79 | Gel de Limpeza Suave 150 ml | R$ 39,90
+OBB-015 | 80 | Água Micelar Essencial 200 ml | R$ 34,90
+OBB-016 | 81 | Sérum Facial Toque de Seda 30 ml | R$ 69,90
+OBB-017 | 82 | Esfoliante Facial Gentil 75 g | R$ 44,90
+OBB-018 | 83 | Balm Labial Baunilha 10 g | R$ 19,90
+OBB-019 | 84 | Shampoo Brilho Diário 300 ml | R$ 29,90
+OBB-020 | 85 | Condicionador Toque Macio 300 ml | R$ 32,90
+OBB-021 | 86 | Máscara Capilar Nutritiva 250 g | R$ 49,90
+OBB-022 | 87 | Leave-in Leve 150 ml | R$ 39,90
+OBB-023 | 88 | Óleo para Pontas Argan 60 ml | R$ 44,90
+OBB-024 | 89 | Creme para Pentear Cachos 300 ml | R$ 34,90
+OBB-025 | 90 | Loção Corporal Baunilha 200 ml | R$ 39,90
+OBB-026 | 91 | Sabonete Líquido Floral 300 ml | R$ 24,90
+OBB-027 | 92 | Creme para Mãos Algodão 75 g | R$ 19,90
+OBB-028 | 93 | Esfoliante Corporal Coco 200 g | R$ 39,90
+OBB-029 | 94 | Kit Sabonetes Lavanda 3 unidades | R$ 29,90
+OBB-030 | 95 | Sais de Banho Lavanda 250 g | R$ 34,90
+CONCLUÍDO: 30 produtos novos; 28 anteriores desativados; saldos de produtos já importados preservados.
+OBB-001 | 66 | Aurora Floral Eau de Parfum 100 ml | R$ 129,90
+OBB-002 | 67 | Essência Amadeirada Eau de Parfum 100 ml | R$ 149,90
+OBB-003 | 68 | Brisa Cítrica Eau de Toilette 100 ml | R$ 109,90
+OBB-004 | 69 | Jardim de Rosas Eau de Parfum 75 ml | R$ 119,90
+OBB-005 | 70 | Noite Âmbar Eau de Parfum 100 ml | R$ 169,90
+OBB-006 | 71 | Body Splash Flor de Algodão 200 ml | R$ 49,90
+OBB-007 | 72 | Batom Velvet Vermelho Clássico 3,5 g | R$ 39,90
+OBB-008 | 73 | Batom Nude Rosado 3,5 g | R$ 39,90
+OBB-009 | 74 | Gloss Cristal Transparente 6 ml | R$ 29,90
+OBB-010 | 75 | Máscara de Cílios Preto Intenso 8 ml | R$ 44,90
+OBB-011 | 76 | Paleta de Sombras Tons Neutros 12 cores | R$ 89,90
+OBB-012 | 77 | Blush Compacto Pêssego 5 g | R$ 34,90
+OBB-013 | 78 | Creme Facial Conforto 50 g | R$ 59,90
+OBB-014 | 79 | Gel de Limpeza Suave 150 ml | R$ 39,90
+OBB-015 | 80 | Água Micelar Essencial 200 ml | R$ 34,90
+OBB-016 | 81 | Sérum Facial Toque de Seda 30 ml | R$ 69,90
+OBB-017 | 82 | Esfoliante Facial Gentil 75 g | R$ 44,90
+OBB-018 | 83 | Balm Labial Baunilha 10 g | R$ 19,90
+OBB-019 | 84 | Shampoo Brilho Diário 300 ml | R$ 29,90
+OBB-020 | 85 | Condicionador Toque Macio 300 ml | R$ 32,90
+OBB-021 | 86 | Máscara Capilar Nutritiva 250 g | R$ 49,90
+OBB-022 | 87 | Leave-in Leve 150 ml | R$ 39,90
+OBB-023 | 88 | Óleo para Pontas Argan 60 ml | R$ 44,90
+OBB-024 | 89 | Creme para Pentear Cachos 300 ml | R$ 34,90
+OBB-025 | 90 | Loção Corporal Baunilha 200 ml | R$ 39,90
+OBB-026 | 91 | Sabonete Líquido Floral 300 ml | R$ 24,90
+OBB-027 | 92 | Creme para Mãos Algodão 75 g | R$ 19,90
+OBB-028 | 93 | Esfoliante Corporal Coco 200 g | R$ 39,90
+OBB-029 | 94 | Kit Sabonetes Lavanda 3 unidades | R$ 29,90
+OBB-030 | 95 | Sais de Banho Lavanda 250 g | R$ 34,90
 CONCLUÍDO: 0 produtos novos; 0 anteriores desativados; saldos de produtos já importados preservados.
 OK: 30 produtos, 5 categorias, preços/descrições e 30 imagens únicas; reexecução não duplica nem repõe saldo.
 APROVADO: importação atômica, históricos preservados, saldo idempotente e catálogo de 30 produtos carregado na loja.

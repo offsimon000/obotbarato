@@ -1,128 +1,99 @@
-# OBotBarato — desktop
+# OBotBarato
 
-Pasta oficial de desenvolvimento do projeto acadêmico. Aplicação Java Swing com PostgreSQL, mantendo o estilo visual original. Apresentação: **28/10/2026**.
+Sistema acadêmico **desktop Java Swing com PostgreSQL** para perfumaria e cosméticos. Projeto de Sistemas de Informação da UNIPAR, Paranavaí, de Giovana Paula Felix dos Santos e Samuel da Silva Guimarães, sob orientação do Prof. Me. Jaime William Dias. Apresentação prevista para **28/10/2026**.
 
-**Estado atual:** etapas 1 a 6 implementadas: fundação, cadastros, permissões, catálogo, compra/pagamento simulado e gestão/cancelamento de pedidos. Guias: `docs/COMO_TESTAR_PARTES_1_E_2.md`, `docs/PARTE_2_CADASTROS_E_ACESSO.md`, `docs/COMPRA_E_PAGAMENTO_SIMULADO.md` e `docs/GESTAO_E_CANCELAMENTO_PEDIDOS.md`. Os módulos da etapa 7 também estão implementados: perfil, cupons, avaliações, notificações e dashboard. Próximo bloco: revisão final integrada, documentação acadêmica e pacote. O plano completo está em `../analise/PLANO_FINALIZACAO_OBOTBARATO.md`; escopo e critérios estão em `docs/ESCOPO_E_CRITERIOS.md`. Os arquivos extraídos são referências preservadas.
+## Executar pelo VS Code
 
-Ajustes de interface de 09/10: datas brasileiras com barras automáticas, campos/botões corrigidos e navegação do cliente revisada. Como conferir: `docs/AJUSTES_INTERFACE_E_DATAS.md`; testes em `docs/validacao-interface.txt`.
+1. Instale **JDK 17 ou posterior**, **PostgreSQL** e **VS Code** com **Extension Pack for Java**.
+2. Abra **OBotBarato.code-workspace**, aguarde a importação do Java e pressione **F5** com **OBotBarato - Desktop** selecionado.
+3. Entre com uma das contas fictícias abaixo. A preparação compila e inicia um banco local próprio, sem usar o serviço PostgreSQL antigo.
+4. Em uma cópia nova, use **Terminal → Executar Tarefa → OBotBarato: carregar demonstração** para instalar o catálogo e o movimento fictício. Na base atual, eles já foram instalados.
 
-Catálogo de apresentação: 30 cosméticos fictícios com imagens próprias, descrições, preços e estoque. Cadastro/prompts/imagens estão em catalogo; regras, lista e importação manual em docs/CATALOGO_APRESENTACAO.md. A instalação local já recebeu esse catálogo; a demonstração básica de uma base nova continua separada. A loja permite abrir Ver detalhes para consultar descrição e imagem maior.
-
-Perfil e cupons também concluídos: Meu perfil na loja; Cupons no painel admin; APRESENTA10 para demonstração. Desconto do cupom antes do pagamento, com parcelas salvas no pedido. Regras/testes: `docs/PERFIL_E_CUPONS.md` e `docs/validacao-perfil-cupons.txt`. Avaliações e notificações também concluídas; dashboard e relatórios com exportação CSV também estão implementados. Guia: `docs/DASHBOARD_RELATORIOS_E_NAVEGACAO.md`.
-
-Avaliações e avisos internos: `docs/AVALIACOES_E_NOTIFICACOES.md` e `docs/validacao-avaliacoes-avisos.txt`. Cliente avalia produtos dos seus pedidos entregues; Notificações na loja e no painel, com leitura individual.
-
-Simulação de uso diário instalada: 20 clientes fictícios, 60 pedidos de loja/balcão em vários estados, cupons, avaliações, favoritos e avisos. Guia/contas: `docs/SIMULACAO_USO_DIARIO.md`; validação: `docs/validacao-simulacao-uso.txt` e `docs/validacao-uso-diario-local.txt`. A carga é manual e não se repete ao abrir o sistema.
-
-Correção de 11/10 no balcão: seleção de produto e tabela sem sobreposição, CPF ausente sem null, moeda brasileira e quantidade digitada aplicada. Guia: `docs/CORRECAO_TELA_BALCAO.md`; teste dedicado: `scripts/testar-balcao.ps1`.
-
-## Pré-requisitos
-
-- JDK 17 ou posterior. Scripts usam JAVA_HOME/PATH ou detectam JDK instalado nas pastas padrão de Eclipse Adoptium, Java e Microsoft. Em instalação personalizada, configure JAVA_HOME.
-- Windows PowerShell 5.1 (incluído no Windows) ou PowerShell 7.
-- PostgreSQL instalado. O preparador detecta a instalação, o PATH ou `OBOTBARATO_PG_BIN`; também aceita `-PgBin`.
-- Driver JDBC incluído em `lib/postgresql-42.7.13.jar`, obtido de https://jdbc.postgresql.org/download/.
-
-## Compilar
-
-Abra um terminal nesta pasta e execute:
-
-```powershell
-./scripts/compilar.ps1
-```
-
-Gera `dist/OBotBarato.jar` e `dist/lib`. Se o aplicativo bloquear o JAR, publica `dist/OBotBarato-<identificador>.jar`; lançador e scripts escolhem o pacote mais recente ao reabrir, preservando a sessão existente. Não depende do Ant nem de arquivos na pasta Downloads. O projeto NetBeans está em `nbproject`, também configurado para Java 17.
-
-## Iniciar no Windows
-
-Abra **`Iniciar OBotBarato.cmd`** nesta pasta. O lançador compila quando necessário, prepara/reutiliza uma base local e abre a tela oficial `TelaLoginUnificado`. A primeira preparação pode levar alguns instantes. O estilo visual existente foi preservado.
-
-Também é possível executar pelo terminal:
-
-```powershell
-./scripts/executar.ps1
-# Preparar/conferir sem abrir janelas:
-./scripts/executar.ps1 -SomenteDiagnostico
-# Informar uma instalação PostgreSQL diferente:
-./scripts/preparar-ambiente.ps1 -PgBin 'C:/caminho/PostgreSQL/bin'
-```
-
-A base gerenciada fica em `.local/desenvolvimento`, com porta própria, senha aleatória e acesso somente por `127.0.0.1`. A configuração real é criada em `config/banco.properties` e ignorada pelo Git. O preparador não usa o serviço nem os dados antigos do PostgreSQL. Reabrir o projeto reutiliza o mesmo banco; os cadastros e vendas são preservados.
-
-Para encerrar somente esse banco:
-
-```powershell
-./scripts/parar-banco.ps1
-```
-
-O próximo lançamento o inicia novamente. Fechar o aplicativo não apaga nem para automaticamente o banco.
-
-## Usar um banco externo
-
-Crie um banco **novo**, chamado `obotbarato`, no seu PostgreSQL. Não aplique a migration inicial sobre a base antiga: a migração dos dados legados ainda não foi implementada.
-
-```sql
-CREATE DATABASE obotbarato WITH ENCODING 'UTF8';
-```
-
-Copie `config/banco.exemplo.properties` para `config/banco.properties` e preencha usuário, senha e URL. A configuração real é ignorada pelo controle de versão. Variáveis `DB_URL`, `DB_USUARIO` e `DB_SENHA` têm precedência. Uma configuração alternativa pode ser informada por `-Dobotbarato.config=caminho`.
-
-Depois de compilar, instale a base externa e execute:
-
-```powershell
-java -cp 'build/classes;lib/postgresql-42.7.13.jar' util.InicializarBanco --demo
-./scripts/executar.ps1 -BancoExterno
-```
-
-Sem `--demo`, o inicializador só aplica o esquema. As migrations são transacionais e registradas com checksum em `schema_migrations`. Arquivos já aplicados não devem ser modificados; evoluções devem criar uma nova migration.
-
-Uma configuração externa existente é preservada pelo lançador. O arquivo marcado `# OBotBarato: ambiente local gerenciado` pertence ao preparador; para uma base externa, use o arquivo de exemplo sem essa marca, `-BancoExterno` ou `-Config caminho-do-arquivo`. Scripts de manutenção local recusam overrides `DB_*`.
-
-Contas fictícias instaladas por `--demo`:
-
-| Ambiente | Login | Senha |
+| Perfil | Login | Senha fictícia |
 |---|---|---|
-| Painel | admin | admin123 |
-| Painel | vendedor | vendedor123 |
-| Loja | cliente@demo.local | cliente123 |
+| Administrador | admin | admin123 |
+| Vendedor | vendedor | vendedor123 |
+| Cliente original | cliente@demo.local | cliente123 |
+| Clientes da simulação | cliente01@uso.obotbarato.test até cliente20@uso.obotbarato.test | demo12345 |
 
-O seed usa PBKDF2-HMAC-SHA256 com salt aleatório e 600.000 iterações. Hashes antigos são migrados no login. Reexecutá-lo não redefine senhas, duplica produtos ou repõe estoque consumido. As credenciais acima são exclusivamente de demonstração.
+As contas são de demonstração. Reexecutar a preparação ou a carga não redefine senhas nem repõe saldos consumidos. Tutorial: [Execução no VS Code](docs/EXECUTAR_VS_CODE.md).
 
-## Testes em banco separado
-
-```powershell
-./scripts/testar-integracao.ps1
-# Para outra instalação PostgreSQL:
-./scripts/testar-integracao.ps1 -PgBin 'C:/caminho/PostgreSQL/bin'
-```
-
-O script cria um cluster exclusivo em `.local/teste-<identificador>`, escolhe uma porta livre, usa uma senha aleatória e escuta somente em `127.0.0.1`. Não inicia o serviço nem altera a base PostgreSQL antiga ou a de desenvolvimento. Ao terminar, para o cluster criado, preservando seus logs. As variáveis `DB_*` precisam estar ausentes para evitar redirecionar os testes.
-
-O script verifica 102 cenários: 20 regressões iniciais, 15 de cadastros/acesso, 14 de compra/pagamento, 17 de gestão/cancelamento, 14 de perfil/cupons, 13 de avaliações/avisos e 9 de relatórios/CSV. Inclui evolução V1/V3 → V4/V5/V6, rollback e concorrência, permissões, filtros e faturamento. Constrói 23 telas, exige Voltar nas secundárias e aciona fluxos Swing de checkout, gestão, perfil/cupons, avaliações/avisos e dashboard/relatórios/navegação. Evidências: `docs/ultimo-teste-integracao.txt`, `docs/validacao-parte2.txt`, `docs/validacao-compra.txt` e `docs/validacao-pedidos.txt`. O teste de gestão fornece respostas aos diálogos de confirmação/motivo sem exibir janelas.
-
-Para verificar também o ambiente persistente, reinício, restauração e construção das 23 telas atuais:
+Alternativa pelo terminal integrado, na pasta deste README:
 
 ```powershell
-./scripts/verificar-base.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/executar.ps1
 ```
 
-Esse roteiro cria registros fictícios próprios de retirada e cancelamento, confere valores, saldo, pagamento, imagem, devolução e histórico antes/depois do reinício e da restauração, e remove somente suas fixtures. As telas são construídas no EDT sem exibir janelas. Isso verifica a inicialização; não substitui os testes de interação de todos os módulos. Evidência: `docs/validacao-base.txt`; renderizações: `docs/validacao-ui`.
+Não há lançadores `.cmd` ou configuração NetBeans/Ant. Os scripts PowerShell são ferramentas de compilação, preparação e manutenção. O depurador executa `view.TelaLoginUnificado`. **Ctrl+Shift+B** compila; **Shift+F5** encerra. Para carregar uma alteração, encerre todas as janelas antigas e execute novamente.
 
-## Backup e restauração da base local
+## Funcionalidades
+
+- Login unificado com administrador, vendedor e cliente; autocadastro, ativação e recuperação por código entregue pelo administrador.
+- Manutenção de usuários, clientes, categorias, produtos com imagens e cupons, conforme as permissões.
+- Estoque com saldo, mínimo, movimentações, baixa transacional e devolução única no cancelamento.
+- Loja com busca sem acentos/maiúsculas, fragmentos e palavras em qualquer ordem, categoria, preço máximo, detalhes, favoritos e carrinho.
+- Checkout com entrega, cupom, descontos e pagamento simulado; venda de balcão com retirada imediata e dinheiro simulado.
+- Pedidos, pagamento e histórico; preparo, envio e entrega; cancelamento autorizado antes do envio.
+- Perfil privado, avaliações de compras entregues/pagas e notificações internas com leitura individual.
+- Dashboard, relatórios de vendas/pedidos/produtos/estoque e exportação CSV em formato brasileiro.
+
+O catálogo tem **30 produtos fictícios** com imagens, preços e descrições. A carga de uso diário acrescenta **20 clientes, 60 pedidos, 18 avaliações e 40 favoritos**. Consulte [Simulação](docs/SIMULACAO_USO_DIARIO.md) e [Catálogo](docs/CATALOGO_APRESENTACAO.md). Alterações na demonstração mudam os indicadores normalmente.
+
+## Documentação da entrega
+
+- [Documentação acadêmica em Word](docs/final/Documentacao_OBotBarato.docx) e [PDF](docs/final/Documentacao_OBotBarato.pdf).
+- [Matriz entre funcionalidades, código, banco e testes](docs/MATRIZ_RASTREABILIDADE.md).
+- [Revisão, ensaio e envio ao GitHub](docs/REVISAO_E_APRESENTACAO.md).
+- Diagramas editáveis e figuras em `docs/diagramas`; [slides editáveis](docs/final/Apresentacao_OBotBarato.pptx) e [slides em PDF](docs/final/Apresentacao_OBotBarato.pdf).
+- Guias por módulo e evidências em `docs`; testes em `test`.
+
+## Estrutura
+
+| Pasta | Conteúdo |
+|---|---|
+| src | Java: modelos, DAOs, utilitários, tema e telas Swing |
+| sql | Migrations V001 a V006, com checksum e aplicação transacional |
+| lib | Driver JDBC PostgreSQL 42.7.13 e suas licenças dentro do JAR |
+| config | Exemplo de configuração; a configuração real é ignorada |
+| catalogo | Dados e imagens do catálogo fictício |
+| scripts | Compilação, ambiente, testes, backup e empacotamento |
+| test | Testes com PostgreSQL real e fluxos Swing |
+| docs | Documentação, diagramas, guias e evidências |
+| .vscode | Tarefas e configuração portátil de depuração |
+
+Não há Maven/Gradle: `javac --release 17` compila e `dist/OBotBarato.jar` é gerado com driver relativo em `dist/lib`. O inicializador lê as migrations na pasta `sql` do projeto. Se uma sessão bloquear o JAR, o script publica um JAR com identificador e usa o mais recente ao reabrir.
+
+## Banco e configuração
+
+O preparador detecta PostgreSQL instalado nas pastas padrão, PATH ou `OBOTBARATO_PG_BIN`. O JDK é detectado via `JAVA_HOME`, PATH e instalações padrão. Para caminhos personalizados:
 
 ```powershell
-./scripts/backup.ps1
-./scripts/restaurar-backup.ps1 -Arquivo '.local/backups/arquivo-gerado.dump'
+$env:JAVA_HOME = 'C:/caminho/jdk-17'
+$env:OBOTBARATO_PG_BIN = 'C:/caminho/PostgreSQL/bin'
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/executar.ps1
 ```
 
-O backup fica em `.local/backups`. A restauração sempre cria **um banco novo** e deixa o principal intacto. A configuração da cópia fica em `.local/restauracoes/<banco>/banco.properties`. Para abrir a cópia enquanto o cluster local está ativo:
+A base gerenciada é persistente em `.local/desenvolvimento`, tem porta própria, senha aleatória e escuta somente em `127.0.0.1`. `config/banco.properties`, `.local`, `build`, `dist` e `entrega` são ignorados pelo Git. Fechar a aplicação conserva o banco. `scripts/parar-banco.ps1` para somente esse cluster; a próxima execução o inicia novamente.
+
+Para banco externo, crie uma base **nova UTF-8**, copie `config/banco.exemplo.properties` para `config/banco.properties`, preencha os dados e compile. Execute `util.InicializarBanco --demo` com classpath `build/classes;lib/postgresql-42.7.13.jar`, depois `scripts/executar.ps1 -BancoExterno`. Variáveis `DB_URL`, `DB_USUARIO`, `DB_SENHA` têm precedência; `-Dobotbarato.config=caminho` seleciona outro arquivo. Configuração externa sem a marca de ambiente gerenciado é preservada. Não aplique V001 sobre uma base legada: não há importador automático de dados antigos.
+
+## Testar e fazer backup
+
+Execute as tarefas no VS Code ou pelo terminal:
 
 ```powershell
-./scripts/executar.ps1 -Config '.local/restauracoes/<banco>/banco.properties'
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/testar-integracao.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/testar-simulacao.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/verificar-base.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/backup.ps1
 ```
 
-Guarde uma cópia do `.dump` fora da máquina para recuperação em caso de perda do disco. Arquivos de configuração, senha, dados locais e backups não são versionados.
+A integração cria e para um cluster exclusivo; testa módulos, migrations, permissões, rollback, concorrência e fluxos Swing. Simulação e busca usam uma base nova, recusam uma de mesmo nome existente e apagam somente a que criaram. Feche a aplicação para a verificação de persistência, pois ela reinicia o cluster local e remove suas próprias fixtures.
 
-## Limites desta versão de desenvolvimento
+Backups ficam em `.local/backups`. `scripts/restaurar-backup.ps1 -Arquivo caminho.dump` restaura sempre em **banco novo**, conservando o principal. Abra a cópia com `scripts/executar.ps1 -Config caminho-da-configuração-gerada`. Guarde backups fora da máquina; não envie configurações com senha ou dados locais ao GitHub.
 
-As etapas 1 a 6 tratam persistência, cadastros, compra, pagamento e entrega simulados, acompanhamento e cancelamento antes do envio. Perfil, cupons, avaliações, notificações, dashboard e relatórios/CSV estão implementados. Revisão final integrada, documentação acadêmica/diagramas e pacote de apresentação ainda dependem das próximas etapas. Não há devolução pós-envio ou estorno financeiro real. O JAR gerado serve para desenvolvimento; a instalação completa e o pacote da apresentação ainda serão validados.
+## Limites do projeto
+
+Pagamento, boleto e entrega são **simulações acadêmicas**. Não há cobrança bancária, emissão fiscal, rastreamento de transportadora, e-mail/SMS, devolução após envio ou estorno financeiro real. Notificações ficam no aplicativo, com atualização manual. A loja é uma tela Swing sem site público. Uma credencial técnica conecta ao banco; as permissões pertencem à aplicação. Algumas consultas de manutenção são síncronas. Os testes demonstram os cenários documentados, sem prometer ausência absoluta de falhas em qualquer ambiente.
+
+JDK 17+, PostgreSQL UTF-8 e Windows são pré-requisitos da entrega validada. Referências: [PostgreSQL JDBC](https://jdbc.postgresql.org/download/) e [Java no VS Code](https://code.visualstudio.com/docs/java/java-debugging).

@@ -1,0 +1,44 @@
+@startuml
+!pragma layout smetana
+skinparam backgroundColor white
+skinparam defaultFontName Arial
+skinparam defaultFontSize 15
+skinparam shadowing false
+skinparam roundcorner 0
+skinparam ArrowColor #2459D9
+skinparam classBackgroundColor #F4F7FC
+skinparam classBorderColor #2459D9
+skinparam packageStyle rectangle
+start
+:Cliente revisa carrinho entrega e descontos;
+if (Dados preço cupom e saldo válidos?) then (sim)
+ :Gravar compra atômica e pedido aberto;
+else (não)
+ :Exibir erro e preservar carrinho;
+ stop
+endif
+if (Boleto?) then (sim)
+ :Pagamento pendente;
+ :Admin confirma simulação para permitir preparo;
+else (não)
+ :PIX débito ou crédito confirmado simulado;
+endif
+if (Cancelamento autorizado antes do envio?) then (sim)
+ :Cancelar pedido e pagamento;
+ :Devolver estoque uma vez e registrar histórico;
+ stop
+else (não)
+ :Equipe avança para em_preparo;
+ :Equipe avança para enviado;
+ :Equipe avança para entregue;
+ :Cliente pode avaliar produto adquirido;
+endif
+stop
+note right
+Fluxo resumido da loja.
+Cliente cancela somente aberto.
+Equipe cancela aberto ou em_preparo.
+Balcão: dinheiro confirmado e entregue
+na criação com retirada imediata.
+end note
+@enduml

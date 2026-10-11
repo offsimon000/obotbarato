@@ -42,7 +42,7 @@ Visão geral e tabelas vazias não exportam. Alterar datas sem Atualizar também
 
 ## Como conferir na máquina
 
-1. Feche a versão antiga e abra `Iniciar OBotBarato.cmd`. Entre no painel com `admin` / `admin123`.
+1. Feche a versão antiga e abra **F5 no VS Code**. Entre no painel com `admin` / `admin123`.
 2. Abra Notificações: confira Voltar à esquerda do título. Teste Voltar e depois abra novamente e feche pelo X. Confira também Produtos, Clientes, Estoque, Pedidos, Pagamentos, Cupons, Usuários e Categorias. Na loja, confira Perfil, Favoritos, Carrinho, Meus pedidos e Avaliação de um pedido elegível.
 3. Abra Dashboard. Confira os seis indicadores e os dois gráficos. Digite datas só com números e clique em Atualizar. Período sem pedidos deve mostrar zero, sem erro. Data impossível/invertida deve ser recusada.
 4. Abra Vendas por dia: a soma do líquido deve bater com o faturamento. Em Mais vendidos, confira unidades e valor **bruto**. Em Pedidos, confira o cancelado/pendente sem somá-lo ao faturamento. Estoque baixo mostra saldos atuais.
@@ -51,12 +51,12 @@ Visão geral e tabelas vazias não exportam. Alterar datas sem Atualizar também
 
 Se o aplicativo estiver aberto ao compilar, o Windows pode bloquear seu JAR. O compilador publica uma nova cópia com identificador e o lançador/scripts escolhem o JAR completo mais recente. A sessão aberta continua usando a versão anterior até fechar/reabrir. Não é necessário apagar dados ou recompilar à mão. Scripts detectam o JDK 17+ instalado nas pastas padrão quando JAVA_HOME/PATH ainda não foram configurados.
 
-## Evidências e próximo bloco
+## Evidências
 
 `RelatoriosFinanceiros`: nove cenários com PostgreSQL real, acesso, intervalos, descontos, cancelamento, estoque atual, histórico de inativos e CSV. Exemplo exclusivo da base de teste: R$ 200 bruto, R$ 20 cupom, R$ 18 PIX = R$ 162; outra venda de R$ 100 resulta em faturamento R$ 262 e ticket R$ 131. Boleto de R$ 100 confirmado leva a R$ 362 e ticket R$ 120,67. Cancelado e pedido no dia seguinte permanecem excluídos.
 
 `InicializacaoTelas` exige Voltar em todas as telas secundárias entre as 23 instâncias construídas. `FluxoRelatoriosNavegacao` confere filtros, abas, valores do dashboard/tabela/CSV, estados vazios, retorno por botão/X e proteção durante operação e após logout. Evidência: `validacao-relatorios-navegacao.txt`; capturas em `validacao-ui/dashboard.png` e `relatorios-*.png`.
 
-Os módulos funcionais da etapa 7 estão implementados. Ainda faltam a revisão final integrada, documentos acadêmicos/diagramas, roteiro da banca e pacote executado fora da pasta de desenvolvimento. Este guia descreve o código atual; não substitui a documentação acadêmica final.
+Os módulos funcionais estão implementados. A documentação consolidada está em final, com diagramas editáveis em diagramas, matriz de rastreabilidade e roteiro de revisão/apresentação. Este guia detalha as regras dos relatórios e complementa o documento acadêmico.
 
 Conferência adicional em 10/10/2026: nova compilação com Windows PowerShell 5.1 e detecção do JDK sem JAVA_HOME/PATH Java. Dashboard e menu conferidos na base local após retomada do servidor: 30 produtos ativos, 855 unidades, 1 pedido e seis migrations preservados; faturamento conferido por consulta independente. Evidências: `validacao-dashboard-base-local.txt`, `validacao-lancador-atualizado.txt` e captura `validacao-ui/dashboard-base-local.png`.

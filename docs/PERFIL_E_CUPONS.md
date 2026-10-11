@@ -1,6 +1,6 @@
 # Perfil e cupons — parte inicial da etapa 7
 
-Desktop Swing/PostgreSQL, mantendo o tema branco/azul. Este bloco conclui perfil e cupons; avaliações/notificações também foram concluídas em AVALIACOES_E_NOTIFICACOES.md. Dashboard continua pendente.
+Desktop Swing/PostgreSQL, mantendo o tema branco/azul. Este bloco conclui perfil e cupons; avaliações/notificações também foram concluídas em AVALIACOES_E_NOTIFICACOES.md. Dashboard e relatórios estão descritos em DASHBOARD_RELATORIOS_E_NAVEGACAO.md.
 
 ## Perfil do cliente
 
@@ -49,7 +49,7 @@ Migrations anteriores permanecem intactas. V5 preserva pedidos/valores antigos, 
 
 ## Como testar
 
-1. Abra `Iniciar OBotBarato.cmd`; cliente de demonstração: `cliente@demo.local` / `cliente123`.
+1. Abra **F5 no VS Code**; cliente de demonstração: `cliente@demo.local` / `cliente123`.
 2. Abra Meu perfil; altere telefone/endereço e confirme com a senha atual. Tente senha incorreta: nada deve mudar. Para testar troca de e-mail/senha, prefira criar outra conta, preservando as credenciais da demonstração.
 3. Em uma conta de teste, preencha nova senha e confirmação; salve. Saia e autentique com os dados novos. A senha anterior deve ser recusada.
 4. Como admin (`admin` / `admin123`), abra Cupons. Confira APRESENTA10, crie um cupom, edite percentual/datas e desative/reative. Tente código repetido, percentual zero/acima de 100 e validade invertida: deve recusar.

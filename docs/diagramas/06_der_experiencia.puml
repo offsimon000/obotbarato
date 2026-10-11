@@ -1,0 +1,48 @@
+@startuml
+!pragma layout smetana
+skinparam backgroundColor white
+skinparam defaultFontName Arial
+skinparam defaultFontSize 15
+skinparam shadowing false
+skinparam roundcorner 0
+skinparam ArrowColor #2459D9
+skinparam classBackgroundColor #F4F7FC
+skinparam classBorderColor #2459D9
+skinparam packageStyle rectangle
+hide methods
+entity "favoritos" as favoritos {
+ PK FK id_cliente : int4
+ PK FK id_produto : int4
+}
+entity "avaliacoes" as avaliacoes {
+ PK id : int8
+ FK id_cliente : int4
+ FK id_produto : int4
+ FK id_pedido : int4
+ nota : int2
+ comentario : varchar
+ criada_em : timestamp
+ atualizada_em : timestamp
+}
+entity "notificacoes" as notificacoes {
+ PK id : int8
+ chave : varchar
+ destino : varchar
+ FK id_cliente : int4
+ tipo : varchar
+ mensagem : varchar
+ criada_em : timestamp
+ FK id_pedido : int4
+ FK id_produto : int4
+}
+entity "leituras_notificacoes" as leituras_notificacoes {
+ PK id : int8
+ FK id_notificacao : int8
+ FK id_usuario : int4
+ FK id_cliente : int4
+ lida_em : timestamp
+}
+notificacoes ||--o{ leituras_notificacoes : id_notificacao
+note "Campos estruturais do módulo.\nFK externas: clientes.id, pedidos.id, produtos.id, usuarios.id\nCampos completos no DICIONARIO_BANCO.md.\nCardinalidade geral 1 para muitos; PK compartilhada limita a 1 para 0 ou 1." as legenda
+
+@enduml

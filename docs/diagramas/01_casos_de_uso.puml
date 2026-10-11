@@ -1,0 +1,54 @@
+@startuml
+!pragma layout smetana
+skinparam backgroundColor white
+skinparam defaultFontName Arial
+skinparam defaultFontSize 15
+skinparam shadowing false
+skinparam roundcorner 0
+skinparam ArrowColor #2459D9
+skinparam classBackgroundColor #F4F7FC
+skinparam classBorderColor #2459D9
+skinparam packageStyle rectangle
+left to right direction
+actor Cliente
+actor Vendedor
+actor Administrador
+Administrador --|> Vendedor
+rectangle "OBotBarato desktop" {
+ usecase "Autenticar e sair" as login
+ usecase "Criar conta e recuperar acesso" as conta
+ usecase "Buscar catálogo e ver detalhes" as buscar
+ usecase "Favoritos e carrinho" as carrinho
+ usecase "Comprar com cupom e pagamento simulado" as compra
+ usecase "Ver pedidos e cancelar aberto próprio" as proprio
+ usecase "Editar perfil e avaliar compra entregue" as perfil
+ usecase "Ler avisos individuais" as avisos
+ usecase "Atender clientes e vender no balcão" as balcao
+ usecase "Consultar estoque e histórico" as estoque
+ usecase "Gerir pedidos antes do envio" as gestao
+ usecase "Dashboard relatórios e CSV" as relatorio
+ usecase "Manter usuários categorias produtos e cupons" as manter
+ usecase "Movimentar estoque e configurar mínimo" as mover
+ usecase "Ativar clientes e emitir código" as codigo
+ usecase "Confirmar boleto simulado" as boleto
+}
+Cliente --> login
+Vendedor --> login
+Cliente --> conta
+Cliente --> buscar
+Cliente --> carrinho
+Cliente --> compra
+Cliente --> proprio
+Cliente --> perfil
+Cliente --> avisos
+Vendedor --> avisos
+Vendedor --> buscar
+Vendedor --> balcao
+Vendedor --> estoque
+Vendedor --> gestao
+Vendedor --> relatorio
+Administrador --> manter
+Administrador --> mover
+Administrador --> codigo
+Administrador --> boleto
+@enduml

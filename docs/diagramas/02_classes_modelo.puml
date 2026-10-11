@@ -1,0 +1,68 @@
+@startuml
+!pragma layout smetana
+skinparam backgroundColor white
+skinparam defaultFontName Arial
+skinparam defaultFontSize 15
+skinparam shadowing false
+skinparam roundcorner 0
+skinparam ArrowColor #2459D9
+skinparam classBackgroundColor #F4F7FC
+skinparam classBorderColor #2459D9
+skinparam packageStyle rectangle
+class Usuario {
+ id : int
+ nome : String
+ login : String
+ perfil : String
+ ativo : boolean
+}
+class Cliente {
+ id : int
+ nome : String
+ email : String
+ cpf : String
+}
+class Categoria <<record>> {
+ id : int
+ nome : String
+ ativo : boolean
+}
+class Produto {
+ id : int
+ idCategoria : int
+ nome : String
+ preco : BigDecimal
+ imagem : byte[]
+}
+class Pedido {
+ id : int
+ idCliente : int
+ total : BigDecimal
+ status : String
+}
+class ItemPedido {
+ idProduto : int
+ quantidade : int
+ precoUnitario : BigDecimal
+ getSubtotalDecimal()
+}
+class Carrinho {
+ iniciarCheckout()
+ liberar(UUID)
+ concluir(UUID)
+}
+Pedido "1" *-- "0..*" ItemPedido : itens
+ItemPedido ..> Produto : referência por idProduto
+Pedido ..> Cliente : referência por idCliente
+Produto ..> Categoria : referência por idCategoria
+Carrinho --> ItemPedido : cópias dos itens
+note bottom of Usuario
+Perfis internos admin e vendedor.
+Cliente usa identidade própria.
+end note
+note bottom of Produto
+Estoque Pagamento Cupom Avaliação e
+Notificação são tabelas e DTOs dos DAOs.
+Não são classes em src/model.
+end note
+@enduml

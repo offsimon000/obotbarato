@@ -1,0 +1,32 @@
+@startuml
+!pragma layout smetana
+skinparam backgroundColor white
+skinparam defaultFontName Arial
+skinparam defaultFontSize 15
+skinparam shadowing false
+skinparam roundcorner 0
+skinparam ArrowColor #2459D9
+skinparam classBackgroundColor #F4F7FC
+skinparam classBorderColor #2459D9
+skinparam packageStyle rectangle
+actor "Cliente titular ou equipe" as Pessoa
+participant "TelaMeusPedidos ou TelaGestaoPedidos" as Tela
+participant GestaoPedidoDAO as DAO
+participant EstoqueDAO
+database PostgreSQL as BD
+Pessoa -> Tela : selecionar pedido e informar motivo
+Tela -> DAO : cancelar(id motivo)
+DAO -> BD : BEGIN e bloquear pedido
+DAO -> BD : revalidar identidade e estado
+alt cancelamento permitido
+ DAO -> EstoqueDAO : devolver todos os itens na transação
+ EstoqueDAO -> BD : saldo e movimento de devolução
+ DAO -> BD : pedido pagamento histórico e avisos
+ DAO -> BD : COMMIT
+ DAO --> Tela : conclusão
+else estado ou permissão inválidos ou falha
+ DAO -> BD : ROLLBACK
+ DAO --> Tela : erro sem devolução parcial
+end
+Tela --> Pessoa : atualizar detalhes e ações
+@enduml
