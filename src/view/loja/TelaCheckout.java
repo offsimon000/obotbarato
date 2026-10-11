@@ -35,10 +35,9 @@ public class TelaCheckout extends JFrame {
         Acesso.telaCliente(cliente.getId());this.telaCarrinho=anterior;this.loja=loja;this.cliente=cliente;this.itens=List.copyOf(itens);this.chave=chave;
         subtotal=itens.stream().map(ItemPedido::getSubtotalDecimal).reduce(new BigDecimal("0.00"),BigDecimal::add);
         setTitle("OBotBarato - Checkout / simulação");setSize(700,650);setLocationRelativeTo(loja);setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
-        addWindowListener(new WindowAdapter(){public void windowClosing(WindowEvent e){if(!processando)dispose();}});
         JPanel p=new JPanel(new BorderLayout());p.setBackground(TemaLoja.BG_PRINCIPAL);
         JPanel topo=new JPanel(new BorderLayout());topo.setBackground(TemaLoja.BG_CARD);topo.setBorder(BorderFactory.createEmptyBorder(12,16,12,16));
-        voltar=TemaLoja.botaoFantasia("< Voltar ao carrinho");voltar.addActionListener(e->{if(!processando)dispose();});topo.add(voltar,BorderLayout.WEST);
+        voltar=Tema.botaoVoltar(this,anterior,()->!processando && !validandoCupom);voltar.setText("< Voltar ao carrinho");topo.add(voltar,BorderLayout.WEST);
         JLabel titulo=new JLabel("Compra e pagamento simulados");titulo.setFont(TemaLoja.FONTE_BOTAO);topo.add(titulo,BorderLayout.EAST);p.add(topo,BorderLayout.NORTH);
         etapa.setBackground(TemaLoja.BG_PRINCIPAL);p.add(etapa);setContentPane(p);
         destinatario.setText(cliente.getNome());MascaraCampo.aplicarTelefone(telefone);telefone.setText(cliente.getTelefone());endereco.setText(cliente.getEndereco());
@@ -73,7 +72,7 @@ public class TelaCheckout extends JFrame {
         JLabel avisoCupom=new JLabel(cupom==null?"Um cupom por compra; desconto de pagamento sobre o restante.":"Cupom "+cupom.codigo()+" aplicado: "+cupom.percentual()+"%.");avisoCupom.setFont(TemaLoja.FONTE_LABEL);rodape.add(Box.createVerticalStrut(6));rodape.add(avisoCupom);rodape.add(Box.createVerticalStrut(12));
         rodape.add(new JLabel("Nenhuma cobrança real. Preço e estoque serão conferidos ao confirmar."));
         JPanel botoes=new JPanel(new FlowLayout(FlowLayout.RIGHT));botoes.setOpaque(false);
-        JButton anterior=TemaLoja.botaoFantasia("< Resumo"),confirmar=TemaLoja.botaoPrimario("Confirmar compra simulada");anterior.addActionListener(e->{if(!processando)trocar(resumo());});confirmar.addActionListener(e->confirmar(confirmar,anterior,valor));
+        JButton anterior=Tema.botaoVoltar(()->{if(!processando && !validandoCupom)trocar(resumo());}),confirmar=TemaLoja.botaoPrimario("Confirmar compra simulada");anterior.setText("< Resumo");confirmar.addActionListener(e->confirmar(confirmar,anterior,valor));
         textoCupom.setEditable(cupom==null);aplicarCupom.setEnabled(cupom==null);
         if(edicaoCupom!=null)textoCupom.getDocument().removeDocumentListener(edicaoCupom);
         edicaoCupom=new javax.swing.event.DocumentListener(){private void atualizar(){confirmar.setEnabled(!processando && !validandoCupom && (textoCupom.getText().isBlank() || cupom!=null));}public void insertUpdate(javax.swing.event.DocumentEvent e){atualizar();}public void removeUpdate(javax.swing.event.DocumentEvent e){atualizar();}public void changedUpdate(javax.swing.event.DocumentEvent e){atualizar();}};textoCupom.getDocument().addDocumentListener(edicaoCupom);

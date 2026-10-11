@@ -56,6 +56,7 @@ public class TelaGestaoPedidos extends TelaManutencao {
         getRootPane().setDefaultButton(comandos.get(0));
         carregar();
     }
+    protected boolean podeVoltar(){return !processando;}
     private boolean mesmaSessao(){return usuario==Sessao.getIdUsuario() && cliente==Sessao.getIdCliente();}
     private void comando(String texto,Runnable acao){
         JButton b=Tema.botaoSecundario(texto);b.addActionListener(e->{try{if(processando)return;if(!mesmaSessao())throw new IllegalArgumentException("Sessão encerrada.");acao.run();}catch(Exception ex){erro(ex);}});comandos.add(b);botoes.add(b);

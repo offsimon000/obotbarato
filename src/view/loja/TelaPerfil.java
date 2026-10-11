@@ -17,9 +17,8 @@ public final class TelaPerfil extends JFrame {
     public TelaPerfil(TelaLoja loja,Cliente cliente){
         Acesso.telaCliente(cliente.getId());this.loja=loja;id=cliente.getId();
         setTitle("OBotBarato - Meu perfil");setSize(570,700);setLocationRelativeTo(loja);setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
-        addWindowListener(new java.awt.event.WindowAdapter(){public void windowClosing(java.awt.event.WindowEvent e){if(!salvando)dispose();}});
         JPanel p=new JPanel(new BorderLayout(0,12));p.setBackground(TemaLoja.BG_PRINCIPAL);p.setBorder(BorderFactory.createEmptyBorder(16,20,16,20));
-        JLabel titulo=new JLabel("Meu perfil");titulo.setFont(TemaLoja.FONTE_TITULO);p.add(titulo,BorderLayout.NORTH);
+        JPanel topo=new JPanel(new FlowLayout(FlowLayout.LEFT,10,0));topo.setOpaque(false);topo.add(Tema.botaoVoltar(this,loja,()->!salvando));JLabel titulo=new JLabel("Meu perfil");titulo.setFont(TemaLoja.FONTE_TITULO);topo.add(titulo);p.add(topo,BorderLayout.NORTH);
         JPanel form=new JPanel(new GridBagLayout());form.setBackground(TemaLoja.BG_PRINCIPAL);GridBagConstraints g=new GridBagConstraints();g.gridx=0;g.weightx=1;g.fill=GridBagConstraints.HORIZONTAL;g.insets=new Insets(4,6,5,6);
         String[] labels={"Nome completo","CPF (opcional)","E-mail de acesso","Telefone (opcional)","Endereço (opcional)","Senha atual para confirmar alterações","Nova senha (opcional)","Confirme a nova senha"};
         JComponent[] campos={nome,cpf,email,telefone,endereco,atual,nova,confirmacao};String[] chaves={"nome","cpf","email","telefone","endereco","atual","nova","confirmacao"};

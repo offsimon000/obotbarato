@@ -46,44 +46,50 @@ try {
         if ($LASTEXITCODE -ne 0) { throw 'Falha ao criar base de teste.' }
     } finally { $env:PGPASSWORD = $senhaAnterior }
     New-Item -ItemType Directory -Force -Path 'build/test/classes' | Out-Null
-    & javac --release 17 -encoding UTF-8 -cp 'build/classes;lib/postgresql-42.7.13.jar' -d 'build/test/classes' 'test/IntegracaoBanco.java' 'test/CadastrosEAcesso.java' 'test/EvolucaoDaBase.java' 'test/InicializacaoTelas.java' 'test/CompraEPagamento.java' 'test/FluxoCheckout.java' 'test/GestaoECancelamento.java' 'test/FluxoGestaoPedidos.java' 'test/InterfaceBrasileira.java' 'test/CatalogoApresentacao.java' 'test/PerfilECupons.java' 'test/FluxoPerfilCupons.java' 'test/AvaliacoesENotificacoes.java' 'test/FluxoAvaliacoesAvisos.java'
+    & (Get-JavaExecutavel 'javac') --release 17 -encoding UTF-8 -cp 'build/classes;lib/postgresql-42.7.13.jar' -d 'build/test/classes' 'test/IntegracaoBanco.java' 'test/CadastrosEAcesso.java' 'test/EvolucaoDaBase.java' 'test/InicializacaoTelas.java' 'test/CompraEPagamento.java' 'test/FluxoCheckout.java' 'test/GestaoECancelamento.java' 'test/FluxoGestaoPedidos.java' 'test/InterfaceBrasileira.java' 'test/CatalogoApresentacao.java' 'test/PerfilECupons.java' 'test/FluxoPerfilCupons.java' 'test/AvaliacoesENotificacoes.java' 'test/FluxoAvaliacoesAvisos.java' 'test/RelatoriosFinanceiros.java' 'test/FluxoRelatoriosNavegacao.java'
     if ($LASTEXITCODE -ne 0) { throw 'Falha ao compilar testes.' }
-    & java '-Dfile.encoding=UTF-8' "-Dobotbarato.config=$arquivoConfig" -cp 'build/test/classes;build/classes;lib/postgresql-42.7.13.jar' EvolucaoDaBase | Tee-Object -FilePath (Join-Path $pastaTeste 'evolucao.txt')
+    & (Get-JavaExecutavel) '-Dfile.encoding=UTF-8' "-Dobotbarato.config=$arquivoConfig" -cp 'build/test/classes;build/classes;lib/postgresql-42.7.13.jar' EvolucaoDaBase | Tee-Object -FilePath (Join-Path $pastaTeste 'evolucao.txt')
     if ($LASTEXITCODE -ne 0) { throw 'Teste de evolucao V1/V2 falhou.' }
-    & java '-Dfile.encoding=UTF-8' "-Dobotbarato.config=$arquivoConfig" -cp 'build/test/classes;build/classes;lib/postgresql-42.7.13.jar' IntegracaoBanco | Tee-Object -FilePath (Join-Path $pastaTeste 'resultado.txt')
+    & (Get-JavaExecutavel) '-Dfile.encoding=UTF-8' "-Dobotbarato.config=$arquivoConfig" -cp 'build/test/classes;build/classes;lib/postgresql-42.7.13.jar' IntegracaoBanco | Tee-Object -FilePath (Join-Path $pastaTeste 'resultado.txt')
     if ($LASTEXITCODE -ne 0) { throw 'Teste de integracao falhou.' }
-    & java '-Dfile.encoding=UTF-8' "-Dobotbarato.config=$arquivoConfig" -cp 'build/test/classes;build/classes;lib/postgresql-42.7.13.jar' CadastrosEAcesso | Tee-Object -FilePath (Join-Path $pastaTeste 'parte2.txt')
+    & (Get-JavaExecutavel) '-Dfile.encoding=UTF-8' "-Dobotbarato.config=$arquivoConfig" -cp 'build/test/classes;build/classes;lib/postgresql-42.7.13.jar' CadastrosEAcesso | Tee-Object -FilePath (Join-Path $pastaTeste 'parte2.txt')
     if ($LASTEXITCODE -ne 0) { throw 'Teste de cadastros e acesso falhou.' }
-    & java '-Dfile.encoding=UTF-8' "-Dobotbarato.config=$arquivoConfig" -cp 'build/test/classes;build/classes;lib/postgresql-42.7.13.jar' CompraEPagamento | Tee-Object -FilePath (Join-Path $pastaTeste 'compra.txt')
+    & (Get-JavaExecutavel) '-Dfile.encoding=UTF-8' "-Dobotbarato.config=$arquivoConfig" -cp 'build/test/classes;build/classes;lib/postgresql-42.7.13.jar' CompraEPagamento | Tee-Object -FilePath (Join-Path $pastaTeste 'compra.txt')
     if ($LASTEXITCODE -ne 0) { throw 'Teste de compra e pagamento falhou.' }
     [IO.File]::WriteAllText((Join-Path $raizProjeto 'docs/validacao-compra.txt'),[IO.File]::ReadAllText((Join-Path $pastaTeste 'compra.txt')),[Text.UTF8Encoding]::new($false))
-    & java '-Dfile.encoding=UTF-8' "-Dobotbarato.config=$arquivoConfig" -cp 'build/test/classes;build/classes;lib/postgresql-42.7.13.jar' GestaoECancelamento | Tee-Object -FilePath (Join-Path $pastaTeste 'gestao.txt')
+    & (Get-JavaExecutavel) '-Dfile.encoding=UTF-8' "-Dobotbarato.config=$arquivoConfig" -cp 'build/test/classes;build/classes;lib/postgresql-42.7.13.jar' GestaoECancelamento | Tee-Object -FilePath (Join-Path $pastaTeste 'gestao.txt')
     if ($LASTEXITCODE -ne 0) { throw 'Teste de gestao e cancelamento falhou.' }
     [IO.File]::WriteAllText((Join-Path $raizProjeto 'docs/validacao-pedidos.txt'),[IO.File]::ReadAllText((Join-Path $pastaTeste 'evolucao.txt'))+[IO.File]::ReadAllText((Join-Path $pastaTeste 'gestao.txt')),[Text.UTF8Encoding]::new($false))
-    & java '-Dfile.encoding=UTF-8' "-Dobotbarato.config=$arquivoConfig" -cp 'build/test/classes;build/classes;lib/postgresql-42.7.13.jar' PerfilECupons | Tee-Object -FilePath (Join-Path $pastaTeste 'perfil-cupons.txt')
+    & (Get-JavaExecutavel) '-Dfile.encoding=UTF-8' "-Dobotbarato.config=$arquivoConfig" -cp 'build/test/classes;build/classes;lib/postgresql-42.7.13.jar' PerfilECupons | Tee-Object -FilePath (Join-Path $pastaTeste 'perfil-cupons.txt')
     if ($LASTEXITCODE -ne 0) { throw 'Teste de perfil e cupons falhou.' }
     [IO.File]::WriteAllText((Join-Path $raizProjeto 'docs/validacao-perfil-cupons.txt'),[IO.File]::ReadAllText((Join-Path $pastaTeste 'perfil-cupons.txt')),[Text.UTF8Encoding]::new($false))
-    & java '-Dfile.encoding=UTF-8' "-Dobotbarato.config=$arquivoConfig" -cp 'build/test/classes;build/classes;lib/postgresql-42.7.13.jar' AvaliacoesENotificacoes | Tee-Object -FilePath (Join-Path $pastaTeste 'avaliacoes-avisos.txt')
+    & (Get-JavaExecutavel) '-Dfile.encoding=UTF-8' "-Dobotbarato.config=$arquivoConfig" -cp 'build/test/classes;build/classes;lib/postgresql-42.7.13.jar' AvaliacoesENotificacoes | Tee-Object -FilePath (Join-Path $pastaTeste 'avaliacoes-avisos.txt')
     if ($LASTEXITCODE -ne 0) { throw 'Teste de avaliacoes e notificacoes falhou.' }
     [IO.File]::WriteAllText((Join-Path $raizProjeto 'docs/validacao-avaliacoes-avisos.txt'),[IO.File]::ReadAllText((Join-Path $pastaTeste 'avaliacoes-avisos.txt')),[Text.UTF8Encoding]::new($false))
-    & java '-Dfile.encoding=UTF-8' "-Dobotbarato.config=$arquivoConfig" -cp 'build/test/classes;build/classes;lib/postgresql-42.7.13.jar' InicializacaoTelas | Tee-Object -FilePath (Join-Path $pastaTeste 'telas.txt')
+    & (Get-JavaExecutavel) '-Dfile.encoding=UTF-8' "-Dobotbarato.config=$arquivoConfig" -cp 'build/test/classes;build/classes;lib/postgresql-42.7.13.jar' RelatoriosFinanceiros | Tee-Object -FilePath (Join-Path $pastaTeste 'relatorios.txt')
+    if ($LASTEXITCODE -ne 0) { throw 'Teste de relatorios e CSV falhou.' }
+    [IO.File]::WriteAllText((Join-Path $raizProjeto 'docs/validacao-relatorios-navegacao.txt'),[IO.File]::ReadAllText((Join-Path $pastaTeste 'relatorios.txt')),[Text.UTF8Encoding]::new($false))
+    & (Get-JavaExecutavel) '-Dfile.encoding=UTF-8' "-Dobotbarato.config=$arquivoConfig" -cp 'build/test/classes;build/classes;lib/postgresql-42.7.13.jar' InicializacaoTelas | Tee-Object -FilePath (Join-Path $pastaTeste 'telas.txt')
     if ($LASTEXITCODE -ne 0) { throw 'Teste de inicializacao das telas falhou.' }
-    & java '-Dfile.encoding=UTF-8' "-Dobotbarato.config=$arquivoConfig" -cp 'build/test/classes;build/classes;lib/postgresql-42.7.13.jar' FluxoCheckout | Tee-Object -FilePath (Join-Path $pastaTeste 'fluxo-checkout.txt')
+    & (Get-JavaExecutavel) '-Dfile.encoding=UTF-8' "-Dobotbarato.config=$arquivoConfig" -cp 'build/test/classes;build/classes;lib/postgresql-42.7.13.jar' FluxoCheckout | Tee-Object -FilePath (Join-Path $pastaTeste 'fluxo-checkout.txt')
     if ($LASTEXITCODE -ne 0) { throw 'Fluxo da interface de checkout falhou.' }
     [IO.File]::AppendAllText((Join-Path $raizProjeto 'docs/validacao-compra.txt'),[IO.File]::ReadAllText((Join-Path $pastaTeste 'fluxo-checkout.txt')),[Text.UTF8Encoding]::new($false))
-    & java '-Dfile.encoding=UTF-8' "-Dobotbarato.config=$arquivoConfig" -cp 'build/test/classes;build/classes;lib/postgresql-42.7.13.jar' FluxoGestaoPedidos | Tee-Object -FilePath (Join-Path $pastaTeste 'fluxo-gestao.txt')
+    & (Get-JavaExecutavel) '-Dfile.encoding=UTF-8' "-Dobotbarato.config=$arquivoConfig" -cp 'build/test/classes;build/classes;lib/postgresql-42.7.13.jar' FluxoGestaoPedidos | Tee-Object -FilePath (Join-Path $pastaTeste 'fluxo-gestao.txt')
     if ($LASTEXITCODE -ne 0) { throw 'Fluxo da interface de gestao falhou.' }
     [IO.File]::AppendAllText((Join-Path $raizProjeto 'docs/validacao-pedidos.txt'),[IO.File]::ReadAllText((Join-Path $pastaTeste 'fluxo-gestao.txt')),[Text.UTF8Encoding]::new($false))
-    & java '-Dfile.encoding=UTF-8' "-Dobotbarato.config=$arquivoConfig" -cp 'build/test/classes;build/classes;lib/postgresql-42.7.13.jar' InterfaceBrasileira | Tee-Object -FilePath (Join-Path $pastaTeste 'interface.txt')
+    & (Get-JavaExecutavel) '-Dfile.encoding=UTF-8' "-Dobotbarato.config=$arquivoConfig" -cp 'build/test/classes;build/classes;lib/postgresql-42.7.13.jar' InterfaceBrasileira | Tee-Object -FilePath (Join-Path $pastaTeste 'interface.txt')
     if ($LASTEXITCODE -ne 0) { throw 'Teste de datas e interface falhou.' }
     [IO.File]::WriteAllText((Join-Path $raizProjeto 'docs/validacao-interface.txt'),[IO.File]::ReadAllText((Join-Path $pastaTeste 'interface.txt')),[Text.UTF8Encoding]::new($false))
-    & java '-Dfile.encoding=UTF-8' "-Dobotbarato.config=$arquivoConfig" -cp 'build/test/classes;build/classes;lib/postgresql-42.7.13.jar' FluxoPerfilCupons | Tee-Object -FilePath (Join-Path $pastaTeste 'fluxo-perfil-cupons.txt')
+    & (Get-JavaExecutavel) '-Dfile.encoding=UTF-8' "-Dobotbarato.config=$arquivoConfig" -cp 'build/test/classes;build/classes;lib/postgresql-42.7.13.jar' FluxoPerfilCupons | Tee-Object -FilePath (Join-Path $pastaTeste 'fluxo-perfil-cupons.txt')
     if ($LASTEXITCODE -ne 0) { throw 'Fluxo de perfil e cupons falhou.' }
     [IO.File]::AppendAllText((Join-Path $raizProjeto 'docs/validacao-perfil-cupons.txt'),[IO.File]::ReadAllText((Join-Path $pastaTeste 'fluxo-perfil-cupons.txt')),[Text.UTF8Encoding]::new($false))
-    & java '-Dfile.encoding=UTF-8' "-Dobotbarato.config=$arquivoConfig" -cp 'build/test/classes;build/classes;lib/postgresql-42.7.13.jar' FluxoAvaliacoesAvisos | Tee-Object -FilePath (Join-Path $pastaTeste 'fluxo-avaliacoes-avisos.txt')
+    & (Get-JavaExecutavel) '-Dfile.encoding=UTF-8' "-Dobotbarato.config=$arquivoConfig" -cp 'build/test/classes;build/classes;lib/postgresql-42.7.13.jar' FluxoAvaliacoesAvisos | Tee-Object -FilePath (Join-Path $pastaTeste 'fluxo-avaliacoes-avisos.txt')
     if ($LASTEXITCODE -ne 0) { throw 'Fluxo de avaliacoes e avisos falhou.' }
     [IO.File]::AppendAllText((Join-Path $raizProjeto 'docs/validacao-avaliacoes-avisos.txt'),[IO.File]::ReadAllText((Join-Path $pastaTeste 'fluxo-avaliacoes-avisos.txt')),[Text.UTF8Encoding]::new($false))
-    & java '-Dfile.encoding=UTF-8' "-Dobotbarato.config=$arquivoConfig" -cp 'build/test/classes;build/classes;lib/postgresql-42.7.13.jar' CatalogoApresentacao | Tee-Object -FilePath (Join-Path $pastaTeste 'catalogo.txt')
+    & (Get-JavaExecutavel) '-Dfile.encoding=UTF-8' "-Dobotbarato.config=$arquivoConfig" -cp 'build/test/classes;build/classes;lib/postgresql-42.7.13.jar' FluxoRelatoriosNavegacao | Tee-Object -FilePath (Join-Path $pastaTeste 'fluxo-relatorios.txt')
+    if ($LASTEXITCODE -ne 0) { throw 'Fluxo de relatorios e navegacao falhou.' }
+    [IO.File]::AppendAllText((Join-Path $raizProjeto 'docs/validacao-relatorios-navegacao.txt'),[IO.File]::ReadAllText((Join-Path $pastaTeste 'fluxo-relatorios.txt')),[Text.UTF8Encoding]::new($false))
+    & (Get-JavaExecutavel) '-Dfile.encoding=UTF-8' "-Dobotbarato.config=$arquivoConfig" -cp 'build/test/classes;build/classes;lib/postgresql-42.7.13.jar' CatalogoApresentacao | Tee-Object -FilePath (Join-Path $pastaTeste 'catalogo.txt')
     if ($LASTEXITCODE -ne 0) { throw 'Teste do catalogo de apresentacao falhou.' }
     [IO.File]::WriteAllText((Join-Path $raizProjeto 'docs/validacao-catalogo.txt'),[IO.File]::ReadAllText((Join-Path $pastaTeste 'catalogo.txt')),[Text.UTF8Encoding]::new($false))
     $evidencia=[IO.File]::ReadAllText((Join-Path $pastaTeste 'evolucao.txt'))+[IO.File]::ReadAllText((Join-Path $pastaTeste 'parte2.txt'))+[IO.File]::ReadAllText((Join-Path $pastaTeste 'telas.txt'))

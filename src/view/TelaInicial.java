@@ -96,6 +96,7 @@ public class TelaInicial extends JFrame {
         grid.setBorder(BorderFactory.createEmptyBorder(28, 28, 16, 28));
 
         // Passa "this" para cada tela para que o botao Voltar funcione
+        grid.add(criarCard("Dashboard", "Indicadores e gráficos", Tema.ROXO_PRIMARIO, () -> { setVisible(false); new TelaDashboard(this).setVisible(true); }));
         grid.add(criarCard("Produtos",    "Cadastro e categorias",  new Color(130, 80, 255),  () -> { setVisible(false); new TelaProdutos(this).setVisible(true); }));
         grid.add(criarCard("Clientes",    "Base de clientes",       new Color(60, 140, 255),  () -> { setVisible(false); new TelaClientes(this).setVisible(true); }));
         grid.add(criarCard("Pedidos",     "Gestão, entrega e cancelamento", new Color(255, 80, 120), () -> { setVisible(false); new TelaGestaoPedidos(this).setVisible(true); }));
@@ -141,6 +142,7 @@ public class TelaInicial extends JFrame {
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0; gbc.gridy = 0; gbc.insets = new Insets(16, 10, 6, 10);
+        gbc.weightx = 1; gbc.fill = GridBagConstraints.HORIZONTAL;
 
         JLabel lblTitulo = new JLabel(titulo, SwingConstants.CENTER);
         lblTitulo.setFont(new Font("Segoe UI", Font.BOLD, 16));

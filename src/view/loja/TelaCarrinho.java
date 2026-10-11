@@ -54,19 +54,7 @@ public class TelaCarrinho extends JFrame {
         JPanel esq = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
         esq.setOpaque(false);
 
-        // Botao Voltar que SO fecha esta janela (nao usa o TemaLoja.botaoVoltar com JFrame)
-        JButton btnVolt = new JButton("  < Voltar");
-        btnVolt.setBackground(TemaLoja.BG_PRINCIPAL);
-        btnVolt.setForeground(TemaLoja.TEXTO_SECUNDARIO);
-        btnVolt.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        btnVolt.setFocusPainted(false);
-        btnVolt.setBorderPainted(false);
-        btnVolt.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        btnVolt.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(java.awt.event.MouseEvent e) { btnVolt.setForeground(TemaLoja.ROSA_PRIMARIO); }
-            public void mouseExited(java.awt.event.MouseEvent e)  { btnVolt.setForeground(TemaLoja.TEXTO_SECUNDARIO); }
-        });
-        btnVolt.addActionListener(e -> dispose());
+        JButton btnVolt = util.Tema.botaoVoltar(this,telaLoja);
 
         JSeparator sep = new JSeparator(JSeparator.VERTICAL);
         sep.setForeground(TemaLoja.BORDA);

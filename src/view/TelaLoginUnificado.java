@@ -383,14 +383,7 @@ public class TelaLoginUnificado extends JFrame {
         JPanel p = new JPanel(new BorderLayout());
         p.setOpaque(false);
 
-        JButton btnVoltar = new JButton("← Voltar");
-        btnVoltar.setFont(new Font("Segoe UI", Font.BOLD, 11));
-        btnVoltar.setForeground(Tema.ROXO_PRIMARIO);
-        btnVoltar.setContentAreaFilled(false);
-        btnVoltar.setBorderPainted(false);
-        btnVoltar.setFocusPainted(false);
-        btnVoltar.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        btnVoltar.addActionListener(e -> aoVoltar.run());
+        JButton btnVoltar = Tema.botaoVoltar(aoVoltar);
 
         JLabel lblTitulo = new JLabel(titulo, SwingConstants.CENTER);
         lblTitulo.setFont(new Font("Segoe UI", Font.BOLD, 18));

@@ -1,0 +1,23 @@
+JDK detectado sem JAVA_HOME/PATH Java: C:\Program Files\Eclipse Adoptium\jdk-17.0.20.101-hotspot\bin\javac.exe
+Pacote selecionado: C:\Users\samue\Documents\Projetos\Projeto Facu\Extenção\OBotBarato\dist\OBotBarato.jar
+Conferindo o banco local do OBotBarato...
+Banco atualizado. Dados de demonstração: true
+OK: conexão com banco obotbarato
+Servidor: PostgreSQL 18.6
+OK: tabelas e colunas da base desktop disponíveis.
+Ambiente local pronto. Use Iniciar OBotBarato.cmd ou scripts/executar.ps1.
+OK: conexão com banco obotbarato
+Servidor: PostgreSQL 18.6
+OK: tabelas e colunas da base desktop disponíveis.
+OK: conexão com banco obotbarato
+Servidor: PostgreSQL 18.6
+OK: tabelas e colunas da base desktop disponíveis.
+OK: contas de demonstração autenticadas.
+APROVADO: deteccao do JDK, pacote atual, lancador/diagnostico e contas na base local.
+
+Aplicativo aberto: versao nova separada. O lancador escolhe o pacote mais recente ao reabrir.
+Compilado: 68 fontes Java. Pacote: C:\Users\samue\Documents\Projetos\Projeto Facu\Extenção\OBotBarato\dist\OBotBarato-f2ebe7ad72db47ea86b562dd2a49486a.jar
+OK: conexão com banco obotbarato
+Servidor: PostgreSQL 18.6
+OK: tabelas e colunas da base desktop disponíveis.
+APROVADO: JAR bloqueado simulado, nova copia completa e selecao do pacote atualizado sem interromper a sessao.

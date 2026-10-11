@@ -50,6 +50,6 @@ V1 a V5 permanecem intactas. Pedidos, pagamentos, imagens, descontos e saldos an
 
 ## Validação
 
-`scripts/testar-integracao.ps1` mantém 80 cenários anteriores e acrescenta 13 de avaliações/avisos (**93 cenários**). Confere privacidade, compra verificada, edição/concorrência, média, deduplicação de mensagens, leitura individual, episódios de estoque e rollback em falha de aviso. Verifica evolução até V6 e construção de 22 telas/instâncias; fluxo Swing aciona salvar avaliação e marcar leitura.
+`scripts/testar-integracao.ps1` mantém 80 cenários anteriores e acrescenta 13 de avaliações/avisos (93 naquele bloco; **102 atuais** com relatórios/CSV). Confere privacidade, compra verificada, edição/concorrência, média, deduplicação de mensagens, leitura individual, episódios de estoque e rollback em falha de aviso. Verifica evolução até V6 e construção de 23 telas/instâncias; fluxo Swing aciona salvar avaliação e marcar leitura.
 
 Evidência: `validacao-avaliacoes-avisos.txt`. Capturas: `validacao-ui/avaliacao-cliente.png`, `notificacoes-cliente.png` e `notificacoes-equipe.png`. O roteiro de persistência também confere avaliação, avisos e leitura de registros próprios após reinício/restauração, removendo suas fixtures ao concluir.

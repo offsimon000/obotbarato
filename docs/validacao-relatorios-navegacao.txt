@@ -1,0 +1,11 @@
+OK 1: Somente equipe ativa consulta relatórios; cliente e ausência de sessão recusados
+OK 2: Período invertido e datas ausentes recusados
+OK 3: Faturamento líquido R$ 262, duas vendas, ticket R$ 131; boleto e cancelado separados
+OK 4: Datas inclusivas, próximo dia excluído e descontos do cupom/PIX discriminados sem arredondamento incorreto
+OK 5: Ranking do mesmo período: três unidades e R$ 300 bruto; produto desativado preserva histórico
+OK 6: Período vazio zera vendas; estoque crítico inclui limite/zerado ativos e independe do período
+OK 7: Boleto confirmado entra pela data da criação; ticket arredondado e consultas sem alteração de pedidos/estoque
+OK 8: CSV UTF-8/BOM, datas brasileiras, vírgula decimal e totais iguais aos exibidos
+OK 9: Aspas, separadores e quebras de linha preservados; fórmulas neutralizadas e falha não altera arquivo anterior
+APROVADO: 9 cenários de relatórios e CSV em PostgreSQL real.
+APROVADO: fluxo Swing de dashboard/relatórios, filtros brasileiros, valores conhecidos, abas/CSV, estados vazios, Voltar/X, gravação protegida e sessão encerrada.

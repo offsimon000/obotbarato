@@ -58,8 +58,7 @@ public class TelaFavoritos extends JFrame {
         JPanel esq = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
         esq.setOpaque(false);
 
-        JButton btnVoltar = TemaLoja.botaoFantasia("< Voltar");
-        btnVoltar.addActionListener(e -> dispose());
+        JButton btnVoltar = util.Tema.botaoVoltar(this,telaLoja);
         esq.add(btnVoltar);
 
         JSeparator sep = new JSeparator(JSeparator.VERTICAL);

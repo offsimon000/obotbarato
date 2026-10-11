@@ -1,9 +1,10 @@
 param([string]$JavaHome = $env:JAVA_HOME)
+. (Join-Path $PSScriptRoot 'comum.ps1')
 $ErrorActionPreference = 'Stop'
 $raizProjeto = Split-Path -Parent $PSScriptRoot
 if ([string]::IsNullOrWhiteSpace($JavaHome)) {
-    $javac = (Get-Command javac -ErrorAction Stop).Source
-    $jar = Join-Path (Split-Path $javac) 'jar.exe'
+    $javac = Get-JavaExecutavel 'javac'
+    $jar = Get-JavaExecutavel 'jar'
 } else {
     $javac = Join-Path $JavaHome 'bin/javac.exe'
     $jar = Join-Path $JavaHome 'bin/jar.exe'
@@ -31,7 +32,21 @@ try {
 } finally { Pop-Location }
 $manifesto = Join-Path $raizProjeto 'build/MANIFEST.MF'
 [IO.File]::WriteAllText($manifesto, "Manifest-Version: 1.0`nClass-Path: lib/postgresql-42.7.13.jar`n`n", [Text.UTF8Encoding]::new($false))
-& $jar --create --file (Join-Path $raizProjeto 'dist/OBotBarato.jar') --manifest $manifesto --main-class view.TelaLoginUnificado -C $classes .
+$jarGerado = Join-Path $raizProjeto 'build/OBotBarato.jar'
+& $jar --create --file $jarGerado --manifest $manifesto --main-class view.TelaLoginUnificado -C $classes .
 if ($LASTEXITCODE -ne 0) { throw 'Falha ao gerar o JAR.' }
-Copy-Item -LiteralPath $driver -Destination (Join-Path $raizProjeto 'dist/lib/') -Force
-Write-Host "Compilado: $($fontes.Count) fontes Java. Pacote: dist/OBotBarato.jar"
+$driverDestino = Join-Path $raizProjeto 'dist/lib/postgresql-42.7.13.jar'
+if (-not (Test-Path -LiteralPath $driverDestino) -or (Get-FileHash -LiteralPath $driver).Hash -ne (Get-FileHash -LiteralPath $driverDestino).Hash) {
+    Copy-Item -LiteralPath $driver -Destination $driverDestino -Force
+}
+$pacote = Join-Path $raizProjeto 'dist/OBotBarato.jar'
+try {
+    if (Test-Path -LiteralPath $pacote) { [IO.File]::Replace($jarGerado, $pacote, [NullString]::Value) }
+    else { [IO.File]::Move($jarGerado, $pacote) }
+} catch {
+    # Windows bloqueia o JAR em uso. Preserva a sessao e publica outro arquivo completo.
+    $pacote = Join-Path $raizProjeto ('dist/OBotBarato-' + [Guid]::NewGuid().ToString('N') + '.jar')
+    [IO.File]::Move($jarGerado, $pacote)
+    Write-Host 'Aplicativo aberto: versao nova separada. O lancador escolhe o pacote mais recente ao reabrir.'
+}
+Write-Host "Compilado: $($fontes.Count) fontes Java. Pacote: $pacote"

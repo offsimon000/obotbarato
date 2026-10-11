@@ -18,13 +18,15 @@ public class FormularioProduto extends JDialog {
     private final JSpinner minimo=new JSpinner(new SpinnerNumberModel(5,0,1000000,1));
     private final JPanel preview=new JPanel(new BorderLayout());
     private byte[] imagem;
+    private boolean salvando;
+    private final int usuario=Sessao.getIdUsuario();
     public FormularioProduto(JFrame parent,Integer id){
         super(parent,id==null?"Novo Produto":"Editar Produto",true);Acesso.telaAdmin();idProduto=id;
         setSize(500,690);setLocationRelativeTo(parent);setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         JPanel p=new JPanel(new GridBagLayout());p.setBackground(Tema.BG_ESCURO);p.setBorder(BorderFactory.createEmptyBorder(16,24,16,24));
         GridBagConstraints g=new GridBagConstraints();g.gridx=0;g.weightx=1;g.fill=GridBagConstraints.HORIZONTAL;g.insets=new Insets(5,0,5,0);
         int row=0;
-        JLabel titulo=new JLabel(id==null?"Novo Produto":"Editar Produto");titulo.setFont(Tema.FONTE_TITULO);g.gridy=row++;p.add(titulo,g);
+        JPanel topo=new JPanel(new FlowLayout(FlowLayout.LEFT,10,0));topo.setOpaque(false);topo.add(Tema.botaoVoltar(this,parent,()->!salvando));JLabel titulo=new JLabel(id==null?"Novo Produto":"Editar Produto");titulo.setFont(Tema.FONTE_TITULO);topo.add(titulo);g.gridy=row++;p.add(topo,g);
         descricao.setFont(Tema.FONTE_CAMPO);descricao.setLineWrap(true);descricao.setWrapStyleWord(true);
         String[] labels={"NOME","PREÇO (R$)","CATEGORIA","DESCRIÇÃO"};JComponent[] campos={nome,preco,categoria,Tema.scrollDark(descricao)};
         for(int i=0;i<labels.length;i++){JLabel l=new JLabel(labels[i]);l.setFont(Tema.FONTE_LABEL);g.gridy=row++;p.add(l,g);g.gridy=row++;p.add(campos[i],g);}
@@ -56,10 +58,10 @@ public class FormularioProduto extends JDialog {
             Categoria c=(Categoria)categoria.getSelectedItem();if(c==null)throw new IllegalArgumentException("Cadastre e selecione uma categoria.");p.setIdCategoria(c.id());p.setAtivo(ativo.isSelected());p.setImagem(imagem);
             p.setEstoqueInicial((Integer)quantidade.getValue());p.setEstoqueMinimo((Integer)minimo.getValue());
         }catch(Exception ex){aviso(ex);return;}
-        botao.setEnabled(false);
+        salvando=true;botao.setEnabled(false);
         new SwingWorker<Boolean,Void>(){
             protected Boolean doInBackground()throws Exception{return idProduto==null?dao.salvar(p):dao.atualizar(p);}
-            protected void done(){botao.setEnabled(true);try{if(!get())throw new IllegalArgumentException("Produto não encontrado.");JOptionPane.showMessageDialog(FormularioProduto.this,"Produto salvo com sucesso!");dispose();}catch(Exception ex){aviso(ex);}}
+            protected void done(){salvando=false;if(Sessao.getIdUsuario()!=usuario)return;botao.setEnabled(true);try{if(!get())throw new IllegalArgumentException("Produto não encontrado.");JOptionPane.showMessageDialog(FormularioProduto.this,"Produto salvo com sucesso!");dispose();}catch(Exception ex){aviso(ex);}}
         }.execute();
     }
     private void aviso(Throwable ex){JOptionPane.showMessageDialog(this,Erros.mensagem(ex),"Produto",JOptionPane.WARNING_MESSAGE);}

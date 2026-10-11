@@ -1,0 +1,3 @@
+APROVADO: dashboard/menu na base local, total conferido por consulta independente e dados preservados.
+Contagens: produtos ativos=30, estoque ativo=855, pedidos=1, avaliações=0, avisos=0, leituras=0, migrations=6
+Faturamento no mês: R$ 53,96

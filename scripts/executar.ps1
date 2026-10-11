@@ -15,6 +15,6 @@ Push-Location -LiteralPath $raizProjeto
 try {
     $argsJava = @('-Dfile.encoding=UTF-8')
     if ($Config) { $argsJava += "-Dobotbarato.config=$Config" }
-    & (Get-JavaExecutavel) @argsJava -jar 'dist/OBotBarato.jar'
+    & (Get-JavaExecutavel) @argsJava -jar (Get-PacoteProjeto)
     if ($LASTEXITCODE -ne 0) { throw 'Aplicativo terminou com erro.' }
 } finally { Pop-Location }

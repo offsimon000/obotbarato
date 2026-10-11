@@ -45,7 +45,7 @@ UUID protege repetição: uma compra já gravada retorna seus valores originais,
 
 `V005__perfil_e_cupons.sql` cria cupons, referência opcional do pedido e snapshots de código, percentual, desconto do cupom e do pagamento. Desconto total é a soma dos dois; total continua subtotal menos desconto. Restrições impedem valores negativos e descontos maiores que o subtotal.
 
-Migrations anteriores permanecem intactas. V5 preserva pedidos/valores antigos, atribuindo o desconto anterior ao pagamento e zero ao cupom. Perfil usa as colunas existentes de clientes. Faturamento por período continua somando o total líquido de pedidos não cancelados com pagamento confirmado. Receita bruta no ranking continua identificada como tal até a revisão completa da etapa 8.
+Migrations anteriores permanecem intactas. V5 preserva pedidos/valores antigos, atribuindo o desconto anterior ao pagamento e zero ao cupom. Perfil usa as colunas existentes de clientes. Faturamento por período continua somando o total líquido de pedidos não cancelados com pagamento confirmado. Ranking mostra explicitamente valor bruto dos itens antes de descontos; dashboard e vendas por dia mostram o líquido e as parcelas de cupom/pagamento. Veja DASHBOARD_RELATORIOS_E_NAVEGACAO.md.
 
 ## Como testar
 
@@ -59,6 +59,6 @@ Migrations anteriores permanecem intactas. V5 preserva pedidos/valores antigos, 
 
 ## Verificação
 
-`scripts/testar-integracao.ps1`: 14 cenários específicos de perfil/cupons dentro dos 93 atuais, evolução até V6, construção de 22 telas e fluxo Swing de perfil, senha, aplicar/remover/reaplicar cupom, PIX, entrega atualizada e duplo clique. Evidência: `validacao-perfil-cupons.txt`; capturas `validacao-ui/perfil-cliente.png`, `cupons-admin.png` e `checkout-cupom*.png`.
+`scripts/testar-integracao.ps1`: 14 cenários específicos de perfil/cupons dentro dos 102 atuais, evolução até V6, construção de 23 telas e fluxo Swing de perfil, senha, aplicar/remover/reaplicar cupom, PIX, entrega atualizada e duplo clique. Evidência: `validacao-perfil-cupons.txt`; capturas `validacao-ui/perfil-cliente.png`, `cupons-admin.png` e `checkout-cupom*.png`.
 
 `scripts/verificar-base.ps1`: registros próprios verificam perfil/senha e compra cancelada com subtotal R$ 23, cupom R$ 2,30, desconto PIX R$ 2,07 e total R$ 18,63 após reinício e restauração. Remove somente suas fixtures, inclusive o cupom temporário. O catálogo e as contas reais permanecem preservados.

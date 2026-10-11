@@ -44,7 +44,6 @@ public class TelaPedidos extends JFrame {
         setSize(780, 600);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-        addWindowListener(new java.awt.event.WindowAdapter(){public void windowClosing(java.awt.event.WindowEvent e){if(!salvando){dispose();if(telaAnterior!=null && util.Sessao.getIdUsuario()==sessaoUsuario)telaAnterior.setVisible(true);}}});
 
         JPanel painel = new JPanel(new BorderLayout());
         painel.setBackground(Tema.BG_ESCURO);
@@ -58,7 +57,7 @@ public class TelaPedidos extends JFrame {
 
         JPanel headerEsq = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
         headerEsq.setOpaque(false);
-        btnVoltar=Tema.botaoVoltar(this,telaAnterior);headerEsq.add(btnVoltar);
+        btnVoltar=Tema.botaoVoltar(this,telaAnterior,()->!salvando);headerEsq.add(btnVoltar);
         JSeparator sep = new JSeparator(JSeparator.VERTICAL);
         sep.setForeground(Tema.BORDA); sep.setPreferredSize(new Dimension(1, 20));
         headerEsq.add(sep);

@@ -101,25 +101,7 @@ public class TemaLoja {
     }
 
     /** Botão Voltar — Texto apenas, navegação */
-    public static JButton botaoVoltar(JFrame telaAtual, JFrame telaAnterior) {
-        JButton btn = new JButton("  < Voltar");
-        btn.setForeground(TEXTO_SECUNDARIO);
-        btn.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        btn.setFocusPainted(false);
-        btn.setBorderPainted(false);
-        btn.setContentAreaFilled(false);
-        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        btn.setBorder(BorderFactory.createEmptyBorder(6, 4, 6, 12));
-        btn.addMouseListener(new MouseAdapter() {
-            public void mouseEntered(MouseEvent e) { btn.setForeground(ROSA_PRIMARIO); }
-            public void mouseExited(MouseEvent e)  { btn.setForeground(TEXTO_SECUNDARIO); }
-        });
-        btn.addActionListener(e -> {
-            telaAtual.dispose();
-            if (telaAnterior != null) telaAnterior.setVisible(true);
-        });
-        return btn;
-    }
+    public static JButton botaoVoltar(JFrame telaAtual, JFrame telaAnterior) { return Tema.botaoVoltar(telaAtual,telaAnterior); }
 
     /** Campo de texto padrão da loja */
     public static JTextField campo(int colunas) {

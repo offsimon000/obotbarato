@@ -8,7 +8,21 @@ function Get-JavaExecutavel([string]$Nome = 'java') {
         $arquivo = Join-Path $env:JAVA_HOME ('bin/' + $Nome + '.exe')
         if (Test-Path -LiteralPath $arquivo) { return $arquivo }
     }
-    $comando = Get-Command $Nome -ErrorAction SilentlyContinue
+    $comando = Get-Command $Nome -CommandType Application -ErrorAction SilentlyContinue
+    if (-not $comando) {
+        # Detecta JDK 17+ instalado quando o Windows ainda nao atualizou o PATH.
+        $candidatos = @()
+        foreach ($fornecedor in @('Eclipse Adoptium', 'Java', 'Microsoft')) {
+            $pastaJava = Join-Path $env:ProgramFiles $fornecedor
+            if (Test-Path -LiteralPath $pastaJava) {
+                $candidatos += @(Get-ChildItem -LiteralPath $pastaJava -Directory | Where-Object { $_.Name -match '^jdk-?(\d+)' -and [int]$Matches[1] -ge 17 } | Sort-Object LastWriteTimeUtc -Descending)
+            }
+        }
+        foreach ($candidato in $candidatos) {
+            $arquivo = Join-Path $candidato.FullName ('bin/' + $Nome + '.exe')
+            if ((Test-Path -LiteralPath $arquivo) -and (Test-Path -LiteralPath (Join-Path $candidato.FullName 'bin/javac.exe'))) { return $arquivo }
+        }
+    }
     if (-not $comando) { throw "Java nao encontrado ($Nome). Instale o JDK 17 ou configure JAVA_HOME/PATH." }
     return $comando.Source
 }
@@ -16,7 +30,7 @@ function Get-JavaExecutavel([string]$Nome = 'java') {
 function Get-PostgresBin([string]$Preferido) {
     if ($Preferido) { $pasta = $Preferido }
     elseif ($env:OBOTBARATO_PG_BIN) { $pasta = $env:OBOTBARATO_PG_BIN }
-    elseif (Get-Command pg_ctl -ErrorAction SilentlyContinue) { $pasta = Split-Path (Get-Command pg_ctl).Source }
+    elseif (Get-Command pg_ctl -CommandType Application -ErrorAction SilentlyContinue) { $pasta = Split-Path (Get-Command pg_ctl -CommandType Application).Source }
     else {
         $instalacoes = @(Get-ChildItem -LiteralPath (Join-Path $env:ProgramFiles 'PostgreSQL') -Directory -ErrorAction SilentlyContinue | Where-Object { $_.Name -match '^\d+(\.\d+)*$' } | Sort-Object { [version]($_.Name + '.0') } -Descending)
         if ($instalacoes.Count -eq 0) { throw 'PostgreSQL nao encontrado. Informe -PgBin com a pasta bin da instalacao.' }
@@ -36,9 +50,15 @@ function Confirmar-SemOverrideBanco {
     }
 }
 
+function Get-PacoteProjeto {
+    $pacotes = @(Get-ChildItem -LiteralPath (Join-Path $raizProjeto 'dist') -Filter 'OBotBarato*.jar' -File -ErrorAction SilentlyContinue | Where-Object { $_.Name -match '^OBotBarato(-[a-f0-9]{32})?\.jar$' } | Sort-Object LastWriteTimeUtc -Descending)
+    if ($pacotes.Count -gt 0) { return $pacotes[0].FullName }
+    return $null
+}
+
 function Confirmar-Compilacao {
-    $jar = Join-Path $raizProjeto 'dist/OBotBarato.jar'
-    $recompilar = -not (Test-Path -LiteralPath $jar)
+    $jar = Get-PacoteProjeto
+    $recompilar = -not $jar
     if (-not $recompilar) {
         $dataJar = (Get-Item -LiteralPath $jar).LastWriteTimeUtc
         $recompilar = @(Get-ChildItem -LiteralPath (Join-Path $raizProjeto 'src') -Recurse -Filter '*.java' | Where-Object { $_.LastWriteTimeUtc -gt $dataJar }).Count -gt 0
@@ -95,7 +115,8 @@ function Invoke-JavaProjeto([string]$Classe, [string]$Config, [string[]]$Argumen
     try {
         $opcoesJava = @('-Dfile.encoding=UTF-8')
         if ($Config) { $opcoesJava += "-Dobotbarato.config=$Config" }
-        & (Get-JavaExecutavel) @opcoesJava -cp 'dist/OBotBarato.jar;dist/lib/postgresql-42.7.13.jar' $Classe @Argumentos
+        $pacote = Get-PacoteProjeto
+        & (Get-JavaExecutavel) @opcoesJava -cp ($pacote + ';dist/lib/postgresql-42.7.13.jar') $Classe @Argumentos
         if ($LASTEXITCODE -ne 0) { throw "Operacao Java nao concluida: $Classe" }
     } finally { Pop-Location }
 }

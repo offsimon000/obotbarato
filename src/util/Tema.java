@@ -82,8 +82,8 @@ public class Tema {
     }
 
     /** Botao Voltar — fecha a tela atual e reexibe o menu */
-    public static JButton botaoVoltar(JFrame telaAtual, JFrame telaMenu) {
-        JButton btn = new JButton("  < Voltar");
+    public static JButton botaoVoltar(Runnable aoVoltar) {
+        JButton btn = new JButton("< Voltar");
         btn.setForeground(TEXTO_SECUNDARIO);
         btn.setFont(new Font("Segoe UI", Font.BOLD, 12));
         btn.setFocusPainted(false);
@@ -95,12 +95,11 @@ public class Tema {
             public void mouseEntered(MouseEvent e) { btn.setForeground(ROXO_PRIMARIO); }
             public void mouseExited(MouseEvent e)  { btn.setForeground(TEXTO_SECUNDARIO); }
         });
-        btn.addActionListener(e -> {
-            telaAtual.dispose();
-            if (telaMenu != null) telaMenu.setVisible(true);
-        });
+        btn.addActionListener(e -> aoVoltar.run());
         return btn;
     }
+    public static JButton botaoVoltar(Window atual,Window anterior){return Navegacao.botao(atual,anterior,()->true);}
+    public static JButton botaoVoltar(Window atual,Window anterior,java.util.function.BooleanSupplier podeFechar){return Navegacao.botao(atual,anterior,podeFechar);}
 
     public static JTextField campo(int colunas) {
         JTextField tf = new JTextField(colunas);

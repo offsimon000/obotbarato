@@ -2,19 +2,19 @@
 
 Pasta oficial de desenvolvimento do projeto acadêmico. Aplicação Java Swing com PostgreSQL, mantendo o estilo visual original. Apresentação: **28/10/2026**.
 
-**Estado atual:** etapas 1 a 6 implementadas: fundação, cadastros, permissões, catálogo, compra/pagamento simulado e gestão/cancelamento de pedidos. Guias: `docs/COMO_TESTAR_PARTES_1_E_2.md`, `docs/PARTE_2_CADASTROS_E_ACESSO.md`, `docs/COMPRA_E_PAGAMENTO_SIMULADO.md` e `docs/GESTAO_E_CANCELAMENTO_PEDIDOS.md`. O próximo bloco reúne os módulos complementares da etapa 7. O plano completo está em `../analise/PLANO_FINALIZACAO_OBOTBARATO.md`; escopo e critérios estão em `docs/ESCOPO_E_CRITERIOS.md`. Os arquivos extraídos são referências preservadas.
+**Estado atual:** etapas 1 a 6 implementadas: fundação, cadastros, permissões, catálogo, compra/pagamento simulado e gestão/cancelamento de pedidos. Guias: `docs/COMO_TESTAR_PARTES_1_E_2.md`, `docs/PARTE_2_CADASTROS_E_ACESSO.md`, `docs/COMPRA_E_PAGAMENTO_SIMULADO.md` e `docs/GESTAO_E_CANCELAMENTO_PEDIDOS.md`. Os módulos da etapa 7 também estão implementados: perfil, cupons, avaliações, notificações e dashboard. Próximo bloco: revisão final integrada, documentação acadêmica e pacote. O plano completo está em `../analise/PLANO_FINALIZACAO_OBOTBARATO.md`; escopo e critérios estão em `docs/ESCOPO_E_CRITERIOS.md`. Os arquivos extraídos são referências preservadas.
 
 Ajustes de interface de 09/10: datas brasileiras com barras automáticas, campos/botões corrigidos e navegação do cliente revisada. Como conferir: `docs/AJUSTES_INTERFACE_E_DATAS.md`; testes em `docs/validacao-interface.txt`.
 
 Catálogo de apresentação: 30 cosméticos fictícios com imagens próprias, descrições, preços e estoque. Cadastro/prompts/imagens estão em catalogo; regras, lista e importação manual em docs/CATALOGO_APRESENTACAO.md. A instalação local já recebeu esse catálogo; a demonstração básica de uma base nova continua separada. A loja permite abrir Ver detalhes para consultar descrição e imagem maior.
 
-Perfil e cupons também concluídos: Meu perfil na loja; Cupons no painel admin; APRESENTA10 para demonstração. Desconto do cupom antes do pagamento, com parcelas salvas no pedido. Regras/testes: `docs/PERFIL_E_CUPONS.md` e `docs/validacao-perfil-cupons.txt`. Avaliações e notificações também concluídas; dashboard e revisão final dos relatórios seguem pendentes.
+Perfil e cupons também concluídos: Meu perfil na loja; Cupons no painel admin; APRESENTA10 para demonstração. Desconto do cupom antes do pagamento, com parcelas salvas no pedido. Regras/testes: `docs/PERFIL_E_CUPONS.md` e `docs/validacao-perfil-cupons.txt`. Avaliações e notificações também concluídas; dashboard e relatórios com exportação CSV também estão implementados. Guia: `docs/DASHBOARD_RELATORIOS_E_NAVEGACAO.md`.
 
 Avaliações e avisos internos: `docs/AVALIACOES_E_NOTIFICACOES.md` e `docs/validacao-avaliacoes-avisos.txt`. Cliente avalia produtos dos seus pedidos entregues; Notificações na loja e no painel, com leitura individual.
 
 ## Pré-requisitos
 
-- JDK 17 ou posterior, com `java`, `javac` e `jar` no PATH.
+- JDK 17 ou posterior. Scripts usam JAVA_HOME/PATH ou detectam JDK instalado nas pastas padrão de Eclipse Adoptium, Java e Microsoft. Em instalação personalizada, configure JAVA_HOME.
 - Windows PowerShell 5.1 (incluído no Windows) ou PowerShell 7.
 - PostgreSQL instalado. O preparador detecta a instalação, o PATH ou `OBOTBARATO_PG_BIN`; também aceita `-PgBin`.
 - Driver JDBC incluído em `lib/postgresql-42.7.13.jar`, obtido de https://jdbc.postgresql.org/download/.
@@ -27,7 +27,7 @@ Abra um terminal nesta pasta e execute:
 ./scripts/compilar.ps1
 ```
 
-Gera `dist/OBotBarato.jar` e `dist/lib`. Não depende do Ant nem de arquivos na pasta Downloads. O projeto NetBeans está em `nbproject`, também configurado para Java 17.
+Gera `dist/OBotBarato.jar` e `dist/lib`. Se o aplicativo bloquear o JAR, publica `dist/OBotBarato-<identificador>.jar`; lançador e scripts escolhem o pacote mais recente ao reabrir, preservando a sessão existente. Não depende do Ant nem de arquivos na pasta Downloads. O projeto NetBeans está em `nbproject`, também configurado para Java 17.
 
 ## Iniciar no Windows
 
@@ -94,9 +94,9 @@ O seed usa PBKDF2-HMAC-SHA256 com salt aleatório e 600.000 iterações. Hashes 
 
 O script cria um cluster exclusivo em `.local/teste-<identificador>`, escolhe uma porta livre, usa uma senha aleatória e escuta somente em `127.0.0.1`. Não inicia o serviço nem altera a base PostgreSQL antiga ou a de desenvolvimento. Ao terminar, para o cluster criado, preservando seus logs. As variáveis `DB_*` precisam estar ausentes para evitar redirecionar os testes.
 
-O script verifica 93 cenários: 20 regressões iniciais, 15 de cadastros/acesso, 14 de compra/pagamento, 17 de gestão/cancelamento, 14 de perfil/cupons e 13 de avaliações/avisos. Inclui evolução V1/V3 → V4/V5/V6, rollback e concorrência, permissões, filtros e faturamento. Constrói 22 telas e aciona fluxos Swing de checkout e gestão. Evidências: `docs/ultimo-teste-integracao.txt`, `docs/validacao-parte2.txt`, `docs/validacao-compra.txt` e `docs/validacao-pedidos.txt`. O teste de gestão fornece respostas aos diálogos de confirmação/motivo sem exibir janelas.
+O script verifica 102 cenários: 20 regressões iniciais, 15 de cadastros/acesso, 14 de compra/pagamento, 17 de gestão/cancelamento, 14 de perfil/cupons, 13 de avaliações/avisos e 9 de relatórios/CSV. Inclui evolução V1/V3 → V4/V5/V6, rollback e concorrência, permissões, filtros e faturamento. Constrói 23 telas, exige Voltar nas secundárias e aciona fluxos Swing de checkout, gestão, perfil/cupons, avaliações/avisos e dashboard/relatórios/navegação. Evidências: `docs/ultimo-teste-integracao.txt`, `docs/validacao-parte2.txt`, `docs/validacao-compra.txt` e `docs/validacao-pedidos.txt`. O teste de gestão fornece respostas aos diálogos de confirmação/motivo sem exibir janelas.
 
-Para verificar também o ambiente persistente, reinício, restauração e construção das 22 telas atuais:
+Para verificar também o ambiente persistente, reinício, restauração e construção das 23 telas atuais:
 
 ```powershell
 ./scripts/verificar-base.ps1
@@ -121,4 +121,4 @@ Guarde uma cópia do `.dump` fora da máquina para recuperação em caso de perd
 
 ## Limites desta versão de desenvolvimento
 
-As etapas 1 a 6 tratam persistência, cadastros, compra, pagamento e entrega simulados, acompanhamento e cancelamento antes do envio. Dashboard, revisão completa dos relatórios e documentação acadêmica final ainda dependem das próximas etapas. Não há devolução pós-envio ou estorno financeiro real. O JAR gerado serve para desenvolvimento; a instalação completa e o pacote da apresentação ainda serão validados.
+As etapas 1 a 6 tratam persistência, cadastros, compra, pagamento e entrega simulados, acompanhamento e cancelamento antes do envio. Perfil, cupons, avaliações, notificações, dashboard e relatórios/CSV estão implementados. Revisão final integrada, documentação acadêmica/diagramas e pacote de apresentação ainda dependem das próximas etapas. Não há devolução pós-envio ou estorno financeiro real. O JAR gerado serve para desenvolvimento; a instalação completa e o pacote da apresentação ainda serão validados.

@@ -11,10 +11,11 @@ if ($FixtureExistente) { $FixtureExistente = (Resolve-Path -LiteralPath $Fixture
 Push-Location -LiteralPath $raizProjeto
 try {
     New-Item -ItemType Directory -Force -Path 'build/test/classes' | Out-Null
-    & (Get-JavaExecutavel 'javac') --release 17 -encoding UTF-8 -cp 'dist/OBotBarato.jar;dist/lib/postgresql-42.7.13.jar' -d 'build/test/classes' 'test/CicloPersistencia.java' 'test/InicializacaoTelas.java'
+    $cpProjeto = (Get-PacoteProjeto) + ';dist/lib/postgresql-42.7.13.jar'
+    & (Get-JavaExecutavel 'javac') --release 17 -encoding UTF-8 -cp $cpProjeto -d 'build/test/classes' 'test/CicloPersistencia.java' 'test/InicializacaoTelas.java'
     if ($LASTEXITCODE -ne 0) { throw 'Falha ao compilar verificacao da base.' }
     $fixture = if ($FixtureExistente) { $FixtureExistente } else { Join-Path $ambiente.Pasta ('fixture-' + [Guid]::NewGuid().ToString('N') + '.properties') }
-    $cp = 'build/test/classes;dist/OBotBarato.jar;dist/lib/postgresql-42.7.13.jar'
+    $cp = 'build/test/classes;' + $cpProjeto
     function Invoke-Ciclo([string]$Acao, [string]$Config) {
         & (Get-JavaExecutavel) '-Dfile.encoding=UTF-8' "-Dobotbarato.config=$Config" -cp $cp CicloPersistencia $Acao $fixture | Tee-Object -FilePath $log -Append
         if ($LASTEXITCODE -ne 0) { throw "Falha na verificacao de persistencia: $Acao" }

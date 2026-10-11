@@ -23,6 +23,7 @@ OK tela: TelaEstoque
 OK tela: TelaPedidos
 OK tela: TelaGestaoPedidos
 OK tela: TelaRelatorios
+OK tela: TelaDashboard
 OK tela: TelaPagamentos
 OK tela: FormularioProduto
 OK tela: TelaUsuarios
@@ -37,4 +38,4 @@ OK tela: TelaMeusPedidos
 OK tela: TelaPerfil
 OK tela: TelaNotificacoes
 OK tela: TelaAvaliacao
-APROVADO: 22 telas inicializadas no EDT sem exibir janelas.
+APROVADO: 23 telas inicializadas no EDT sem exibir janelas.

@@ -37,7 +37,7 @@ A migration `V004__gestao_e_cancelamento_pedidos.sql` adiciona histórico, vínc
 
 O status anterior `finalizado` tinha dois significados: balcão passa a `entregue`; loja passa a `aberto`, preservando pagamento confirmado, valores e saldo. Não se presume entrega da loja sem histórico. Pedidos antigos abertos/cancelados preservam o estado e recebem somente uma anotação de implantação. A migration não devolve estoque de cancelamentos legados, pois não existe prova de como foram tratados antes. Para um registro legado inconsistente, a equipe deve conferir o saldo por manutenção; não há correção automática.
 
-Faturamento por período usa **total final de pedidos não cancelados com pagamento confirmado**, independentemente da etapa de entrega. Pendentes/cancelados não contam. Ranking segue a mesma seleção, mas sua receita é o **valor bruto dos itens**, identificado na tela; revisão de atribuição de descontos, indicadores e exportação pertence à etapa 8.
+Faturamento por período usa **total final de pedidos não cancelados com pagamento confirmado**, independentemente da etapa de entrega. Pendentes/cancelados não contam. Ranking segue a mesma seleção, mas sua receita é o **valor bruto dos itens**, identificado na tela; a regra escolhida conserva o bruto no ranking e mostra as parcelas de descontos na tabela de vendas. Dashboard e CSV usam o mesmo período/snapshot: DASHBOARD_RELATORIOS_E_NAVEGACAO.md.
 
 ## Como testar pela interface
 
@@ -60,4 +60,4 @@ Faturamento por período usa **total final de pedidos não cancelados com pagame
 
 `scripts/verificar-base.ps1` verifica reinício e restauração, incluindo histórico da retirada, pedido cancelado e devolução única. Usa registros próprios identificados e remove somente essas fixtures. O serviço PostgreSQL original continua preservado.
 
-Perfil, cupons, avaliações e notificações estão concluídos na etapa 7. Dashboard, revisão completa dos relatórios, documentação acadêmica e pacote final continuam pendentes.
+Perfil, cupons, avaliações e notificações estão concluídos na etapa 7. Dashboard, relatórios e CSV também implementados. Revisão integrada final, documentação acadêmica e pacote final continuam pendentes.

@@ -1,4 +1,4 @@
-# Estado atual — 09/10/2026
+# Estado atual — 10/10/2026
 
 Etapas 1 a 6 concluídas: partes 1 e 2, compra/pagamento simulado e gestão/cancelamento de pedidos. Desktop Java Swing/PostgreSQL e estilo visual preservados. A versão continua em desenvolvimento, com apresentação prevista para 28/10/2026.
 
@@ -11,11 +11,11 @@ Etapas 1 a 6 concluídas: partes 1 e 2, compra/pagamento simulado e gestão/canc
 - Como abrir e testar: COMO_TESTAR_PARTES_1_E_2.md e Testar Partes 1 e 2.cmd (inclui também compra/pagamento e gestão/cancelamento).
 - Correções solicitadas no teste manual: formulário largo, botões com espaço, datas brasileiras mascaradas, marca sem asterisco, loja reorganizada, janelas únicas e ações de pedidos/carrinho conforme o estado. Guia: AJUSTES_INTERFACE_E_DATAS.md; evidência: validacao-interface.txt.
 
-64 fontes de produção compiladas. Banco isolado: 20 regressões iniciais + 15 cenários de acesso/cadastros + 14 de compra/pagamento + 17 de gestão/cancelamento + 14 de perfil/cupons + 13 de avaliações/avisos (93 cenários), além das verificações de datas/interface. Evolução V1/V3 → V4/V5/V6 preserva dados, pedidos, itens, pagamentos e saldos, com registro explícito de implantação. Construção de 22 telas. Fluxos Swing de checkout e gestão, incluindo duplo clique, filtro, avanço e cancelamento pessoal/da equipe. Evidências: ultimo-teste-integracao.txt, validacao-parte2.txt, validacao-compra.txt, validacao-pedidos.txt e validacao-interface.txt. Capturas em validacao-ui.
+68 fontes de produção compiladas. Banco isolado: 20 regressões iniciais + 15 cenários de acesso/cadastros + 14 de compra/pagamento + 17 de gestão/cancelamento + 14 de perfil/cupons + 13 de avaliações/avisos + 9 de relatórios/CSV (102 cenários), além das verificações de datas/interface. Evolução V1/V3 → V4/V5/V6 preserva dados, pedidos, itens, pagamentos e saldos, com registro explícito de implantação. Construção de 23 telas, exigindo Voltar nas secundárias. Fluxos Swing de checkout e gestão, incluindo duplo clique, filtro, avanço e cancelamento pessoal/da equipe. Evidências: ultimo-teste-integracao.txt, validacao-parte2.txt, validacao-compra.txt, validacao-pedidos.txt e validacao-interface.txt. Capturas em validacao-ui. Dashboard/relatórios/navegação: validacao-relatorios-navegacao.txt; base local atual: validacao-dashboard-base-local.txt; lançador/JDK: validacao-lancador-atualizado.txt.
 
 A base local foi atualizada preservando dados, com backups anteriores às evoluções. A verificação de reinício/restauração inclui pedido, total, subtotal/desconto, pagamento, imagem, estoque, retirada entregue, cancelamento, devolução, histórico, perfil/senha, cupom/descontos, avaliação e leitura de avisos; resultado em validacao-base.txt. O serviço/banco PostgreSQL antigo é preservado.
 
-Perfil e cupons concluídos na etapa 7. Avaliações e notificações também concluídas. Próximo bloco: dashboard e revisão dos relatórios. Relatórios finais, validação completa, documentação acadêmica e empacotamento continuam pendentes. Os registros históricos do primeiro bloco são mantidos abaixo.
+Perfil e cupons concluídos na etapa 7. Avaliações e notificações também concluídas. Dashboard e relatórios/CSV também concluídos; Voltar/X padronizados. Guia DASHBOARD_RELATORIOS_E_NAVEGACAO.md e evidência validacao-relatorios-navegacao.txt. Próximo bloco: revisão final integrada, documentação acadêmica/diagramas, roteiro e pacote da apresentação. Os registros históricos do primeiro bloco são mantidos abaixo.
 ---
 # Registro do primeiro bloco concluído — 30/09/2026
 

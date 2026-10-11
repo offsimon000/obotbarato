@@ -16,7 +16,7 @@ Correções solicitadas após teste manual, mantendo o desktop e o tema branco/a
 
 1. Feche a versão que estava aberta e execute **Iniciar OBotBarato.cmd** para carregar a versão atual.
 2. Admin → Clientes → Novo Cliente: confira campos largos; tente e-mail inválido e corrija preservando o texto.
-3. Relatórios → Vendas por Período: selecione tudo no início, digite `01102026`; no fim, `09102026`. Confira barras automáticas e datas válidas. Tente `31022026`: geração deve recusar.
+3. Relatórios → Vendas por dia: selecione tudo no início, digite `01102026`; no fim, `09102026`. Confira barras automáticas e datas válidas. Tente `31022026`: geração deve recusar.
 4. Em Pedidos, digite as datas sem barras e filtre. Detalhes/histórico devem mostrar dia/mês/ano.
 5. Cliente → loja: confira marca sem asterisco, cartões e botões legíveis. Adicione um produto; aviso e contador do carrinho devem mudar.
 6. Clique repetidamente em Carrinho: deve existir somente uma janela. Edite quantidade e confira o subtotal. Com carrinho vazio, finalizar fica desabilitado.

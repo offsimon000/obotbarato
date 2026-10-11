@@ -31,7 +31,7 @@ public final class InicializacaoTelas {
                 conferir(new TelaProdutos(painel)); imagem(conferir(new TelaClientes(painel)),"clientes.png");
                 imagem(conferir(new TelaEstoque(painel)),"estoque.png"); conferir(new TelaPedidos(admin, painel));
                 conferir(new TelaGestaoPedidos(painel));
-                conferir(new TelaRelatorios(painel)); conferir(new TelaPagamentos(painel)); imagem(conferir(new FormularioProduto(painel, null)),"formulario-produto.png");
+                conferir(new TelaRelatorios(painel)); conferir(new TelaDashboard(painel)); conferir(new TelaPagamentos(painel)); imagem(conferir(new FormularioProduto(painel, null)),"formulario-produto.png");
                 imagem(conferir(new TelaUsuarios(painel)),"usuarios.png"); imagem(conferir(new TelaCategorias(painel)),"categorias.png");
                 conferir(new TelaCupons(painel));
                 conferir(new TelaNotificacoes(painel));
@@ -54,10 +54,12 @@ public final class InicializacaoTelas {
 
     private static <T extends Window> T conferir(T tela) {
         if (tela.getWidth() <= 0 || tela.getHeight() <= 0) throw new AssertionError("Tela sem tamanho.");
+        if (!(tela instanceof TelaLoginUnificado) && !(tela instanceof TelaInicial) && !(tela instanceof TelaLoja) && !temVoltar(tela)) throw new AssertionError("Voltar ausente: "+tela.getClass().getSimpleName());
         tela.addNotify(); tela.validate(); quantidade++;
         System.out.println("OK tela: " + tela.getClass().getSimpleName());
         return tela;
     }
+    private static boolean temVoltar(Container c){for(Component f:c.getComponents()){if(f instanceof JButton && "nav-voltar".equals(f.getName()))return true;if(f instanceof Container && temVoltar((Container)f))return true;}return false;}
     private static void imagem(Window tela, String nome) throws Exception {
         Container painel = tela instanceof JFrame ? ((JFrame)tela).getContentPane() : ((JDialog)tela).getContentPane();
         BufferedImage img = new BufferedImage(painel.getWidth(), painel.getHeight(), BufferedImage.TYPE_INT_RGB);
