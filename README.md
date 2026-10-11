@@ -12,6 +12,8 @@ Perfil e cupons também concluídos: Meu perfil na loja; Cupons no painel admin;
 
 Avaliações e avisos internos: `docs/AVALIACOES_E_NOTIFICACOES.md` e `docs/validacao-avaliacoes-avisos.txt`. Cliente avalia produtos dos seus pedidos entregues; Notificações na loja e no painel, com leitura individual.
 
+Simulação de uso diário instalada: 20 clientes fictícios, 60 pedidos de loja/balcão em vários estados, cupons, avaliações, favoritos e avisos. Guia/contas: `docs/SIMULACAO_USO_DIARIO.md`; validação: `docs/validacao-simulacao-uso.txt` e `docs/validacao-uso-diario-local.txt`. A carga é manual e não se repete ao abrir o sistema.
+
 ## Pré-requisitos
 
 - JDK 17 ou posterior. Scripts usam JAVA_HOME/PATH ou detectam JDK instalado nas pastas padrão de Eclipse Adoptium, Java e Microsoft. Em instalação personalizada, configure JAVA_HOME.

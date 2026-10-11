@@ -1,0 +1,4 @@
+APROVADO: registros anteriores preservados, estoque conciliado por produto e carga repetida sem duplicação.
+SIMULAÇÃO: 60 pedidos, 48 válidos confirmados, 6 pendentes, 6 cancelados; 18 avaliações; 3 produtos críticos.
+Faturamento fictício total: R$ 14.231,08
+Dashboard no mês (inclui registros anteriores): R$ 4.677,71
