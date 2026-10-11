@@ -1,4 +1,4 @@
-# Estado atual — 10/10/2026
+# Estado atual — 11/10/2026
 
 Etapas 1 a 6 concluídas: partes 1 e 2, compra/pagamento simulado e gestão/cancelamento de pedidos. Desktop Java Swing/PostgreSQL e estilo visual preservados. A versão continua em desenvolvimento, com apresentação prevista para 28/10/2026.
 
@@ -15,7 +15,7 @@ Etapas 1 a 6 concluídas: partes 1 e 2, compra/pagamento simulado e gestão/canc
 
 A base local foi atualizada preservando dados, com backups anteriores às evoluções. A verificação de reinício/restauração inclui pedido, total, subtotal/desconto, pagamento, imagem, estoque, retirada entregue, cancelamento, devolução, histórico, perfil/senha, cupom/descontos, avaliação e leitura de avisos; resultado em validacao-base.txt. O serviço/banco PostgreSQL antigo é preservado.
 
-Perfil e cupons concluídos na etapa 7. Avaliações e notificações também concluídas. Dashboard e relatórios/CSV também concluídos; Voltar/X padronizados. Guia DASHBOARD_RELATORIOS_E_NAVEGACAO.md e evidência validacao-relatorios-navegacao.txt. Próximo bloco: revisão final integrada, documentação acadêmica/diagramas, roteiro e pacote da apresentação. Simulação de uso diário também instalada: 20 clientes, 60 pedidos, 18 avaliações e três produtos críticos. Nove cenários adicionais de carga/rollback/idempotência e conferência dos registros anteriores/saldo na base local. Guia SIMULACAO_USO_DIARIO.md. Os registros históricos do primeiro bloco são mantidos abaixo.
+Perfil e cupons concluídos na etapa 7. Avaliações e notificações também concluídas. Dashboard e relatórios/CSV também concluídos; Voltar/X padronizados. Guia DASHBOARD_RELATORIOS_E_NAVEGACAO.md e evidência validacao-relatorios-navegacao.txt. Próximo bloco: revisão final integrada, documentação acadêmica/diagramas, roteiro e pacote da apresentação. Simulação de uso diário também instalada: 20 clientes, 60 pedidos, 18 avaliações e três produtos críticos. Nove cenários adicionais de carga/rollback/idempotência e conferência dos registros anteriores/saldo na base local. Guia SIMULACAO_USO_DIARIO.md. Correção de 11/10: seleção de produtos do balcão visível, tabela sem sobreposição, CPF vazio sem null, moeda brasileira e comandos conforme estado; fluxo Swing de venda/falha/rollback validado em banco separado e aparência conferida na base local sem vender. Guia CORRECAO_TELA_BALCAO.md. Os registros históricos do primeiro bloco são mantidos abaixo.
 ---
 # Registro do primeiro bloco concluído — 30/09/2026
 

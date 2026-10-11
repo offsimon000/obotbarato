@@ -61,3 +61,5 @@ Faturamento por período usa **total final de pedidos não cancelados com pagame
 `scripts/verificar-base.ps1` verifica reinício e restauração, incluindo histórico da retirada, pedido cancelado e devolução única. Usa registros próprios identificados e remove somente essas fixtures. O serviço PostgreSQL original continua preservado.
 
 Perfil, cupons, avaliações e notificações estão concluídos na etapa 7. Dashboard, relatórios e CSV também implementados. Revisão integrada final, documentação acadêmica e pacote final continuam pendentes.
+
+Correção em 11/10/2026: formulário do balcão com seleção de produto/quantidade visível e tabela sem sobreposição, cliente sem CPF sem null, moeda brasileira e quantidade digitada aplicada. Fluxo Swing de seleção/conclusão/falha/rollback e redimensionamento: CORRECAO_TELA_BALCAO.md e validacao-venda-balcao.txt. A conferência visual na base local não criou novas vendas.

@@ -1,0 +1,1 @@
+APROVADO: catálogo/clientes da base local, seleção e inclusão de item visíveis sem sobreposição; vendas e estoque preservados.

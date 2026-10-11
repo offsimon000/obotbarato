@@ -14,6 +14,8 @@ Avaliações e avisos internos: `docs/AVALIACOES_E_NOTIFICACOES.md` e `docs/vali
 
 Simulação de uso diário instalada: 20 clientes fictícios, 60 pedidos de loja/balcão em vários estados, cupons, avaliações, favoritos e avisos. Guia/contas: `docs/SIMULACAO_USO_DIARIO.md`; validação: `docs/validacao-simulacao-uso.txt` e `docs/validacao-uso-diario-local.txt`. A carga é manual e não se repete ao abrir o sistema.
 
+Correção de 11/10 no balcão: seleção de produto e tabela sem sobreposição, CPF ausente sem null, moeda brasileira e quantidade digitada aplicada. Guia: `docs/CORRECAO_TELA_BALCAO.md`; teste dedicado: `scripts/testar-balcao.ps1`.
+
 ## Pré-requisitos
 
 - JDK 17 ou posterior. Scripts usam JAVA_HOME/PATH ou detectam JDK instalado nas pastas padrão de Eclipse Adoptium, Java e Microsoft. Em instalação personalizada, configure JAVA_HOME.
