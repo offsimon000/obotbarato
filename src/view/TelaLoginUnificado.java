@@ -215,7 +215,7 @@ public class TelaLoginUnificado extends JFrame {
             cardLayout.show(painelConteudo, TELA_LOGIN)), g);
 
         // Campos
-        String[] rotulos = {"Nome completo", "CPF", "Email", "Telefone", "Endereco"};
+        String[] rotulos = {"Nome completo (obrigatório)", "CPF (opcional)", "E-mail (obrigatório)", "Telefone (opcional)", "Endereço (opcional)"};
         JTextField[] campos = new JTextField[rotulos.length];
         for (int i = 0; i < rotulos.length; i++) {
             campos[i] = campo();
@@ -226,10 +226,12 @@ public class TelaLoginUnificado extends JFrame {
         util.MascaraCampo.aplicarCpf(campos[1]); util.MascaraCampo.aplicarTelefone(campos[3]);
         JPasswordField fSenha   = campoSenha();
         JPasswordField fConfirm = campoSenha();
+        fSenha.setToolTipText("Use de 8 a 128 caracteres.");
+        fConfirm.setToolTipText("Repita a senha informada acima.");
 
-        g.gridy = 11; g.insets = new Insets(0,0,4,0);  p.add(label("Senha"), g);
+        g.gridy = 11; g.insets = new Insets(0,0,4,0);  p.add(label("Senha (obrigatória — 8 a 128 caracteres)"), g);
         g.gridy = 12; g.insets = new Insets(0,0,10,0); p.add(fSenha, g);
-        g.gridy = 13; g.insets = new Insets(0,0,4,0);  p.add(label("Confirmar senha"), g);
+        g.gridy = 13; g.insets = new Insets(0,0,4,0);  p.add(label("Confirmar senha (obrigatório)"), g);
         g.gridy = 14; g.insets = new Insets(0,0,14,0); p.add(fConfirm, g);
 
         JLabel lblStatus = new JLabel(" ", SwingConstants.CENTER);
@@ -243,6 +245,9 @@ public class TelaLoginUnificado extends JFrame {
 
         g.gridy = 15; g.insets = new Insets(0,0,8,0);  p.add(btnCriar, g);
         g.gridy = 16; g.insets = new Insets(0,0,0,0);  p.add(lblStatus, g);
+        JLabel orientacao = label("<html>CPF, telefone e endereço são opcionais no cadastro.<br>Telefone e endereço serão necessários para a entrega.</html>");
+        orientacao.setFont(new Font("Segoe UI", Font.PLAIN, 11));
+        g.gridy = 17; g.insets = new Insets(10,0,0,0); p.add(orientacao, g);
 
         // CORRECAO: embrulha JScrollPane num JPanel (tipo de retorno e JPanel)
         JScrollPane scroll = new JScrollPane(p);

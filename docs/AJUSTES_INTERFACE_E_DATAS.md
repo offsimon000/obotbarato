@@ -30,3 +30,5 @@ Correções solicitadas após teste manual, mantendo o desktop e o tema branco/a
 Resultado em `validacao-interface.txt`. Capturas atuais em `validacao-ui/formulario-cliente.png`, `relatorios.png`, `loja.png`, `carrinho.png` e `meus-pedidos.png`.
 
 Sem alteração de migrations, esquema ou dados pessoais. Os testes usam base isolada e janelas não visíveis; não reiniciam o banco que estiver sendo usado pelo aplicativo do usuário. O roteiro completo de backup/reinício continua disponível em `Testar Partes 1 e 2.cmd`, que deve ser executado com o aplicativo fechado.
+
+Atualização em 11/10/2026 — Criar conta: nome, e-mail, senha e confirmação identificados como obrigatórios; CPF, telefone e endereço identificados como opcionais no cadastro. Senha informa 8 a 128 caracteres. Observação esclarece que telefone/endereço são necessários para entrega. Regras de validação e banco preservadas; 70 fontes compiladas e formulário completo renderizado/inspecionado em validacao-ui/cadastro-campos.png, sem criar contas.
