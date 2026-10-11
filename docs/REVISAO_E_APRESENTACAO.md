@@ -39,8 +39,12 @@ Contas: admin/admin123; vendedor/vendedor123; cliente@demo.local/cliente123. Os 
 - **Como as senhas são armazenadas?** PBKDF2 com salt; hashes antigos são migrados ao autenticar. Código temporário é entregue manualmente pelo admin.
 - **Como recuperar dados?** Backup PostgreSQL e restauração em banco novo. Configuração e senhas do banco não são publicadas.
 
-## Preparar o GitHub depois de revisar
+## Compartilhamento no GitHub
 
-O repositório correto é a pasta **OBotBarato**, não a pasta Extenção que contém as extrações antigas. README, fontes, SQL, driver, catálogo, .vscode, testes e documentos compõem a entrega. `.gitignore` protege configurações reais, clusters, backups e builds. O ZIP contém a distribuição compilada, mas não deve ser adicionado ao Git como parte do código.
+O projeto é público em https://github.com/offsimon000/obotbarato. Sua dupla pode acessar sem convite. Para usar o pacote compilado com os documentos, baixe o ZIP em Releases, seção Assets, e extraia a pasta inteira. Para desenvolver, use Code → Download ZIP ou clone. JDK 17+ e PostgreSQL são necessários; scripts/criar-atalho.ps1 cria o atalho nessa máquina. A demonstração é carregada manualmente; o banco local dos autores não é publicado.
 
-No terminal integrado, confira `git status` e `git diff --check`. Crie no GitHub um repositório vazio. Se não houver remote, execute `git remote add origin URL_DO_SEU_REPOSITORIO`; se já houver, confira `git remote -v` e use o correto. Depois da revisão, envie sua branch com `git push -u origin codex/finalizacao`. Se quiser chamar a branch principal de main, pode renomeá-la com `git branch -m main` antes do primeiro envio e fazer `git push -u origin main`. Não envie `.local`, `config/banco.properties`, backups ou a pasta extraidos. O envio ao GitHub fica sob sua revisão; nenhum push é executado na preparação desta entrega.
+## Enviar alterações futuras
+
+O repositório correto é a pasta **OBotBarato**, não a pasta Extenção que contém as extrações antigas. README, fontes, SQL, driver, catálogo, .vscode, testes e documentos compõem a entrega. `.gitignore` protege configurações reais, clusters, backups e builds. O ZIP contém a distribuição compilada e é distribuído como anexo da release, sem ser adicionado ao histórico do código.
+
+No terminal, confira `git status`, `git diff --check` e `git remote -v`. Nesta pasta, origin aponta para o repositório acima. Faça commit das alterações revisadas e envie a branch de trabalho com `git push`; para atualizar main a partir de outra branch, revise e faça merge da alteração. Nunca envie `.local`, `config/banco.properties`, backups ou a pasta extraidos. Atualize também o pacote da release quando a distribuição mudar.

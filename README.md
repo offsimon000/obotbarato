@@ -2,6 +2,14 @@
 
 Sistema acadêmico **desktop Java Swing com PostgreSQL** para perfumaria e cosméticos. Projeto de Sistemas de Informação da UNIPAR, Paranavaí, de Giovana Paula Felix dos Santos e Samuel da Silva Guimarães, sob orientação do Prof. Me. Jaime William Dias. Apresentação prevista para **28/10/2026**.
 
+## Baixar o projeto
+
+Repositório público: [offsimon000/obotbarato](https://github.com/offsimon000/obotbarato).
+
+Para usar a entrega, abra [Releases](https://github.com/offsimon000/obotbarato/releases/latest), baixe o ZIP do OBotBarato em **Assets** e extraia a pasta inteira. O pacote inclui o JAR compilado, código, documentos, catálogo e scripts. Instale JDK 17+ e PostgreSQL; depois crie o atalho com o comando da próxima seção. Em uma cópia nova, prepare o ambiente e carregue a demonstração conforme as instruções abaixo. O banco e os dados locais desta máquina não são enviados.
+
+Para editar o código, clone o repositório ou use **Code → Download ZIP**. Essa cópia de fontes é compilada pelos scripts quando necessário. A branch `main` contém a entrega publicada; `codex/finalizacao` conserva a linha de desenvolvimento desta versão.
+
 ## Abrir sem o VS Code
 
 Nesta máquina, dê dois cliques em **Executar OBotBarato**, na Área de Trabalho. Há também um atalho com esse nome na pasta do projeto. Ele prepara/reutiliza o banco, compila somente quando necessário e abre a janela do sistema sem carregar as extensões Java/Spring do editor. O PowerShell termina após iniciar o aplicativo; os dados existentes são conservados.
