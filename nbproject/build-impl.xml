@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="OBotBarato-impl" default="default" basedir="..">
+    <property file="nbproject/project.properties"/>
+
+    <target name="default" depends="run"/>
+
+    <target name="-pre-init"/>
+    <target name="-init" depends="-pre-init">
+        <available file="${src.dir}" property="src.exists"/>
+        <fail unless="src.exists" message="Pasta src não encontrada. Abra a raiz do projeto OBotBarato."/>
+    </target>
+
+    <target name="-do-compile" depends="-init">
+        <mkdir dir="${build.classes.dir}"/>
+        <javac srcdir="${src.dir}" destdir="${build.classes.dir}" source="${javac.source}" target="${javac.target}" encoding="${javac.encoding}" includeantruntime="false" fork="true">
+            <classpath><pathelement location="lib/postgresql-42.7.13.jar"/></classpath>
+        </javac>
+    </target>
+
+    <target name="compile" depends="-do-compile" description="Compila as fontes Java do OBotBarato."/>
+
+    <target name="preparar-banco" description="Prepara o PostgreSQL local seguro e instala o esquema inicial.">
+        <exec executable="powershell.exe" failonerror="true" resolveexecutable="true">
+            <arg value="-NoProfile"/><arg value="-ExecutionPolicy"/><arg value="Bypass"/>
+            <arg value="-File"/><arg value="scripts/preparar-netbeans.ps1"/>
+        </exec>
+    </target>
+
+    <target name="run" depends="compile,preparar-banco" description="Prepara o banco e inicia o aplicativo Swing.">
+        <java classname="${run.main.class}" fork="true" dir="${basedir}" failonerror="true">
+            <jvmarg value="-Dfile.encoding=UTF-8"/>
+            <classpath><pathelement location="${build.classes.dir}"/><pathelement location="lib/postgresql-42.7.13.jar"/></classpath>
+        </java>
+    </target>
+
+    <target name="jar" depends="compile" description="Cria o JAR executável do projeto NetBeans.">
+        <mkdir dir="${dist.dir}/lib"/>
+        <copy file="lib/postgresql-42.7.13.jar" todir="${dist.dir}/lib"/>
+        <jar destfile="${dist.jar}" basedir="${build.classes.dir}" manifest="${manifest.file}"/>
+    </target>
+
+    <target name="test-compile" depends="compile" description="Compila os cenários Java da pasta test.">
+        <mkdir dir="${build.test.classes.dir}"/>
+        <javac srcdir="${test.src.dir}" destdir="${build.test.classes.dir}" source="${javac.source}" target="${javac.target}" encoding="${javac.encoding}" includeantruntime="false" fork="true">
+            <classpath><pathelement location="${build.classes.dir}"/><pathelement location="lib/postgresql-42.7.13.jar"/></classpath>
+        </javac>
+    </target>
+
+    <target name="clean" description="Remove somente os artefatos criados pelo build do NetBeans.">
+        <delete dir="${build.dir}"/>
+        <delete dir="${dist.dir}"/>
+    </target>
+</project>

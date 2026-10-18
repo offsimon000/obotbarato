@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="OBotBarato" default="run" basedir=".">
+    <description>Projeto Java Swing OBotBarato para Apache NetBeans.</description>
+    <import file="nbproject/build-impl.xml"/>
+</project>

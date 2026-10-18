@@ -8,7 +8,7 @@ Repositório público: [offsimon000/obotbarato](https://github.com/offsimon000/o
 
 Para usar a entrega, abra [Releases](https://github.com/offsimon000/obotbarato/releases/latest), baixe o ZIP do OBotBarato em **Assets** e extraia a pasta inteira. O pacote inclui o JAR compilado, código, documentos, catálogo e scripts. Instale JDK 17+ e PostgreSQL; depois crie o atalho com o comando da próxima seção. Em uma cópia nova, prepare o ambiente e carregue a demonstração conforme as instruções abaixo. O banco e os dados locais desta máquina não são enviados.
 
-Para editar o código, clone o repositório ou use **Code → Download ZIP**. Essa cópia de fontes é compilada pelos scripts quando necessário. A branch `main` contém a entrega publicada; `codex/finalizacao` conserva a linha de desenvolvimento desta versão.
+Para editar o código, clone o repositório ou use **Code → Download ZIP**. O projeto pode ser aberto pelo `build.xml` no Apache NetBeans, pelo workspace do VS Code ou compilado pelos scripts. A branch `main` contém a entrega publicada; `codex/finalizacao` conserva a linha de desenvolvimento desta versão.
 
 ## Abrir sem o VS Code
 
@@ -44,7 +44,15 @@ Alternativa pelo terminal integrado, na pasta deste README:
 powershell -NoProfile -ExecutionPolicy Bypass -File scripts/executar.ps1
 ```
 
-Não há lançadores `.cmd` ou configuração NetBeans/Ant. Os scripts PowerShell são ferramentas de compilação, preparação e manutenção. O depurador executa `view.TelaLoginUnificado`. **Ctrl+Shift+B** compila; **Shift+F5** encerra. Para carregar uma alteração, encerre todas as janelas antigas e execute novamente.
+Os scripts PowerShell também servem para compilação, preparação e manutenção. O depurador do VS Code executa `view.TelaLoginUnificado`. **Ctrl+Shift+B** compila; **Shift+F5** encerra. Para carregar uma alteração, encerre todas as janelas antigas e execute novamente.
+
+## Executar pelo Apache NetBeans
+
+1. Instale o JDK 17 ou posterior e o Apache NetBeans com suporte a Java. Abra **File → Open Project** e selecione a pasta `OBotBarato` (a que contém `build.xml` e `nbproject/project.xml`).
+2. Selecione o JDK 17 nas plataformas Java, se solicitado, e clique em **Run Project** (F6).
+3. Na primeira execução, o NetBeans prepara o banco PostgreSQL local isolado, carrega os produtos e a simulação fictícia uma única vez, e abre a tela de login. A configuração está em `nbproject`, e o driver já está em `lib`.
+
+Guia completo: [Executar no NetBeans](docs/EXECUTAR_NETBEANS.md). Uma cópia do banco completo também está disponível na Release; instruções para restaurar uma cópia em banco novo estão em [database/README.md](database/README.md).
 
 ## Funcionalidades
 
@@ -79,9 +87,11 @@ O catálogo tem **30 produtos fictícios** com imagens, preços e descrições. 
 | scripts | Compilação, ambiente, testes, backup e empacotamento |
 | test | Testes com PostgreSQL real e fluxos Swing |
 | docs | Documentação, diagramas, guias e evidências |
-| .vscode | Tarefas e configuração portátil de depuração |
+| .vscode | Tarefas e configuração portátil de depuração no VS Code |
+| nbproject | Configuração do projeto Apache NetBeans com Ant |
+| database | Instruções e banco fictício de demonstração publicado na Release |
 
-Não há Maven/Gradle: `javac --release 17` compila e `dist/OBotBarato.jar` é gerado com driver relativo em `dist/lib`. O inicializador lê as migrations na pasta `sql` do projeto. Se uma sessão bloquear o JAR, o script publica um JAR com identificador e usa o mais recente ao reabrir.
+O build do NetBeans usa Ant e compila para `build/netbeans`; o script de distribuição usa `javac --release 17` e gera `dist/OBotBarato.jar` com driver relativo em `dist/lib`. As duas compilações não apagam os artefatos uma da outra. O inicializador lê as migrations na pasta `sql` do projeto. Se uma sessão bloquear o JAR, o script publica um JAR com identificador e usa o mais recente ao reabrir.
 
 ## Banco e configuração
 

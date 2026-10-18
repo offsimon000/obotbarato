@@ -3,6 +3,7 @@
 /.local/
 /config/banco.properties
 /entrega/
+/database/obotbarato-demo.dump
 ~$*.docx
 ~$*.pptx
 *.log

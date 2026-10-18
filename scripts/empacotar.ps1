@@ -17,20 +17,20 @@ function Add-ArquivoEntrega([string]$Origem,[string]$Destino) {
  $origemAbsolutaEntrega=[IO.Path]::GetFullPath($Origem)
  if (-not $origemAbsolutaEntrega.StartsWith($raizProjeto+[IO.Path]::DirectorySeparatorChar,[StringComparison]::OrdinalIgnoreCase)) {throw 'Origem fora do projeto.'}
  if ((Get-Item -LiteralPath $Origem).Attributes -band [IO.FileAttributes]::ReparsePoint) {throw 'Atalho nao aceito no pacote.'}
- if ($Destino -match '(^|/)(\.local|\.git|nbproject|node_modules|build)(/|$)' -or $Destino -match '\.cmd$|(^|/)banco\.properties$|~\$') {throw ('Arquivo local nao permitido: '+$Destino)}
+ if ($Destino -match '(^|/)(\.local|\.git|node_modules|build|private)(/|$)' -or $Destino -match '\.cmd$|(^|/)banco\.properties$|~\$') {throw ('Arquivo local nao permitido: '+$Destino)}
  $hashArquivoEntrega=(Get-FileHash -LiteralPath $Origem -Algorithm SHA256).Hash.ToLowerInvariant()
  $manifestoEntrega.Add($hashArquivoEntrega+'  '+$Destino)
  [IO.Compression.ZipFileExtensions]::CreateEntryFromFile($arquivoZipEntrega,$Origem,('OBotBarato/'+$Destino),[IO.Compression.CompressionLevel]::Optimal) | Out-Null
 }
 try {
- foreach ($diretorioEntrega in @('src','sql','lib','catalogo','scripts','test','docs','.vscode')) {
+ foreach ($diretorioEntrega in @('src','sql','lib','catalogo','scripts','test','docs','.vscode','nbproject','database')) {
   $pastaEntrega=Join-Path $raizProjeto $diretorioEntrega
   foreach ($arquivoEntrega in Get-ChildItem -LiteralPath $pastaEntrega -Recurse -File) {
-   if ($arquivoEntrega.Name -like '~$*' -or $arquivoEntrega.Extension -eq '.pyc' -or $arquivoEntrega.FullName -match '[\\/]__pycache__[\\/]') {continue}
+   if ($arquivoEntrega.Name -like '~$*' -or $arquivoEntrega.Extension -in @('.pyc','.dump') -or $arquivoEntrega.FullName -match '[\\/]__pycache__[\\/]') {continue}
    Add-ArquivoEntrega $arquivoEntrega.FullName $arquivoEntrega.FullName.Substring($raizProjeto.Length+1).Replace('\','/')
   }
  }
- foreach ($arquivoEntrega in @('README.md','.gitignore','.gitattributes','OBotBarato.code-workspace','config/banco.exemplo.properties')) {Add-ArquivoEntrega (Join-Path $raizProjeto $arquivoEntrega) $arquivoEntrega}
+ foreach ($arquivoEntrega in @('README.md','.gitignore','.gitattributes','build.xml','OBotBarato.code-workspace','config/banco.exemplo.properties')) {Add-ArquivoEntrega (Join-Path $raizProjeto $arquivoEntrega) $arquivoEntrega}
  Add-ArquivoEntrega (Get-PacoteProjeto) 'dist/OBotBarato.jar'
  Add-ArquivoEntrega (Join-Path $raizProjeto 'lib/postgresql-42.7.13.jar') 'dist/lib/postgresql-42.7.13.jar'
  $entradaManifestoEntrega=$arquivoZipEntrega.CreateEntry('OBotBarato/SHA256SUMS.txt')
