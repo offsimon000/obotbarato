@@ -34,3 +34,5 @@ ant compile
 ```
 
 O NetBeans grava classes em `build/netbeans/classes`; os scripts e o atalho desktop continuam usando as próprias pastas `build/classes` e `dist`.
+
+Os cenários automatizados ficam em `test` e são compilados/executados pelos scripts PowerShell documentados no README. Eles não são registrados como uma suíte de testes do NetBeans, evitando o aviso de caminho de testes modulares sem `module-info.java` no NetBeans 13.
