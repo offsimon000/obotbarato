@@ -5,8 +5,9 @@ $pastaAberturaDesktop=Join-Path $raizAberturaDesktop '.local'
 New-Item -ItemType Directory -Force -Path $pastaAberturaDesktop | Out-Null
 $logAberturaDesktop=Join-Path $pastaAberturaDesktop 'abertura-desktop.log'
 try {
-    # Reutiliza compilacao, configuracao e banco existentes; nao carrega o editor.
-    & (Join-Path $PSScriptRoot 'executar.ps1') -SomenteDiagnostico *>> $logAberturaDesktop
+    # Prepara o banco local e instala a demonstracao completa apenas na primeira abertura.
+    # Assim o atalho funciona tambem em uma copia nova baixada por outra pessoa.
+    & (Join-Path $PSScriptRoot 'preparar-netbeans.ps1') *>> $logAberturaDesktop
     if ($SomenteDiagnostico) { Write-Output 'OK: ambiente pronto para abrir pelo atalho.'; return }
     . (Join-Path $PSScriptRoot 'comum.ps1')
     $javaDesktop=Get-JavaExecutavel 'javaw'

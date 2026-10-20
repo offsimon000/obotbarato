@@ -6,13 +6,13 @@ Sistema acadêmico **desktop Java Swing com PostgreSQL** para perfumaria e cosm�
 
 Repositório público: [offsimon000/obotbarato](https://github.com/offsimon000/obotbarato).
 
-Para usar a entrega, abra [Releases](https://github.com/offsimon000/obotbarato/releases/latest), baixe o ZIP do OBotBarato em **Assets** e extraia a pasta inteira. O pacote inclui o JAR compilado, código, documentos, catálogo e scripts. Instale JDK 17+ e PostgreSQL; depois crie o atalho com o comando da próxima seção. Em uma cópia nova, prepare o ambiente e carregue a demonstração conforme as instruções abaixo. O banco e os dados locais desta máquina não são enviados.
+Para usar a entrega, abra [Releases](https://github.com/offsimon000/obotbarato/releases/latest), baixe o ZIP mais recente do OBotBarato em **Assets** e extraia a pasta inteira. O pacote inclui o JAR compilado, código, documentos, catálogo e scripts. Instale JDK 17+ e PostgreSQL; depois crie o atalho com o comando da próxima seção. Ao abrir pela primeira vez, o atalho configura o banco local e carrega a demonstração fictícia completa. O banco de cada computador é próprio; não é necessário conectar ao banco do autor do projeto.
 
 Para editar o código, clone o repositório ou use **Code → Download ZIP**. O projeto pode ser aberto pelo `build.xml` no Apache NetBeans, pelo workspace do VS Code ou compilado pelos scripts. A branch `main` contém a entrega publicada; `codex/finalizacao` conserva a linha de desenvolvimento desta versão.
 
 ## Abrir sem o VS Code
 
-Nesta máquina, dê dois cliques em **Executar OBotBarato**, na Área de Trabalho. Há também um atalho com esse nome na pasta do projeto. Ele prepara/reutiliza o banco, compila somente quando necessário e abre a janela do sistema sem carregar as extensões Java/Spring do editor. O PowerShell termina após iniciar o aplicativo; os dados existentes são conservados.
+Nesta máquina, dê dois cliques em **Executar OBotBarato**, na Área de Trabalho. Há também um atalho com esse nome na pasta do projeto. Ele prepara/reutiliza o banco, instala a demonstração fictícia completa uma única vez, compila somente quando necessário e abre a janela do sistema sem carregar as extensões Java/Spring do editor. O PowerShell termina após iniciar o aplicativo; os dados existentes são conservados.
 
 Em outra máquina ou depois de mover a pasta, crie os atalhos novamente, na raiz do projeto:
 
@@ -20,7 +20,7 @@ Em outra máquina ou depois de mover a pasta, crie os atalhos novamente, na raiz
 powershell -NoProfile -ExecutionPolicy Bypass -File scripts/criar-atalho.ps1
 ```
 
-Atalhos `.lnk` contêm caminhos locais e são ignorados pelo Git. O pacote inclui os scripts para gerá-los, sem lançadores `.cmd`. JDK e PostgreSQL continuam necessários. Problemas de abertura são mostrados em uma janela e registrados em `.local/abertura-desktop.log`.
+Atalhos `.lnk` contêm caminhos locais e são ignorados pelo Git; cada pessoa cria o seu no computador em que extraiu a pasta. O pacote inclui os scripts para gerá-los, sem lançadores `.cmd`. JDK e PostgreSQL continuam necessários. Problemas de abertura são mostrados em uma janela e registrados em `.local/abertura-desktop.log`. Instruções para a dupla: [Primeira execução e banco local](docs/PRIMEIRA_EXECUCAO_DUPLA.md).
 
 ## Executar pelo VS Code
 
