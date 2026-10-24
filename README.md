@@ -48,9 +48,11 @@ Os scripts PowerShell também servem para compilação, preparação e manutenç
 
 ## Executar pelo Apache NetBeans
 
-1. Instale o JDK 17 ou posterior e o Apache NetBeans com suporte a Java. Abra **File → Open Project** e selecione a pasta `OBotBarato` (a que contém `build.xml` e `nbproject/project.xml`).
-2. Selecione o JDK 17 nas plataformas Java, se solicitado, e clique em **Run Project** (F6).
-3. Na primeira execução, o NetBeans prepara o banco PostgreSQL local isolado, carrega os produtos e a simulação fictícia uma única vez, e abre a tela de login. A configuração está em `nbproject`, e o driver já está em `lib`.
+1. Abra no NetBeans a pasta `OBotBarato` (a que contém `build.xml` e `nbproject/project.xml`). O projeto está no nível Java 17 e pode ser compilado/executado pelo JDK 18 da faculdade.
+2. Clique em **Run Project** (F6); a classe principal e o driver já estão configurados.
+3. Na primeira execução, o NetBeans precisa das ferramentas de linha de comando do PostgreSQL para preparar o banco local isolado, carregar os produtos e a simulação fictícia uma única vez, e abrir a tela de login. A configuração está em `nbproject` e o driver está em `lib`.
+
+Observação: o NetBeans 13 declara suporte para executar o próprio IDE no JDK 11 e 17. Se ele apresentar incompatibilidade ao iniciar com JDK 18, use JDK 17 como runtime do IDE; o projeto pode continuar usando JDK 18 como plataforma de compilação, mantendo o nível Java 17. Veja o [guia de execução no NetBeans](docs/EXECUTAR_NETBEANS.md).
 
 Guia completo: [Executar no NetBeans](docs/EXECUTAR_NETBEANS.md). Uma cópia do banco completo também está disponível na Release; instruções para restaurar uma cópia em banco novo estão em [database/README.md](database/README.md).
 
