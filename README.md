@@ -74,6 +74,7 @@ O catálogo tem **30 produtos fictícios** com imagens, preços e descrições. 
 - [Documentação acadêmica em Word](docs/final/Documentacao_OBotBarato.docx) e [PDF](docs/final/Documentacao_OBotBarato.pdf).
 - [Matriz entre funcionalidades, código, banco e testes](docs/MATRIZ_RASTREABILIDADE.md).
 - [Revisão, ensaio e envio ao GitHub](docs/REVISAO_E_APRESENTACAO.md).
+- [Roteiro falado de 5 minutos, explicação dos fluxos e perguntas prováveis](docs/ROTEIRO_APRESENTACAO_5_MIN.md).
 - Diagramas editáveis e figuras em `docs/diagramas`; [slides editáveis](docs/final/Apresentacao_OBotBarato.pptx) e [slides em PDF](docs/final/Apresentacao_OBotBarato.pdf).
 - Guias por módulo e evidências em `docs`; testes em `test`.
 

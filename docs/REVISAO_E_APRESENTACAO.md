@@ -7,22 +7,21 @@ Entrega desktop para 28/10/2026. Revise a identificação dos autores, o texto a
 1. Dê dois cliques em **Executar OBotBarato** na Área de Trabalho. Para editar/depurar, a alternativa é abrir OBotBarato.code-workspace no VS Code e usar F5. Feche todas as janelas da versão anterior antes de atualizar.
 2. Leia docs/final/Documentacao_OBotBarato.pdf; o Word correspondente permite editar. Confira instituição, autores, orientação e eventuais exigências de formatação do professor.
 3. Confira MATRIZ_RASTREABILIDADE.md e DICIONARIO_BANCO.md para localizar a implementação de cada requisito. Diagramas PNG e fontes PlantUML estão em diagramas.
-4. Ensaie com os slides de docs/final e o roteiro abaixo. Há PPTX editável e PDF para apresentar sem PowerPoint. Faça backup antes de mudar dados para a demonstração.
+4. Ensaie com os slides de docs/final e o roteiro de 5 minutos. Há PPTX editável e PDF para apresentar sem PowerPoint. Faça backup antes de mudar dados para a demonstração.
 5. Abra uma cópia extraída do ZIP em entrega se quiser conferir a reprodução do projeto. Essa cópia cria seu próprio banco e exige JDK/PostgreSQL instalados. Execute a tarefa carregar demonstração apenas em uma cópia nova.
 
-## Roteiro de demonstração de 10 a 15 minutos
+## Roteiro de demonstração de 5 minutos
 
 | Tempo | Ação | O que explicar |
 |---|---|---|
-| 1 min | Introdução e login | Problema de integrar catálogo, vendas e estoque; três perfis; aplicação desktop |
-| 2 min | Cliente: loja e busca `oleo`, `agua micelar`, `argan oleo` | Busca flexível; filtros; detalhes/imagens; produtos fictícios |
-| 2 min | Favoritar, adicionar um item com saldo, revisar carrinho/entrega | Quantidade e preço revalidados; dados de entrega obrigatórios |
-| 2 min | Cupom APRESENTA10 e PIX; confirmar uma vez | Cupom aplicado primeiro; PIX 10% no restante; pagamento simulado. Exemplo: R$100 → R$90 → R$81 |
-| 1 min | Meus Pedidos e detalhes | Pedido novo aberto, pagamento confirmado e dados da compra preservados |
-| 2 min | Sair; vendedor: Pedidos, avançar pedido até entregue | Uma etapa por vez; pagamento separado de entrega; histórico de responsável |
-| 1 min | Cliente: avaliar produto daquele pedido e consultar avisos | Apenas compra própria entregue/paga; leitura individual |
-| 2 min | Admin: dashboard/relatórios e CSV; estoque | Faturamento líquido confirmado não cancelado; ranking bruto; estoque crítico atual |
-| 1 min | Nova venda no balcão: selecionar cliente/produto/quantidade | Retirada imediata, entregue e dinheiro confirmado simulado; baixa de estoque |
+| 1 min 15 s | Dupla: contexto, objetivo, perfis e tecnologia | Centralizar catálogo, clientes, estoque, pedidos e vendas em um sistema desktop; pagamentos e entregas são simulações |
+| 55 s | Cliente: loja, busca `oleo` e detalhes do produto | Catálogo fictício, busca flexível e filtros |
+| 45 s | Carrinho e checkout | Revisão de quantidades/entrega e pagamento simulado |
+| 50 s | Pedido e estoque | Registro transacional; estados do pagamento e da entrega são separados; falhas desfazem a operação |
+| 40 s | Equipe e venda de balcão | Avanço do pedido por etapas; retirada imediata na venda de balcão |
+| 35 s | Dashboard e fechamento | Indicadores/relatórios; limites do protótipo e conclusão |
+
+O texto para cada pessoa, as ações de tela e respostas curtas a perguntas estão em [Roteiro de apresentação — 5 minutos](ROTEIRO_APRESENTACAO_5_MIN.md). Ensaiem com cronômetro e omitam a troca de perfil se ela consumir tempo.
 
 Se faltar tempo, use um pedido já entregue da simulação para mostrar avaliação, e um aberto para cancelamento. Não cancele o pedido que pretende entregar/avaliar. Anote o número da nova compra: os IDs não são necessariamente sequenciais sem lacunas. Se o cupom tiver sido alterado/expirado no ensaio, confira sua validade no painel antes de demonstrar.
 
